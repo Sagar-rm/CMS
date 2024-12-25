@@ -22,7 +22,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 bg-gradient-to-r from-purple-100 to-pink-100">
+    <section id="how-it-works" className="py-20 bg-blue-50">
       <div className="container mx-auto px-6">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
@@ -43,7 +43,7 @@ export default function HowItWorks() {
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
-                className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4"
+                className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4"
               >
                 {index + 1}
               </motion.div>

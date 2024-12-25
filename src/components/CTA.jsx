@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 export default function CTA() {
   return (
-    <section className="py-20 bg-gradient-to-r from-purple-600 to-indigo-600">
+    <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
       <div className="container mx-auto px-6 text-center">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
@@ -17,7 +17,7 @@ export default function CTA() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-xl text-purple-100 mb-12"
+          className="text-xl text-blue-100 mb-12"
         >
           Join thousands of institutions already benefiting from EduPro CMS.
         </motion.p>
@@ -31,7 +31,7 @@ export default function CTA() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             href="#"
-            className="bg-white text-purple-600 py-3 px-8 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300"
+            className="bg-white text-blue-600 py-3 px-8 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300"
           >
             Start Your Free Trial
           </motion.a>
@@ -39,7 +39,7 @@ export default function CTA() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             href="#"
-            className="bg-purple-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-400 transition duration-300"
+            className="bg-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-blue-400 transition duration-300"
           >
             Schedule a Demo
           </motion.a>
