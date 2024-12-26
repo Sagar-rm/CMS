@@ -27,7 +27,7 @@ const stats = [
     suffix: "%",
     icon: "⭐",
     color: "from-amber-500 to-orange-500"
-  }
+  },
 ]
 
 export default function Stats() {
@@ -51,6 +51,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold text-center text-white mb-12"
         >
           EduPro CMS by the Numbers
@@ -62,6 +63,7 @@ export default function Stats() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 1 }}
               whileHover={{ scale: 1.05 }}
               className="relative group"
             >
@@ -100,4 +102,3 @@ export default function Stats() {
     </section>
   )
 }
-
