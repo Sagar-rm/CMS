@@ -120,17 +120,7 @@ function Login() {
           >
             Sign in to your account
           </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mt-2 text-center text-sm text-gray-600"
-          >
-            Or{' '}
-            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200">
-              create a new account
-            </Link>
-          </motion.p>
+          
         </div>
 
         <Tab.Group>

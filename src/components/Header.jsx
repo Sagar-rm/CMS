@@ -42,6 +42,7 @@ export default function Header() {
             <NavLink href="#team">Team</NavLink>
             <NavLink href="#blog">Blog</NavLink>
             <NavLink href="#faq">FAQ</NavLink>
+            <NavLink href="/login">Login</NavLink>
           </div>
           <div className="md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="text-blue-600">
@@ -68,6 +69,8 @@ export default function Header() {
             <NavLink href="#team" mobile>Team</NavLink>
             <NavLink href="#blog" mobile>Blog</NavLink>
             <NavLink href="#faq" mobile>FAQ</NavLink>
+            <NavLink href="/login" mobile>Login</NavLink>
+
           </motion.div>
         )}
       </nav>
