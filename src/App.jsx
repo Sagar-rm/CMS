@@ -14,6 +14,8 @@ import CTA from './components/CTA'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Login from './pages/login'
+import Admin from './pages/AdminDashboard'
+
 
 
 const pageVariants = {
@@ -123,6 +125,7 @@ export default function App() {
               } 
             />
                       <Route path="/login" element={<Login />} />
+                      <Route path="/admin" element={<Admin/>}/>
           </Routes>
         </AnimatePresence>
         <Footer />
