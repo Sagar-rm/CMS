@@ -15,6 +15,7 @@ import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Login from './pages/login'
 
+
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
   in: { opacity: 1, y: 0 },
