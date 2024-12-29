@@ -41,6 +41,8 @@ function HomePage() {
       <Blog />
       <FAQ />
       <CTA />
+      <Footer />
+
     </>
   );
 }
@@ -126,11 +128,13 @@ function AppContent() {
               </motion.main>
             }
           />
+
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
+            
         </Routes>
+
       </AnimatePresence>
-      <Footer />
     </div>
   );
 }
