@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, BookOpen, UserPlus, Clipboard, Calendar, Menu, X, Home, BarChart, PieChart, TrendingUp, AlertCircle, Bell, Settings } from 'lucide-react'
 import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronUp } from 'react-icons/fi';
+
 
 // Importing shadcn/ui components
 import { Button } from "@/components/ui/button"
