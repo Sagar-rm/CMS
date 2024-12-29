@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": "/src",
+      '@': '/src',
       process: 'process/browser'  // Ensure that process is resolved correctly
     }
   }

@@ -14,7 +14,9 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminDashboard1 from './components/admin/AdminDashboard copy';
+
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -131,6 +133,8 @@ function AppContent() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin1" element={<AdminDashboard1 />} />
+
             
         </Routes>
 
