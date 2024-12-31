@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, BookOpen, UserPlus, Clipboard, Calendar, Menu, X, Home, BarChart, PieChart, TrendingUp, AlertCircle, Bell, Settings } from 'lucide-react'
-import { FiChevronDown } from 'react-icons/fi';
-import { FiChevronUp } from 'react-icons/fi';
-
+import { Users, BookOpen, UserPlus, Clipboard, Calendar, Menu, X, Home, BarChart, PieChart, TrendingUp, AlertCircle, Bell, Settings, ChevronDown, ChevronUp, Search, ChevronsUpDown, Check, User2 } from 'lucide-react'
 
 // Importing shadcn/ui components
 import { Button } from "@/components/ui/button"
@@ -23,11 +20,17 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import  Progress  from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import  Separator  from "@/components/ui/separator"
+import  Switch  from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [notifications, setNotifications] = useState(3)
+  const [theme, setTheme] = useState('light')
 
   const sidebarItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -41,6 +44,7 @@ const EnhancedAdminDashboard = () => {
   ]
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,8 +61,12 @@ const EnhancedAdminDashboard = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    document.body.className = theme
+  }, [theme])
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className={`flex h-screen bg-background text-foreground transition-colors duration-300 ${theme}`}>
       {/* Sidebar */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -67,7 +75,7 @@ const EnhancedAdminDashboard = () => {
             animate={{ x: 0 }}
             exit={{ x: -250 }}
             transition={{ duration: 0.3 }}
-            className="w-64 bg-[#2e968b] text-white p-6 fixed h-full z-20"
+            className="w-64 bg-primary text-primary-foreground p-6 fixed h-full z-20"
           >
             <div className="flex justify-between items-center mb-10">
               <motion.h1 
@@ -82,7 +90,7 @@ const EnhancedAdminDashboard = () => {
                 variant="ghost" 
                 size="icon"
                 onClick={toggleSidebar}
-                className="lg:hidden text-white hover:text-gray-200"
+                className="lg:hidden text-primary-foreground hover:text-primary-foreground/80"
               >
                 <X className="h-6 w-6" />
               </Button>
@@ -98,7 +106,7 @@ const EnhancedAdminDashboard = () => {
                   <Button
                     variant="ghost"
                     className={`w-full justify-start mb-2 ${
-                      activeSection === item.id ? 'bg-[#704cd1] text-white' : 'text-white hover:bg-[#704cd1]/50'
+                      activeSection === item.id ? 'bg-secondary text-secondary-foreground' : 'text-primary-foreground hover:bg-primary-foreground/10'
                     }`}
                     onClick={() => setActiveSection(item.id)}
                   >
@@ -114,7 +122,7 @@ const EnhancedAdminDashboard = () => {
 
       {/* Main Content */}
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : ''}`}>
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
+        <header className="bg-background shadow-sm p-4 flex justify-between items-center">
           <div className="flex items-center">
             <Button 
               variant="ghost" 
@@ -124,11 +132,23 @@ const EnhancedAdminDashboard = () => {
             >
               <Menu className="h-6 w-6" />
             </Button>
-            <h2 className="text-xl font-semibold text-[#704cd1]">
+            <h2 className="text-xl font-semibold text-primary">
               {sidebarItems.find(item => item.id === activeSection)?.label}
             </h2>
           </div>
           <div className="flex items-center space-x-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={toggleTheme}>
+                    {theme === 'light' ? '🌙' : '☀️'}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Toggle theme</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               {notifications > 0 && (
@@ -137,14 +157,34 @@ const EnhancedAdminDashboard = () => {
                 </Badge>
               )}
             </Button>
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/avatars/01.png" alt="@shadcn" />
+                    <AvatarFallback>SC</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuItem>
+                  <User2 className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           <AnimatedSection isVisible={activeSection === 'dashboard'}>
             <Dashboard />
           </AnimatedSection>
@@ -234,10 +274,16 @@ const Dashboard = () => (
             { icon: Clipboard, text: "Subject 'Advanced Algorithms' added to curriculum" },
             { icon: Calendar, text: "Mid-term exams scheduled for next month" },
           ].map((activity, index) => (
-            <div key={index} className="flex items-center">
-              <activity.icon className="h-5 w-5 mr-2 text-[#704cd1]" />
+            <motion.div 
+              key={index} 
+              className="flex items-center"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <activity.icon className="h-5 w-5 mr-2 text-primary" />
               <span>{activity.text}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </CardContent>
@@ -273,10 +319,10 @@ const StudentDetails = () => {
                   animate={{ rotate: 180 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <FiChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4" />
                 </motion.div>
               ) : (
-                <FiChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4" />
               )}
             </Button>
           </CardHeader>
@@ -292,7 +338,7 @@ const StudentDetails = () => {
                   <div className="space-y-4">
                     {yearData.courses.map((course, courseIndex) => (
                       <div key={courseIndex}>
-                        <h4 className="font-semibold text-sm text-[#704cd1] mb-2">{course}</h4>
+                        <h4 className="font-semibold text-sm text-primary mb-2">{course}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Input placeholder="Search students..." />
                           <Select>
@@ -300,7 +346,7 @@ const StudentDetails = () => {
                             <option value="1">Semester 1</option>
                             <option value="2">Semester 2</option>
                           </Select>
-                          <Button className="bg-[#2e968b] hover:bg-[#2e968b]/90">
+                          <Button className="bg-secondary hover:bg-secondary/90">
                             View Students
                           </Button>
                         </div>
@@ -317,529 +363,680 @@ const StudentDetails = () => {
   )
 }
 
-const ManageTeachers = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Add New Teacher</CardTitle>
-        <CardDescription>Enter the details of the new teacher.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Enter full name" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="Enter email address" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" placeholder="Enter phone number" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Select id="subject">
-                <option value="">Select a subject</option>
-                <option value="math">Mathematics</option>
-                <option value="science">Science</option>
-                <option value="english">English</option>
-              </Select>
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#704cd1] hover:bg-[#704cd1]/90">Add Teacher</Button>
-      </CardFooter>
-    </Card>
+const ManageTeachers = () => {
+  const [teachers, setTeachers] = useState([
+    { id: 1, name: 'John Doe', email: 'john@example.com', subject: 'Mathematics' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', subject: 'Physics' },
+    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', subject: 'Chemistry' },
+  ])
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Teacher List</CardTitle>
-        <CardDescription>View and manage existing teachers.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Input placeholder="Search teachers..." />
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Name</th>
-                <th className="text-left">Subject</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['John Doe', 'Jane Smith', 'Bob Johnson'].map((name, index) => (
-                <tr key={index}>
-                  <td>{name}</td>
-                  <td>Mathematics</td>
-                  <td>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500">Delete</Button>
-                  </td>
+  const [newTeacher, setNewTeacher] = useState({ name: '', email: '', subject: '' })
+
+  const handleInputChange = (e) => {
+    setNewTeacher({ ...newTeacher, [e.target.name]: e.target.value })
+  }
+
+  const handleAddTeacher = () => {
+    if (newTeacher.name && newTeacher.email && newTeacher.subject) {
+      setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
+      setNewTeacher({ name: '', email: '', subject: '' })
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Teacher</CardTitle>
+          <CardDescription>Enter the details of the new teacher.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" name="name" value={newTeacher.name} onChange={handleInputChange} placeholder="Enter full name" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" value={newTeacher.email} onChange={handleInputChange} placeholder="Enter email address" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Select id="subject" name="subject" value={newTeacher.subject} onChange={handleInputChange}>
+                  <option value="">Select a subject</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                </Select>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleAddTeacher}>Add Teacher</Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Teacher List</CardTitle>
+          <CardDescription>View and manage existing teachers.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Search teachers..." />
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Email</th>
+                  <th className="text-left">Subject</th>
+                  <th className="text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-)
-
-const ManageBatches = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Create New Batch</CardTitle>
-        <CardDescription>Set up a new batch for students.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="batchName">Batch Name</Label>
-              <Input id="batchName" placeholder="Enter batch name" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
-              <Select id="year">
-                <option value="">Select year</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="course">Course</Label>
-              <Select id="course">
-                <option value="">Select course</option>
-                <option value="cs">Computer Science</option>
-                <option value="ee">Electrical Engineering</option>
-                <option value="me">Mechanical Engineering</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input id="startDate" type="date" />
-            </div>
+              </thead>
+              <tbody>
+                {teachers.map((teacher) => (
+                  <motion.tr 
+                    key={teacher.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <td>{teacher.name}</td>
+                    <td>{teacher.email}</td>
+                    <td>{teacher.subject}</td>
+                    <td>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#2e968b] hover:bg-[#2e968b]/90">Create Batch</Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Existing Batches</CardTitle>
-        <CardDescription>View and manage current batches.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Input placeholder="Search batches..." />
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Batch Name</th>
-                <th className="text-left">Course</th>
-                <th className="text-left">Year</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['CS2023', 'EE2022', 'ME2021'].map((batch, index) => (
-                <tr key={index}>
-                  <td>{batch}</td>
-                  <td>{['Computer Science', 'Electrical Engineering', 'Mechanical Engineering'][index]}</td>
-                  <td>{['1st', '2nd', '3rd'][index]} Year</td>
-                  <td>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500">Delete</Button>
-                  </td>
+const ManageBatches = () => {
+  const [batches, setBatches] = useState([
+    { id: 1, name: 'CS2023', course: 'Computer Science', year: '1st Year', startDate: '2023-09-01' },
+    { id: 2, name: 'EE2022', course: 'Electrical Engineering', year: '2nd Year', startDate: '2022-09-01' },
+    { id: 3, name: 'ME2021', course: 'Mechanical Engineering', year: '3rd Year', startDate: '2021-09-01' },
+  ])
+
+  const [newBatch, setNewBatch] = useState({ name: '', course: '', year: '', startDate: '' })
+
+  const handleInputChange = (e) => {
+    setNewBatch({ ...newBatch, [e.target.name]: e.target.value })
+  }
+
+  const handleAddBatch = () => {
+    if (newBatch.name && newBatch.course && newBatch.year && newBatch.startDate) {
+      setBatches([...batches, { ...newBatch, id: batches.length + 1 }])
+      setNewBatch({ name: '', course: '', year: '', startDate: '' })
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Batch</CardTitle>
+          <CardDescription>Set up a new batch for students.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="batchName">Batch Name</Label>
+                <Input id="batchName" name="name" value={newBatch.name} onChange={handleInputChange} placeholder="Enter batch name" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="course">Course</Label>
+                <Select id="course" name="course" value={newBatch.course} onChange={handleInputChange}>
+                  <option value="">Select course</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
+                <Select id="year" name="year" value={newBatch.year} onChange={handleInputChange}>
+                  <option value="">Select year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input id="startDate" name="startDate" type="date" value={newBatch.startDate} onChange={handleInputChange} />
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={handleAddBatch}>Create Batch</Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Existing Batches</CardTitle>
+          <CardDescription>View and manage current batches.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Search batches..." />
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Batch Name</th>
+                  <th className="text-left">Course</th>
+                  <th className="text-left">Year</th>
+                  <th className="text-left">Start Date</th>
+                  <th className="text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-)
-
-const ManageSubjects = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Add New Subject</CardTitle>
-        <CardDescription>Create a new subject for the curriculum.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subjectName">Subject Name</Label>
-              <Input id="subjectName" placeholder="Enter subject name" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subjectCode">Subject Code</Label>
-              <Input id="subjectCode" placeholder="Enter subject code" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
-              <Select id="year">
-                <option value="">Select year</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="semester">Semester</Label>
-              <Select id="semester">
-                <option value="">Select semester</option>
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-              </Select>
-            </div>
+              </thead>
+              <tbody>
+                {batches.map((batch) => (
+                  <motion.tr 
+                    key={batch.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <td>{batch.name}</td>
+                    <td>{batch.course}</td>
+                    <td>{batch.year}</td>
+                    <td>{batch.startDate}</td>
+                    <td>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <textarea
-              id="description"
-              className="w-full p-2 border rounded-md"
-              rows={3}
-              placeholder="Enter subject description"
-            ></textarea>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#d7205d] hover:bg-[#d7205d]/90">Add Subject</Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Subject List</CardTitle>
-        <CardDescription>View and manage existing subjects.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Input placeholder="Search subjects..." />
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Subject Name</th>
-                <th className="text-left">Code</th>
-                <th className="text-left">Year</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['Introduction to Programming', 'Digital Logic', 'Calculus'].map((subject, index) => (
-                <tr key={index}>
-                  <td>{subject}</td>
-                  <td>{['CS101', 'EE102', 'MA103'][index]}</td>
-                  <td>{['1st', '1st', '2nd'][index]} Year</td>
-                  <td>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500">Delete</Button>
-                  </td>
+const ManageSubjects = () => {
+  const [subjects, setSubjects] = useState([
+    { id: 1, name: 'Introduction to Programming', code: 'CS101', year: '1st Year', semester: 'Semester 1' },
+    { id: 2, name: 'Digital Logic', code: 'EE102', year: '1st Year', semester: 'Semester 2' },
+    { id: 3, name: 'Calculus', code: 'MA103', year: '2nd Year', semester: 'Semester 1' },
+  ])
+
+  const [newSubject, setNewSubject] = useState({ name: '', code: '', year: '', semester: '', description: '' })
+
+  const handleInputChange = (e) => {
+    setNewSubject({ ...newSubject, [e.target.name]: e.target.value })
+  }
+
+  const handleAddSubject = () => {
+    if (newSubject.name && newSubject.code && newSubject.year && newSubject.semester) {
+      setSubjects([...subjects, { ...newSubject, id: subjects.length + 1 }])
+      setNewSubject({ name: '', code: '', year: '', semester: '', description: '' })
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Subject</CardTitle>
+          <CardDescription>Create a new subject for the curriculum.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="subjectName">Subject Name</Label>
+                <Input id="subjectName" name="name" value={newSubject.name} onChange={handleInputChange} placeholder="Enter subject name" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subjectCode">Subject Code</Label>
+                <Input id="subjectCode" name="code" value={newSubject.code} onChange={handleInputChange} placeholder="Enter subject code" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
+                <Select id="year" name="year" value={newSubject.year} onChange={handleInputChange}>
+                  <option value="">Select year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="semester">Semester</Label>
+                <Select id="semester" name="semester" value={newSubject.semester} onChange={handleInputChange}>
+                  <option value="">Select semester</option>
+                  <option value="Semester 1">Semester 1</option>
+                  <option value="Semester 2">Semester 2</option>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <textarea
+                id="description"
+                name="description"
+                value={newSubject.description}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded-md"
+                rows={3}
+                placeholder="Enter subject description"
+              ></textarea>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleAddSubject}>Add Subject</Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Subject List</CardTitle>
+          <CardDescription>View and manage existing subjects.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Search subjects..." />
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Subject Name</th>
+                  <th className="text-left">Code</th>
+                  <th className="text-left">Year</th>
+                  <th className="text-left">Semester</th>
+                  <th className="text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-)
-
-const ScheduleExams = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Schedule Exam or Assessment</CardTitle>
-        <CardDescription>Plan upcoming exams or assessments for students.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="examName">Exam/Assessment Name</Label>
-              <Input id="examName" placeholder="Enter exam name" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="examType">Type</Label>
-              <Select id="examType">
-                <option value="">Select type</option>
-                <option value="midterm">Midterm Exam</option>
-                <option value="final">Final Exam</option>
-                <option value="quiz">Quiz</option>
-                <option value="assignment">Assignment</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Select id="subject">
-                <option value="">Select subject</option>
-                <option value="cs101">CS101 - Introduction to Programming</option>
-                <option value="ee102">EE102 - Digital Logic</option>
-                <option value="ma103">MA103 - Calculus</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="batch">Batch</Label>
-              <Select id="batch">
-                <option value="">Select batch</option>
-                <option value="2023A">2023 Batch A</option>
-                <option value="2023B">2023 Batch B</option>
-                <option value="2022A">2022 Batch A</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="examDate">Date</Label>
-              <Input id="examDate" type="date" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="examTime">Time</Label>
-              <Input id="examTime" type="time" />
-            </div>
+              </thead>
+              <tbody>
+                {subjects.map((subject) => (
+                  <motion.tr 
+                    key={subject.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <td>{subject.name}</td>
+                    <td>{subject.code}</td>
+                    <td>{subject.year}</td>
+                    <td>{subject.semester}</td>
+                    <td>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">Delete</Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="examInstructions">Instructions</Label>
-            <textarea
-              id="examInstructions"
-              className="w-full p-2 border rounded-md"
-              rows={3}
-              placeholder="Enter exam instructions"
-            ></textarea>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#704cd1] hover:bg-[#704cd1]/90">Schedule Exam</Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Upcoming Exams</CardTitle>
-        <CardDescription>View and manage scheduled exams.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Input placeholder="Search exams..." />
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Exam Name</th>
-                <th className="text-left">Subject</th>
-                <th className="text-left">Date</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['Midterm Exam', 'Quiz 1', 'Final Exam'].map((exam, index) => (
-                <tr key={index}>
-                  <td>{exam}</td>
-                  <td>{['Introduction to Programming', 'Digital Logic', 'Calculus'][index]}</td>
-                  <td>{['2023-05-15', '2023-05-20', '2023-06-10'][index]}</td>
-                  <td>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500">Cancel</Button>
-                  </td>
+const ScheduleExams = () => {
+  const [exams, setExams] = useState([
+    { id: 1, name: 'Midterm Exam', type: 'Midterm', subject: 'Introduction to Programming', batch: '2023 Batch A', date: '2023-05-15', time: '09:00' },
+    { id: 2, name: 'Quiz 1', type: 'Quiz', subject: 'Digital Logic', batch: '2023 Batch B', date: '2023-05-20', time: '14:00' },
+    { id: 3, name: 'Final Exam', type: 'Final', subject: 'Calculus', batch: '2022 Batch A', date: '2023-06-10', time: '10:00' },
+  ])
+
+  const [newExam, setNewExam] = useState({ name: '', type: '', subject: '', batch: '', date: '', time: '', instructions: '' })
+
+  const handleInputChange = (e) => {
+    setNewExam({ ...newExam, [e.target.name]: e.target.value })
+  }
+
+  const handleAddExam = () => {
+    if (newExam.name && newExam.type && newExam.subject && newExam.batch && newExam.date && newExam.time) {
+      setExams([...exams, { ...newExam, id: exams.length + 1 }])
+      setNewExam({ name: '', type: '', subject: '', batch: '', date: '', time: '', instructions: '' })
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Schedule Exam or Assessment</CardTitle>
+          <CardDescription>Plan upcoming exams or assessments for students.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="examName">Exam/Assessment Name</Label>
+                <Input id="examName" name="name" value={newExam.name} onChange={handleInputChange} placeholder="Enter exam name" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="examType">Type</Label>
+                <Select id="examType" name="type" value={newExam.type} onChange={handleInputChange}>
+                  <option value="">Select type</option>
+                  <option value="Midterm">Midterm Exam</option>
+                  <option value="Final">Final Exam</option>
+                  <option value="Quiz">Quiz</option>
+                  <option value="Assignment">Assignment</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Select id="subject" name="subject" value={newExam.subject} onChange={handleInputChange}>
+                  <option value="">Select subject</option>
+                  <option value="Introduction to Programming">Introduction to Programming</option>
+                  <option value="Digital Logic">Digital Logic</option>
+                  <option value="Calculus">Calculus</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batch">Batch</Label>
+                <Select id="batch" name="batch" value={newExam.batch} onChange={handleInputChange}>
+                  <option value="">Select batch</option>
+                  <option value="2023 Batch A">2023 Batch A</option>
+                  <option value="2023 Batch B">2023 Batch B</option>
+                  <option value="2022 Batch A">2022 Batch A</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="examDate">Date</Label>
+                <Input id="examDate" name="date" type="date" value={newExam.date} onChange={handleInputChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="examTime">Time</Label>
+                <Input id="examTime" name="time" type="time" value={newExam.time} onChange={handleInputChange} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="examInstructions">Instructions</Label>
+              <textarea
+                id="examInstructions"
+                name="instructions"
+                value={newExam.instructions}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded-md"
+                rows={3}
+                placeholder="Enter exam instructions"
+              ></textarea>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleAddExam}>Schedule Exam</Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Upcoming Exams</CardTitle>
+          <CardDescription>View and manage scheduled exams.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Search exams..." />
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Exam Name</th>
+                  <th className="text-left">Type</th>
+                  <th className="text-left">Subject</th>
+                  <th className="text-left">Batch</th>
+                  <th className="text-left">Date</th>
+                  <th className="text-left">Time</th>
+                  <th className="text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-)
+              </thead>
+              <tbody>
+                {exams.map((exam) => (
+                  <motion.tr 
+                    key={exam.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <td>{exam.name}</td>
+                    <td>{exam.type}</td>
+                    <td>{exam.subject}</td>
+                    <td>{exam.batch}</td>
+                    <td>{exam.date}</td>
+                    <td>{exam.time}</td>
+                    <td>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">Cancel</Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-const Reports = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Generate Reports</CardTitle>
-        <CardDescription>Create various reports for analysis and record-keeping.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+const Reports = () => {
+  const [selectedReport, setSelectedReport] = useState('studentPerformance')
+  const [timePeriod, setTimePeriod] = useState('lastMonth')
+
+  const handleGenerateReport = () => {
+    // Implement report generation logic here
+    console.log(`Generating ${selectedReport} report for ${timePeriod}`)
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Generate Reports</CardTitle>
+          <CardDescription>Create various reports for analysis and record-keeping.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="reportType">Report Type</Label>
+                <Select id="reportType" value={selectedReport} onChange={(e) => setSelectedReport(e.target.value)}>
+                  <option value="studentPerformance">Student Performance</option>
+                  <option value="attendanceReport">Attendance Report</option>
+                  <option value="examResults">Exam Results</option>
+                  <option value="teacherPerformance">Teacher Performance</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="timePeriod">Time Period</Label>
+                <Select id="timePeriod" value={timePeriod} onChange={(e) => setTimePeriod(e.target.value)}>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastSemester">Last Semester</option>
+                  <option value="lastYear">Last Year</option>
+                </Select>
+              </div>
+            </div>
+            <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={handleGenerateReport}>Generate Report</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Reports</CardTitle>
+          <CardDescription>View and download recently generated reports.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {['Student Performance Report - May 2023', 'Attendance Report - April 2023', 'Exam Results - Spring Semester 2023'].map((report, index) => (
+              <motion.div 
+                key={index} 
+                className="flex items-center justify-between p-2 bg-muted rounded-md"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <span>{report}</span>
+                <Button variant="outline" size="sm">Download</Button>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Analytics Dashboard</CardTitle>
+          <CardDescription>Key performance indicators and trends.</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-muted p-4 rounded-md">
+              <h4 className="font-semibold mb-2">Student Performance Trend</h4>
+              {/* Placeholder for chart */}
+              <div className="h-40 bg-background rounded-md flex items-center justify-center">
+                <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <div className="bg-muted p-4 rounded-md">
+              <h4 className="font-semibold mb-2">Attendance Rate</h4>
+              {/* Placeholder for chart */}
+              <div className="h-40 bg-background rounded-md flex items-center justify-center">
+                <PieChart className="h-8 w-8 text-secondary" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+const NewSettings = () => {
+  const [notifications, setNotifications] = useState(true)
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>System Settings</CardTitle>
+          <CardDescription>Configure global settings for the CMS.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reportType">Report Type</Label>
-              <Select id="reportType">
-                <option value="">Select report type</option>
-                <option value="studentPerformance">Student Performance</option>
-                <option value="attendanceReport">Attendance Report</option>
-                <option value="examResults">Exam Results</option>
-                <option value="teacherPerformance">Teacher Performance</option>
+              <Label htmlFor="academicYear">Current Academic Year</Label>
+              <Input id="academicYear" placeholder="e.g., 2023-2024" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="semesterDates">Semester Dates</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Input type="date" placeholder="Start Date" />
+                <Input type="date" placeholder="End Date" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gradeScale">Grading Scale</Label>
+              <Select id="gradeScale">
+                <option value="percentage">Percentage</option>
+                <option value="letterGrade">Letter Grade</option>
+                <option value="gpa">GPA</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="timePeriod">Time Period</Label>
-              <Select id="timePeriod">
-                <option value="">Select time period</option>
-                <option value="lastMonth">Last Month</option>
-                <option value="lastSemester">Last Semester</option>
-                <option value="lastYear">Last Year</option>
-              </Select>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="airplane-mode"
+                checked={notifications}
+                onCheckedChange={setNotifications}
+              />
+              <Label htmlFor="airplane-mode">Enable Email Notifications</Label>
             </div>
-          </div>
-          <Button className="w-full bg-[#2e968b] hover:bg-[#2e968b]/90">Generate Report</Button>
-        </div>
-      </CardContent>
-    </Card>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-primary hover:bg-primary/90">Save Settings</Button>
+        </CardFooter>
+      </Card>
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Reports</CardTitle>
-        <CardDescription>View and download recently generated reports.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {['Student Performance Report - May 2023', 'Attendance Report - April 2023', 'Exam Results - Spring Semester 2023'].map((report, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-gray-100 rounded-md">
-              <span>{report}</span>
-              <Button variant="outline" size="sm">Download</Button>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>Analytics Dashboard</CardTitle>
-        <CardDescription>Key performance indicators and trends.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-100 p-4 rounded-md">
-            <h4 className="font-semibold mb-2">Student Performance Trend</h4>
-            {/* Placeholder for chart */}
-            <div className="h-40 bg-gray-200 rounded-md flex items-center justify-center">
-              <TrendingUp className="h-8 w-8 text-[#704cd1]" />
-            </div>
-          </div>
-          <div className="bg-gray-100 p-4 rounded-md">
-            <h4 className="font-semibold mb-2">Attendance Rate</h4>
-            {/* Placeholder for chart */}
-            <div className="h-40 bg-gray-200 rounded-md flex items-center justify-center">
-              <PieChart className="h-8 w-8 text-[#2e968b]" /><PieChart className="h-8 w-8 text-[#2e968b]" />
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-)
-
-const NewSettings = () => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>System Settings</CardTitle>
-        <CardDescription>Configure global settings for the CMS.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="academicYear">Current Academic Year</Label>
-            <Input id="academicYear" placeholder="e.g., 2023-2024" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="semesterDates">Semester Dates</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="date" placeholder="Start Date" />
-              <Input type="date" placeholder="End Date" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="gradeScale">Grading Scale</Label>
-            <Select id="gradeScale">
-              <option value="percentage">Percentage</option>
-              <option value="letterGrade">Letter Grade</option>
-              <option value="gpa">GPA</option>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="enableNotifications" />
-            <Label htmlFor="enableNotifications">Enable Email Notifications</Label>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#704cd1] hover:bg-[#704cd1]/90">Save Settings</Button>
-      </CardFooter>
-    </Card>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>User Management</CardTitle>
-        <CardDescription>Manage admin and staff accounts.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Input placeholder="Search users..." />
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Name</th>
-                <th className="text-left">Role</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['Admin User', 'Staff Member 1', 'Staff Member 2'].map((user, index) => (
-                <tr key={index}>
-                  <td>{user}</td>
-                  <td>{index === 0 ? 'Admin' : 'Staff'}</td>
-                  <td>
-                    <Button variant="ghost" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500">Deactivate</Button>
-                  </td>
+      <Card>
+        <CardHeader>
+          <CardTitle>User Management</CardTitle>
+          <CardDescription>Manage admin and staff accounts.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Search users..." />
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Role</th>
+                  <th className="text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-[#2e968b] hover:bg-[#2e968b]/90">Add New User</Button>
-      </CardFooter>
-    </Card>
+              </thead>
+              <tbody>
+                {['Admin User', 'Staff Member 1', 'Staff Member 2'].map((user, index) => (
+                  <motion.tr 
+                    key={index}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <td>{user}</td>
+                    <td>{index === 0 ? 'Admin' : 'Staff'}</td>
+                    <td>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">Deactivate</Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full bg-secondary hover:bg-secondary/90">Add New User</Button>
+        </CardFooter>
+      </Card>
 
-    <Card>
-      <CardHeader>
-        <CardTitle>System Logs</CardTitle>
-        <CardDescription>View recent system activities and errors.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {['User login: Admin (2023-05-10 09:15:00)', 'New student added: John Doe (2023-05-09 14:30:00)', 'Exam scheduled: CS101 Midterm (2023-05-08 11:45:00)'].map((log, index) => (
-            <div key={index} className="flex items-center space-x-2 p-2 bg-gray-100 rounded-md">
-              <AlertCircle className="h-4 w-4 text-[#704cd1]" />
-              <span>{log}</span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">View All Logs</Button>
-      </CardFooter>
-    </Card>
-  </div>
-)
+      <Card>
+        <CardHeader>
+          <CardTitle>System Logs</CardTitle>
+          <CardDescription>View recent system activities and errors.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {['User login: Admin (2023-05-10 09:15:00)', 'New student added: John Doe (2023-05-09 14:30:00)', 'Exam scheduled: CS101 Midterm (2023-05-08 11:45:00)'].map((log, index) => (
+              <motion.div 
+                key={index} 
+                className="flex items-center space-x-2 p-2 bg-muted rounded-md"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <span>{log}</span>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button variant="outline" className="w-full">View All Logs</Button>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}
 
 export default EnhancedAdminDashboard
 
