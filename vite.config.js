@@ -11,7 +11,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
-      process: 'process/browser'  // Ensure that process is resolved correctly
+      process: 'process/browser'  ,// Ensure that process is resolved correctly
+
+      '@emotion/react': '@emotion/react/dist/emotion-react.esm.js',
+      '@emotion/styled': '@emotion/styled/dist/emotion-styled.esm.js',
     }
   }
 });
