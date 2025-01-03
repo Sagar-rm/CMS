@@ -1,20 +1,25 @@
-// vite.config.js
 import { defineConfig } from 'vite';
-import process from 'process';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
+// Vite configuration
 export default defineConfig({
-  define: {
-    'process.env': process.env  // Polyfill process.env for the browser
-  },
   plugins: [react()],
+  
+  // Define process.env for compatibility
+  define: {
+    'process.env': {}, // Avoid errors with process.env in libraries
+  },
+  
+  // Resolve aliases for cleaner imports
   resolve: {
     alias: {
-      '@': '/src',
-      process: 'process/browser'  ,// Ensure that process is resolved correctly
+      '@': path.resolve(__dirname, './src'), // Allows imports like "@/components/..."
+    },
+  },
 
-      '@emotion/react': '@emotion/react/dist/emotion-react.esm.js',
-      '@emotion/styled': '@emotion/styled/dist/emotion-styled.esm.js',
-    }
-  }
+  // Optimize dependencies (optional)
+  optimizeDeps: {
+    include: ['process'], // Pre-bundle process if required
+  },
 });

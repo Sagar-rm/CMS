@@ -1,814 +1,1494 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiHome, FiUsers, FiBriefcase, FiCalendar, FiSettings, FiPieChart, FiTrendingUp, FiCheckCircle, FiAlertCircle, FiSearch, FiBook, FiClock, FiAward, FiFileText, FiBell, FiMail, FiLogOut, FiPlus, FiEdit, FiTrash2, FiDownload, FiUpload, FiSun, FiMoon, FiUser } from 'react-icons/fi'
-import { Bar, Pie, Line, Doughnut } from 'react-chartjs-2'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip as ChartTooltip, Legend, ArcElement, PointElement, LineElement } from 'chart.js'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import  Calendar  from "@/components/ui/calendar"
-import { AreaChart, Card as TremorCard, Title as TremorTitle, Text } from "@tremor/react"
-import  Progress  from "@/components/ui/progress"
+import { Users, BookOpen, UserPlus, Clipboard, Calendar, ChevronDown, ChevronUp, Menu, X, BarChart2, Settings, Bell, Search, LogOut, PlusCircle, Trash2, Edit, Save, FileText, DollarSign } from 'lucide-react'
+import InputAdornment from '@mui/material/InputAdornment';
+import Collapse from '@mui/material/Collapse';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend, ArcElement, PointElement, LineElement)
+// Importing MUI components
+import { 
+  AppBar, Toolbar, IconButton, Typography, Drawer, List, ListItem, ListItemIcon, 
+  ListItemText, TextField, Button, Card, CardContent, CardActions, Grid, Select, 
+  MenuItem, FormControl, InputLabel, Switch, Chip, Avatar, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle, 
+  DialogContent, DialogActions, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton
+} from '@mui/material'
 
-const AnimatedButton = motion(Button)
+// Importing Recharts for data visualization
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-const AnimatedCard = ({ icon: Icon, title, value, change }) => (
-  <motion.div
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-  >
+const EnhancedAdminDashboard = () => {
+  const [activeSection, setActiveSection] = useState('dashboard')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const [loading, setLoading] = useState(false)
+
+  const sidebarItems = [
+    { id: 'dashboard', icon: BarChart2, label: 'Dashboard Overview' },
+    { id: 'student-details', icon: Users, label: 'Student Details' },
+    { id: 'students', icon: Users, label: 'Student Management' },
+    { id: 'teachers', icon: UserPlus, label: 'Teacher Management' },
+    { id: 'courses', icon: BookOpen, label: 'Course Management' },
+    { id: 'exams', icon: Calendar, label: 'Exam Scheduling' },
+    { id: 'reports', icon: FileText, label: 'Reports & Analytics' },
+    { id: 'finance', icon: DollarSign, label: 'Financial Management' },
+    { id: 'settings', icon: Settings, label: 'System Settings' },
+  ]
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+
+  const handleSectionChange = (section) => {
+    setLoading(true)
+    setActiveSection(section)
+    setTimeout(() => setLoading(false), 1000) // Simulating data loading
+  }
+
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity })
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return
+    setSnackbar({ ...snackbar, open: false })
+  }
+
+  return (
+    <motion.div 
+      className="flex h-screen bg-gray-100"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Sidebar */}
+      <Drawer
+        variant="permanent"
+        open={isSidebarOpen}
+        sx={{
+          width: isSidebarOpen ? 240 : 72,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: isSidebarOpen ? 240 : 72,
+            boxSizing: 'border-box',
+            backgroundColor: '#2e968b',
+            color: 'white',
+            transition: 'width 0.3s'
+          },
+        }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {isSidebarOpen ? 'CMS Admin' : 'CMS'}
+          </Typography>
+          <IconButton color="inherit" onClick={toggleSidebar}>
+            {isSidebarOpen ? <ChevronUp /> : <ChevronDown />}
+          </IconButton>
+        </Toolbar>
+        <List>
+          {sidebarItems.map((item) => (
+            <ListItem 
+              component={motion.div}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              disablePadding
+              key={item.id}
+              sx={{
+                backgroundColor: activeSection === item.id ? '#704cd1' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#704cd1',
+                },
+              }}
+            >
+              <ListItemButton
+                onClick={() => handleSectionChange(item.id)}
+                sx={{
+                  color: 'white',
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <item.icon />
+                </ListItemIcon>
+                {isSidebarOpen && <ListItemText primary={item.label} />}
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <AppBar position="static" color="default" elevation={0}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleSidebar}
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
+              <Menu />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              {sidebarItems.find(item => item.id === activeSection)?.label}
+            </Typography>
+            <IconButton color="inherit">
+              <Bell />
+            </IconButton>
+            <IconButton color="inherit">
+              <LogOut />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+          {loading && <LinearProgress />}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeSection === 'dashboard' && <DashboardOverview showSnackbar={showSnackbar} />}
+              {activeSection === 'students' && <StudentManagement showSnackbar={showSnackbar} />}
+              {activeSection === 'student-details' && <StudentDetails showSnackbar={showSnackbar} />}
+              {activeSection === 'teachers' && <TeacherManagement showSnackbar={showSnackbar} />}
+              {activeSection === 'courses' && <CourseManagement showSnackbar={showSnackbar} />}
+              {activeSection === 'exams' && <ExamScheduling showSnackbar={showSnackbar} />}
+              {activeSection === 'reports' && <ReportsAnalytics showSnackbar={showSnackbar} />}
+              {activeSection === 'finance' && <FinancialManagement showSnackbar={showSnackbar} />}
+              {activeSection === 'settings' && <SystemSettings showSnackbar={showSnackbar} />}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        {snackbar.message && (
+          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        )}
+      </Snackbar>
+    </motion.div>
+  )
+}
+
+const DashboardOverview = ({ showSnackbar }) => {
+  const chartData = [
+    { name: 'Jan', students: 400, courses: 240, exams: 100 },
+    { name: 'Feb', students: 300, courses: 139, exams: 80 },
+    { name: 'Mar', students: 200, courses: 980, exams: 200 },
+    { name: 'Apr', students: 278, courses: 390, exams: 150 },
+    { name: 'May', students: 189, courses: 480, exams: 120 },
+  ]
+
+  const pieData = [
+    { name: 'Students', value: 400 },
+    { name: 'Teachers', value: 300 },
+    { name: 'Courses', value: 300 },
+    { name: 'Exams', value: 200 },
+  ]
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatCard title="Total Students" value="1,234" icon={<Users />} color="#704cd1" />
+        </Grid>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatCard title="Active Courses" value="56" icon={<BookOpen />} color="#2e968b" />
+        </Grid>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatCard title="Upcoming Exams" value="12" icon={<Calendar />} color="#d7205d" />
+        </Grid>
+        <Grid item xs={12} md={6} lg={3}>
+          <StatCard title="Total Teachers" value="89" icon={<UserPlus />} color="#ffa500" />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Monthly Overview</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="students" fill="#704cd1" />
+                  <Bar dataKey="courses" fill="#2e968b" />
+                  <Bar dataKey="exams" fill="#d7205d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Distribution</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </motion.div>
+  )
+}
+
+const StatCard = ({ title, value, icon, color }) => (
+  <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{change}</p>
+      <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <Typography color="textSecondary" gutterBottom>
+            {title}
+          </Typography>
+          <Typography variant="h4">
+            {value}
+          </Typography>
+        </div>
+        <Avatar sx={{ bgcolor: color, width: 56, height: 56 }}>
+          {icon}
+        </Avatar>
       </CardContent>
     </Card>
   </motion.div>
 )
 
-const AnimatedChart = ({ title, chart }) => (
-  <motion.div
-    className="col-span-2"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.5 }}
-  >
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {chart}
-      </CardContent>
-    </Card>
-  </motion.div>
-)
+const StudentDetails = () => {
+  const [expandedDepartment, setExpandedDepartment] = useState(null)
+  const [selectedSemester, setSelectedSemester] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterAnchorEl, setFilterAnchorEl] = useState(null)
 
-const TeacherManagement = () => {
-  const teachers = [
-    { id: '001', name: 'Dr. Jane Smith', department: 'Computer Science', courses: ['CS101', 'CS202'], status: 'Active' },
-    { id: '002', name: 'Prof. Michael Johnson', department: 'Engineering', courses: ['ENG101', 'ENG303'], status: 'On Leave' },
-    { id: '003', name: 'Dr. Emily Brown', department: 'Business', courses: ['BUS201', 'BUS405'], status: 'Active' },
-  ]
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Teacher Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-4">
-            <Input placeholder="Search teachers..." className="max-w-sm" />
-            <Button>
-              <FiPlus className="mr-2" /> Add New Teacher
-            </Button>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>ID</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Courses</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teachers.map((teacher) => (
-                <TableRow key={teacher.id}>
-                  <TableCell className="font-medium">{teacher.name}</TableCell>
-                  <TableCell>{teacher.id}</TableCell>
-                  <TableCell>{teacher.department}</TableCell>
-                  <TableCell>{teacher.courses.join(', ')}</TableCell>
-                  <TableCell>
-                    <Badge variant={teacher.status === 'Active' ? 'success' : 'warning'}>
-                      {teacher.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <FiEdit className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Edit teacher</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <FiTrash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete teacher</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
-const AttendanceTracking = () => {
-  const attendanceData = [
-    { date: '2023-06-01', present: 120, absent: 10, late: 5 },
-    { date: '2023-06-02', present: 115, absent: 12, late: 8 },
-    { date: '2023-06-03', present: 118, absent: 7, late: 10 },
-    { date: '2023-06-04', present: 122, absent: 8, late: 5 },
-    { date: '2023-06-05', present: 119, absent: 11, late: 5 },
-  ]
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Attendance Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-4">
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cs101">CS101: Intro to Programming</SelectItem>
-                <SelectItem value="eng201">ENG201: Advanced Engineering</SelectItem>
-                <SelectItem value="bus301">BUS301: Business Ethics</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex items-center space-x-2">
-              <FiCalendar className="text-muted-foreground" />
-              <span>June 1-5, 2023</span>
-            </div>
-          </div>
-          <Line
-            data={{
-              labels: attendanceData.map(d => d.date),
-              datasets: [
-                {
-                  label: 'Present',
-                  data: attendanceData.map(d => d.present),
-                  borderColor: 'rgba(34, 197, 94, 1)',
-                  backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                },
-                {
-                  label: 'Absent',
-                  data: attendanceData.map(d => d.absent),
-                  borderColor: 'rgba(239, 68, 68, 1)',
-                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                },
-                {
-                  label: 'Late',
-                  data: attendanceData.map(d => d.late),
-                  borderColor: 'rgba(234, 179, 8, 1)',
-                  backgroundColor: 'rgba(234, 179, 8, 0.2)',
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'top',
-                },
-                title: {
-                  display: true,
-                  text: 'Daily Attendance',
-                },
-              },
-            }}
-          />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Recent Attendance Records</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                { student: 'Alice Johnson', course: 'CS101', date: '2023-06-05', time: '09:05 AM', status: 'Present' },
-                { student: 'Bob Smith', course: 'ENG201', date: '2023-06-05', time: '10:15 AM', status: 'Late' },
-                { student: 'Charlie Brown', course: 'BUS301', date: '2023-06-05', time: '11:00 AM', status: 'Absent' },
-              ].map((record, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{record.student}</TableCell>
-                  <TableCell>{record.course}</TableCell>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <FiClock className="mr-2 text-muted-foreground" />
-                      {record.time}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        record.status === 'Present' ? 'success' :
-                        record.status === 'Late' ? 'warning' : 'destructive'
-                      }
-                    >
-                      {record.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
-const StudentProfile = ({ student }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={`https://avatars.dicebear.com/api/initials/${student.name}.svg`} />
-              <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-2xl font-bold">{student.name}</h2>
-              <p className="text-muted-foreground">{student.email}</p>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2 flex items-center"><FiBook className="mr-2" /> Course Information</h3>
-              <p><span className="font-medium">Current Course:</span> {student.course}</p>
-              <p><span className="font-medium">Batch:</span> {student.batch}</p>
-              <p><span className="font-medium">Progress:</span></p>
-              <Progress value={(student.completedCourses / student.totalCourses) * 100} className="mt-2" />
-              <p className="text-sm text-muted-foreground mt-1">
-                {student.completedCourses} out of {student.totalCourses} courses completed
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 flex items-center"><FiCalendar className="mr-2" /> Attendance & Performance</h3>
-              <p><span className="font-medium">Attendance Rate:</span> {student.attendance}</p>
-              <p>
-                <span className="font-medium">Performance:</span>
-                <Badge variant={student.performance === 'Excellent' ? 'default' : 'secondary'} className="ml-2">
-                  {student.performance}
-                </Badge>
-              </p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2 flex items-center"><FiAward className="mr-2" /> Awards & Achievements</h3>
-            <div className="flex flex-wrap gap-2">
-              {student.awards.map((award, index) => (
-                <Badge key={index} variant="outline">{award}</Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
-const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [isDarkMode, setIsDarkMode] = useState(false)
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
+  const departments = [
+    {
+      name: 'Computer Science',
+      students: [
+        { id: 1, name: 'John Doe', semester: 1, department: 'Computer Science' },
+        { id: 2, name: 'Jane Smith', semester: 2, department: 'Computer Science' },
+      ]
+    },
+    {
+      name: 'Electrical Engineering',
+      students: [
+        { id: 3, name: 'Mike Johnson', semester: 1, department: 'Electrical Engineering' },
+        { id: 4, name: 'Sarah Williams', semester: 2, department: 'Electrical Engineering' },
+      ]
+    },
+    {
+      name: 'Mechanical Engineering',
+      students: [
+        { id: 5, name: 'Tom Brown', semester: 1, department: 'Mechanical Engineering' },
+        { id: 6, name: 'Emily Davis', semester: 2, department: 'Mechanical Engineering' },
+      ]
     }
-  }, [isDarkMode])
+  ]
 
-  const renderDashboard = () => (
+  const handleDepartmentClick = (department) => {
+    setExpandedDepartment(expandedDepartment === department ? null : department)
+  }
+
+  const handleFilterClick = (event) => {
+    setFilterAnchorEl(event.currentTarget)
+  }
+
+  const handleFilterClose = () => {
+    setFilterAnchorEl(null)
+  }
+
+  const handleSemesterChange = (semester) => {
+    setSelectedSemester(semester)
+    handleFilterClose()
+  }
+
+  const filterStudents = (students) => {
+    return students.filter(student => 
+      student.semester === selectedSemester &&
+      student.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }
+
+  return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      className="p-6"
     >
-      <AnimatedCard icon={FiUsers} title="Total Students" value="1,234" change="+10% from last month" />
-      <AnimatedCard icon={FiBook} title="Active Courses" value="56" change="+2 new courses this week" />
-      <AnimatedCard icon={FiCheckCircle} title="Average Attendance" value="92%" change="+5% from last semester" />
-      <AnimatedCard icon={FiCalendar} title="Upcoming Exams" value="8" change="Next exam in 3 days" />
-      <AnimatedChart
-        title="Student Enrollment"
-        chart={
-          <Bar
-            data={{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-              datasets: [
-                {
-                  label: 'New Students',
-                  data: [65, 59, 80, 81, 56, 55],
-                  backgroundColor: 'rgba(124, 58, 237, 0.5)',
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'top',
-                },
-                title: {
-                  display: true,
-                  text: 'Monthly Student Enrollment',
-                },
-              },
-            }}
-          />
-        }
-      />
-      <AnimatedChart
-        title="Course Distribution"
-        chart={
-          <Pie
-            data={{
-              labels: ['Computer Science', 'Engineering', 'Business', 'Arts', 'Others'],
-              datasets: [
-                {
-                  data: [30, 25, 20, 15, 10],
-                  backgroundColor: [
-                    'rgba(124, 58, 237, 0.8)',
-                    'rgba(236, 72, 153, 0.8)',
-                    'rgba(34, 211, 238, 0.8)',
-                    'rgba(251, 191, 36, 0.8)',
-                    'rgba(52, 211, 153, 0.8)',
-                  ],
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'right',
-                },
-                title: {
-                  display: true,
-                  text: 'Course Distribution',
-                },
-              },
-            }}
-          />
-        }
-      />
-    </motion.div>
-  )
+      <Typography variant="h5" className="mb-6">
+        1st Year Students
+      </Typography>
 
-  const renderStudents = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Student Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-4">
-            <Input placeholder="Search students..." className="max-w-sm" />
-            <Button>
-              <FiPlus className="mr-2" /> Add New Student
-            </Button>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>ID</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Attendance</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                { name: 'Alice Johnson', id: '001', course: 'Computer Science', attendance: '95%' },
-                { name: 'Bob Smith', id: '002', course: 'Engineering', attendance: '88%' },
-                { name: 'Charlie Brown', id: '003', course: 'Business', attendance: '92%' },
-              ].map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.id}</TableCell>
-                  <TableCell>{student.course}</TableCell>
-                  <TableCell>
-                    <Badge variant={student.attendance >= '90%' ? 'success' : 'warning'}>
-                      {student.attendance}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <FiEdit className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Edit student</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <FiTrash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete student</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-
-  const renderExams = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Upcoming Exams</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                { course: 'Computer Science 101', date: '2023-06-15', time: '09:00 AM', location: 'Hall A' },
-                { course: 'Engineering Mechanics', date: '2023-06-17', time: '10:30 AM', location: 'Hall B' },
-                { course: 'Business Ethics', date: '2023-06-20', time: '02:00 PM', location: 'Hall C' },
-              ].map((exam, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{exam.course}</TableCell>
-                  <TableCell>{exam.date}</TableCell>
-                  <TableCell>{exam.time}</TableCell>
-                  <TableCell>{exam.location}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <FiEdit className="mr-2 h-4 w-4" /> Edit
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Edit exam details</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <FiTrash2 className="mr-2 h-4 w-4" /> Cancel
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Cancel exam</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-
-  const renderAnalytics = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Advanced Analytics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <TremorCard>
-              <TremorTitle>Student Enrollment Trend</TremorTitle>
-              <AreaChart
-                className="h-72 mt-4"
-                data={[
-                  { date: "Jan 22", "Computer Science": 25, "Data Science": 30, "Web Development": 40 },
-                  { date: "Feb 22", "Computer Science": 30, "Data Science": 35, "Web Development": 45 },
-                  { date: "Mar 22", "Computer Science": 35, "Data Science": 40, "Web Development": 50 },
-                  { date: "Apr 22", "Computer Science": 40, "Data Science": 45, "Web Development": 55 },
-                  { date: "May 22", "Computer Science": 45, "Data Science": 50, "Web Development": 60 },
-                ]}
-                index="date"
-                categories={["Computer Science", "Data Science", "Web Development"]}
-                colors={["indigo", "cyan", "amber"]}
-              />
-            </TremorCard>
-            <Card>
-              <CardHeader>
-                <CardTitle>Course Popularity</CardTitle>
-              </CardHeader>
+      <div className="space-y-6">
+        {departments.map((dept) => (
+          <Card key={dept.name} className="overflow-hidden">
+            <motion.div
+              initial={false}
+              animate={{ backgroundColor: expandedDepartment === dept.name ? '#f3f4f6' : '#ffffff' }}
+            >
               <CardContent>
-                <Doughnut
-                  data={{
-                    labels: ['Web Development', 'Data Science', 'UI/UX Design', 'Machine Learning', 'Mobile App Development'],
-                    datasets: [
-                      {
-                        data: [30, 25, 20, 15, 10],
-                        backgroundColor: [
-                          'rgba(124, 58, 237, 0.8)',
-                          'rgba(236, 72, 153, 0.8)',
-                          'rgba(34, 211, 238, 0.8)',
-                          'rgba(251, 191, 36, 0.8)',
-                          'rgba(52, 211, 153, 0.8)',
-                        ],
-                      },
-                    ],
-                  }}
-                  options={{ responsive: true }}
-                />
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-center">
+                    <Typography variant="h6">{dept.name}</Typography>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outlined"
+                        onClick={handleFilterClick}
+                        endIcon={<ChevronDown />}
+                      >
+                        Filter by semester
+                      </Button>
+                      <Menu
+                        anchorEl={filterAnchorEl}
+                        open={Boolean(filterAnchorEl)}
+                        onClose={handleFilterClose}
+                      >
+                        <MenuItem onClick={() => handleSemesterChange(1)}>Semester 1</MenuItem>
+                        <MenuItem onClick={() => handleSemesterChange(2)}>Semester 2</MenuItem>
+                      </Menu>
+                      <Button
+                        variant="contained"
+                        onClick={() => handleDepartmentClick(dept.name)}
+                      >
+                        View Students
+                      </Button>
+                    </div>
+                  </div>
+
+                  <TextField
+                    fullWidth
+                    placeholder="Search students..."
+                    variant="outlined"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Collapse in={expandedDepartment === dept.name}>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-4"
+                    >
+                      {filterStudents(dept.students).map((student) => (
+                        <motion.div
+                          key={student.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="p-4 border rounded-lg mb-2 hover:bg-gray-50"
+                        >
+                          <Typography>{student.name}</Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Semester {student.semester}
+                          </Typography>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </Collapse>
+                </div>
               </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Upcoming Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Calendar
-              mode="single"
-              selected={new Date()}
-              className="rounded-md border"
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <AnimatedButton
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgb(124, 58, 237)" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiDownload className="mr-2" /> Export Report
-              </AnimatedButton>
-              <AnimatedButton
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgb(236, 72, 153)" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiUpload className="mr-2" /> Import Data
-              </AnimatedButton>
-              <AnimatedButton
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgb(34, 211, 238)" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiMail className="mr-2" /> Send Newsletter
-              </AnimatedButton>
-              <AnimatedButton
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgb(251, 191, 36)" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiSettings className="mr-2" /> System Settings
-              </AnimatedButton>
-            </div>
-          </CardContent>
-        </Card>
+            </motion.div>
+          </Card>
+        ))}
       </div>
     </motion.div>
   )
+}
 
-  const renderStudentProfile = () => {
-    const sampleStudent = {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      course: 'Computer Science',
-      batch: '2023A',
-      completedCourses: 8,
-      totalCourses: 12,
-      attendance: '95%',
-      performance: 'Excellent',
-      awards: ['Best Project', 'Academic Excellence', 'Leadership Award']
-    }
+const StudentManagement = ({ showSnackbar }) => {
+  const [students, setStudents] = useState([
+    { id: 1, name: 'John Doe', email: 'john@example.com', course: 'Computer Science', year: '2nd Year' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', course: 'Business Administration', year: '1st Year' },
+  ])
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
+  const [isEditStudentModalOpen, setIsEditStudentModalOpen] = useState(false)
+  const [newStudent, setNewStudent] = useState({ name: '', email: '', course: '', year: '' })
+  const [editingStudent, setEditingStudent] = useState(null)
 
-    return <StudentProfile student={sampleStudent} />
+  const handleAddStudent = () => {
+    setStudents([...students, { ...newStudent, id: students.length + 1 }])
+    setIsAddStudentModalOpen(false)
+    setNewStudent({ name: '', email: '', course: '', year: '' })
+    showSnackbar('Student added successfully', 'success')
   }
 
-  const renderTeacherManagement = () => <TeacherManagement />
+  const handleEditStudent = (student) => {
+    setEditingStudent(student)
+    setIsEditStudentModalOpen(true)
+  }
 
-  const renderAttendance = () => <AttendanceTracking />
+  const handleUpdateStudent = () => {
+    setStudents(students.map(s => s.id === editingStudent.id ? editingStudent : s))
+    setIsEditStudentModalOpen(false)
+    setEditingStudent(null)
+    showSnackbar('Student updated successfully', 'success')
+  }
+
+  const handleDeleteStudent = (id) => {
+    setStudents(students.filter(s => s.id !== id))
+    showSnackbar('Student deleted successfully', 'success')
+  }
 
   return (
-    <div className={`flex h-screen bg-background transition-colors duration-200 ${isDarkMode ? 'dark' : ''}`}>
-      <motion.aside
-        className="w-64 bg-card shadow-md"
-        initial={{ x: -250 }}
-        animate={{ x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="p-4">
-          <h1 className="text-2xl font-bold mb-4">EduPro CMS</h1>
-          <nav>
-            <ul className="space-y-2">
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('dashboard')}>
-                  <FiHome className="mr-2" /> Dashboard
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('students')}>
-                  <FiUsers className="mr-2" /> Students
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('teachers')}>
-                  <FiBriefcase className="mr-2" /> Teachers
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('attendance')}>
-                  <FiCheckCircle className="mr-2" /> Attendance
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('exams')}>
-                  <FiFileText className="mr-2" /> Exams
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('analytics')}>
-                  <FiPieChart className="mr-2" /> Analytics
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('studentProfile')}>
-                  <FiUser className="mr-2" /> Student Profile
-                </Button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </motion.aside>
-
-      <main className="flex-1 p-8 overflow-auto">
-        <motion.div
-          className="mb-8 flex justify-between items-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Student Management</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddStudentModalOpen(true)}
         >
-          <h1 className="text-3xl font-bold">Welcome, Admin</h1>
-          <div className="flex items-center space-x-4">
-            <Input
-              type="text"
-              placeholder="Search..."
-              className="max-w-xs"
-            />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <AnimatedButton
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                  whileHover={{
-                    scale: 1.1,
-                    backgroundColor: "rgba(124, 58, 237, 0.1)",
-                  }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  {isDarkMode ? <FiSun className="h-4 w-4" /> : <FiMoon className="h-4 w-4" />}
-                </AnimatedButton>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Toggle dark mode</p>
-              </TooltipContent>
-            </Tooltip>
-            <AnimatedButton
-              variant="outline"
-              size="icon"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FiBell className="h-4 w-4" />
-            </AnimatedButton>
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </div>
-        </motion.div>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
-            <TabsTrigger value="teachers">Teachers</TabsTrigger>
-            <TabsTrigger value="attendance">Attendance</TabsTrigger>
-            <TabsTrigger value="exams">Exams</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="studentProfile">Student Profile</TabsTrigger>
-          </TabsList>
-          <AnimatePresence mode="wait">
-            <TabsContent value="dashboard">{renderDashboard()}</TabsContent>
-            <TabsContent value="students">{renderStudents()}</TabsContent>
-            <TabsContent value="teachers">{renderTeacherManagement()}</TabsContent>
-            <TabsContent value="attendance">{renderAttendance()}</TabsContent>
-            <TabsContent value="exams">{renderExams()}</TabsContent>
-            <TabsContent value="analytics">{renderAnalytics()}</TabsContent>
-            <TabsContent value="studentProfile">{renderStudentProfile()}</TabsContent>
-          </AnimatePresence>
+          Add Student
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Course</TableCell>
+              <TableCell>Year</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {students.map((student) => (
+              <TableRow key={student.id} hover>
+                <TableCell>{student.name}</TableCell>
+                <TableCell>{student.email}</TableCell>
+                <TableCell>{student.course}</TableCell>
+                <TableCell>{student.year}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditStudent(student)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteStudent(student.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddStudentModalOpen} 
+        onClose={() => setIsAddStudentModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Add New Student</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={newStudent.name}
+            onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={newStudent.email}
+            onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Course"
+            fullWidth
+            value={newStudent.course}
+            onChange={(e) => setNewStudent({ ...newStudent, course: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Year"
+            fullWidth
+            value={newStudent.year}
+            onChange={(e) => setNewStudent({ ...newStudent, year: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddStudentModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddStudent} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditStudentModalOpen} 
+        onClose={() => setIsEditStudentModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Edit Student</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={editingStudent?.name || ''}
+            onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={editingStudent?.email || ''}
+            onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Course"
+            fullWidth
+            value={editingStudent?.course || ''}
+            onChange={(e) => setEditingStudent({ ...editingStudent, course: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Year"
+            fullWidth
+            value={editingStudent?.year || ''}
+            onChange={(e) => setEditingStudent({ ...editingStudent, year: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditStudentModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateStudent} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
+const TeacherManagement = ({ showSnackbar }) => {
+  const [teachers, setTeachers] = useState([
+    { id: 1, name: 'Dr. Alice Johnson', email: 'alice@example.com', subject: 'Mathematics', experience: '10 years' },
+    { id: 2, name: 'Prof. Bob Williams', email: 'bob@example.com', subject: 'Physics', experience: '15 years' },
+  ])
+  const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false)
+  const [isEditTeacherModalOpen, setIsEditTeacherModalOpen] = useState(false)
+  const [newTeacher, setNewTeacher] = useState({ name: '', email: '', subject: '', experience: '' })
+  const [editingTeacher, setEditingTeacher] = useState(null)
+
+  const handleAddTeacher = () => {
+    setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
+    setIsAddTeacherModalOpen(false)
+    setNewTeacher({ name: '', email: '', subject: '', experience: '' })
+    showSnackbar('Teacher added successfully', 'success')
+  }
+
+  const handleEditTeacher = (teacher) => {
+    setEditingTeacher(teacher)
+    setIsEditTeacherModalOpen(true)
+  }
+
+  const handleUpdateTeacher = () => {
+    setTeachers(teachers.map(t => t.id === editingTeacher.id ? editingTeacher : t))
+    setIsEditTeacherModalOpen(false)
+    setEditingTeacher(null)
+    showSnackbar('Teacher updated successfully', 'success')
+  }
+
+  const handleDeleteTeacher = (id) => {
+    setTeachers(teachers.filter(t => t.id !== id))
+    showSnackbar('Teacher deleted successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Teacher Management</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddTeacherModalOpen(true)}
+        >
+          Add Teacher
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Subject</TableCell>
+              <TableCell>Experience</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {teachers.map((teacher) => (
+              <TableRow key={teacher.id} hover>
+                <TableCell>{teacher.name}</TableCell>
+                <TableCell>{teacher.email}</TableCell>
+                <TableCell>{teacher.subject}</TableCell>
+                <TableCell>{teacher.experience}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditTeacher(teacher)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteTeacher(teacher.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddTeacherModalOpen} 
+        onClose={() => setIsAddTeacherModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Add New Teacher</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={newTeacher.name}
+            onChange={(e) => setNewTeacher({ ...newTeacher, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={newTeacher.email}
+            onChange={(e) => setNewTeacher({ ...newTeacher, email: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Subject"
+            fullWidth
+            value={newTeacher.subject}
+            onChange={(e) => setNewTeacher({ ...newTeacher, subject: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Experience"
+            fullWidth
+            value={newTeacher.experience}
+            onChange={(e) => setNewTeacher({ ...newTeacher, experience: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddTeacherModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddTeacher} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditTeacherModalOpen} 
+        onClose={() => setIsEditTeacherModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Edit Teacher</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={editingTeacher?.name || ''}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={editingTeacher?.email || ''}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, email: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Subject"
+            fullWidth
+            value={editingTeacher?.subject || ''}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, subject: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Experience"
+            fullWidth
+            value={editingTeacher?.experience || ''}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, experience: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditTeacherModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateTeacher} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
+const CourseManagement = ({ showSnackbar }) => {
+  const [courses, setCourses] = useState([
+    { id: 1, name: 'Introduction to Computer Science', code: 'CS101', credits: 3, instructor: 'Dr. Alice Johnson' },
+    { id: 2, name: 'Advanced Physics', code: 'PHY301', credits: 4, instructor: 'Prof. Bob Williams' },
+  ])
+  const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false)
+  const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false)
+  const [newCourse, setNewCourse] = useState({ name: '', code: '', credits: '', instructor: '' })
+  const [editingCourse, setEditingCourse] = useState(null)
+
+  const handleAddCourse = () => {
+    setCourses([...courses, { ...newCourse, id: courses.length + 1 }])
+    setIsAddCourseModalOpen(false)
+    setNewCourse({ name: '', code: '', credits: '', instructor: '' })
+    showSnackbar('Course added successfully', 'success')
+  }
+
+  const handleEditCourse = (course) => {
+    setEditingCourse(course)
+    setIsEditCourseModalOpen(true)
+  }
+
+  const handleUpdateCourse = () => {
+    setCourses(courses.map(c => c.id === editingCourse.id ? editingCourse : c))
+    setIsEditCourseModalOpen(false)
+    setEditingCourse(null)
+    showSnackbar('Course updated successfully', 'success')
+  }
+
+  const handleDeleteCourse = (id) => {
+    setCourses(courses.filter(c => c.id !== id))
+    showSnackbar('Course deleted successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Course Management</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddCourseModalOpen(true)}
+        >
+          Add Course
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Code</TableCell>
+              <TableCell>Credits</TableCell>
+              <TableCell>Instructor</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {courses.map((course) => (
+              <TableRow key={course.id} hover>
+                <TableCell>{course.name}</TableCell>
+                <TableCell>{course.code}</TableCell>
+                <TableCell>{course.credits}</TableCell>
+                <TableCell>{course.instructor}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditCourse(course)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteCourse(course.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddCourseModalOpen} 
+        onClose={() => setIsAddCourseModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Add New Course</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Course Name"
+            fullWidth
+            value={newCourse.name}
+            onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Course Code"
+            fullWidth
+            value={newCourse.code}
+            onChange={(e) => setNewCourse({ ...newCourse, code: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Credits"
+            type="number"
+            fullWidth
+            value={newCourse.credits}
+            onChange={(e) => setNewCourse({ ...newCourse, credits: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Instructor"
+            fullWidth
+            value={newCourse.instructor}
+            onChange={(e) => setNewCourse({ ...newCourse, instructor: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddCourseModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddCourse} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditCourseModalOpen} 
+        onClose={() => setIsEditCourseModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Edit Course</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Course Name"
+            fullWidth
+            value={editingCourse?.name || ''}
+            onChange={(e) => setEditingCourse({ ...editingCourse, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Course Code"
+            fullWidth
+            value={editingCourse?.code || ''}
+            onChange={(e) => setEditingCourse({ ...editingCourse, code: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Credits"
+            type="number"
+            fullWidth
+            value={editingCourse?.credits || ''}
+            onChange={(e) => setEditingCourse({ ...editingCourse, credits: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Instructor"
+            fullWidth
+            value={editingCourse?.instructor || ''}
+            onChange={(e) => setEditingCourse({ ...editingCourse, instructor: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditCourseModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateCourse} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
+const ExamScheduling = ({ showSnackbar }) => {
+  const [exams, setExams] = useState([
+    { id: 1, course: 'CS101', date: '2023-06-15', time: '09:00', duration: '3 hours', location: 'Hall A' },
+    { id: 2, course: 'PHY301', date: '2023-06-18', time: '14:00', duration: '2 hours', location: 'Hall B' },
+  ])
+  const [isAddExamModalOpen, setIsAddExamModalOpen] = useState(false)
+  const [isEditExamModalOpen, setIsEditExamModalOpen] = useState(false)
+  const [newExam, setNewExam] = useState({ course: '', date: '', time: '', duration: '', location: '' })
+  const [editingExam, setEditingExam] = useState(null)
+
+  const handleAddExam = () => {
+    setExams([...exams, { ...newExam, id: exams.length + 1 }])
+    setIsAddExamModalOpen(false)
+    setNewExam({ course: '', date: '', time: '', duration: '', location: '' })
+    showSnackbar('Exam scheduled successfully', 'success')
+  }
+
+  const handleEditExam = (exam) => {
+    setEditingExam(exam)
+    setIsEditExamModalOpen(true)
+  }
+
+  const handleUpdateExam = () => {
+    setExams(exams.map(e => e.id === editingExam.id ? editingExam : e))
+    setIsEditExamModalOpen(false)
+    setEditingExam(null)
+    showSnackbar('Exam updated successfully', 'success')
+  }
+
+  const handleDeleteExam = (id) => {
+    setExams(exams.filter(e => e.id !== id))
+    showSnackbar('Exam deleted successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Exam Scheduling</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddExamModalOpen(true)}
+        >
+          Schedule Exam
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Course</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Duration</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {exams.map((exam) => (
+              <TableRow key={exam.id} hover>
+                <TableCell>{exam.course}</TableCell>
+                <TableCell>{exam.date}</TableCell>
+                <TableCell>{exam.time}</TableCell>
+                <TableCell>{exam.duration}</TableCell>
+                <TableCell>{exam.location}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditExam(exam)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteExam(exam.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddExamModalOpen} 
+        onClose={() => setIsAddExamModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Schedule New Exam</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Course"
+            fullWidth
+            value={newExam.course}
+            onChange={(e) => setNewExam({ ...newExam, course: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Date"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={newExam.date}
+            onChange={(e) => setNewExam({ ...newExam, date: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Time"
+            type="time"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={newExam.time}
+            onChange={(e) => setNewExam({ ...newExam, time: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Duration"
+            fullWidth
+            value={newExam.duration}
+            onChange={(e) => setNewExam({ ...newExam, duration: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Location"
+            fullWidth
+            value={newExam.location}
+            onChange={(e) => setNewExam({ ...newExam, location: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddExamModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddExam} variant="contained">Schedule</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditExamModalOpen} 
+        onClose={() => setIsEditExamModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Edit Exam</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Course"
+            fullWidth
+            value={editingExam?.course || ''}
+            onChange={(e) => setEditingExam({ ...editingExam, course: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Date"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={editingExam?.date || ''}
+            onChange={(e) => setEditingExam({ ...editingExam, date: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Time"
+            type="time"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={editingExam?.time || ''}
+            onChange={(e) => setEditingExam({ ...editingExam, time: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Duration"
+            fullWidth
+            value={editingExam?.duration || ''}
+            onChange={(e) => setEditingExam({ ...editingExam, duration: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Location"
+            fullWidth
+            value={editingExam?.location || ''}
+            onChange={(e) => setEditingExam({ ...editingExam, location: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditExamModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateExam} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
+const ReportsAnalytics = ({ showSnackbar }) => {
+  const [activeTab, setActiveTab] = useState(0)
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue)
+  }
+
+  const generateReport = (reportType) => {
+    // Simulating report generation
+    showSnackbar(`${reportType} report generated successfully`, 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Typography variant="h5">Reports & Analytics</Typography>
+      
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={activeTab} onChange={handleTabChange} aria-label="report tabs">
+          <Tab label="Student Reports" />
+          <Tab label="Teacher Reports" />
+          <Tab label="Course Reports" />
+          <Tab label="Exam Reports" />
         </Tabs>
-      </main>
+      </Box>
+
+      <TabPanel value={activeTab} index={0}>
+        <Button variant="outlined" onClick={() => generateReport('Student Performance')}>Generate Student Performance Report</Button>
+      </TabPanel>
+      <TabPanel value={activeTab} index={1}>
+        <Button variant="outlined" onClick={() => generateReport('Teacher Evaluation')}>Generate Teacher Evaluation Report</Button>
+      </TabPanel>
+      <TabPanel value={activeTab} index={2}>
+        <Button variant="outlined" onClick={() => generateReport('Course Enrollment')}>Generate Course Enrollment Report</Button>
+      </TabPanel>
+      <TabPanel value={activeTab} index={3}>
+        <Button variant="outlined" onClick={() => generateReport('Exam Results')}>Generate Exam Results Report</Button>
+      </TabPanel>
+    </motion.div>
+  )
+}
+
+const TabPanel = (props) => {
+  const { children, value, index, ...other } = props
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && children ? (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      ) : null}
     </div>
   )
 }
 
-export default AdminDashboard;
+const FinancialManagement = ({ showSnackbar }) => {
+  const [transactions, setTransactions] = useState([
+    { id: 1, date: '2023-06-01', description: 'Student Fee', amount: 1000, type: 'Income' },
+    { id: 2, date: '2023-06-05', description: 'Equipment Purchase', amount: -500, type: 'Expense' },
+  ])
+  const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false)
+  const [isEditTransactionModalOpen, setIsEditTransactionModalOpen] = useState(false)
+  const [newTransaction, setNewTransaction] = useState({ date: '', description: '', amount: '', type: '' })
+  const [editingTransaction, setEditingTransaction] = useState(null)
+
+  const handleAddTransaction = () => {
+    setTransactions([...transactions, { ...newTransaction, id: transactions.length + 1 }])
+    setIsAddTransactionModalOpen(false)
+    setNewTransaction({ date: '', description: '', amount: '', type: '' })
+    showSnackbar('Transaction added successfully', 'success')
+  }
+
+  const handleEditTransaction = (transaction) => {
+    setEditingTransaction(transaction)
+    setIsEditTransactionModalOpen(true)
+  }
+
+  const handleUpdateTransaction = () => {
+    setTransactions(transactions.map(t => t.id === editingTransaction.id ? editingTransaction : t))
+    setIsEditTransactionModalOpen(false)
+    setEditingTransaction(null)
+    showSnackbar('Transaction updated successfully', 'success')
+  }
+
+  const handleDeleteTransaction = (id) => {
+    setTransactions(transactions.filter(t => t.id !== id))
+    showSnackbar('Transaction deleted successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Financial Management</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddTransactionModalOpen(true)}
+        >
+          Add Transaction
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.id} hover>
+                <TableCell>{transaction.date}</TableCell>
+                <TableCell>{transaction.description}</TableCell>
+                <TableCell>{transaction.amount}</TableCell>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditTransaction(transaction)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteTransaction(transaction.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddTransactionModalOpen} 
+        onClose={() => setIsAddTransactionModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Add New Transaction</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Date"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={newTransaction.date}
+            onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            value={newTransaction.description}
+            onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Amount"
+            type="number"
+            fullWidth
+            value={newTransaction.amount}
+            onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={newTransaction.type}
+              onChange={(e) => setNewTransaction({ ...newTransaction, type: e.target.value })}
+            >
+              <MenuItem value="Income">Income</MenuItem>
+              <MenuItem value="Expense">Expense</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddTransactionModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddTransaction} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditTransactionModalOpen} 
+        onClose={() => setIsEditTransactionModalOpen(false)}
+        TransitionProps={{
+          onEnter: () => {
+            // Ensure any necessary state is set before the dialog opens
+          }
+        }}
+      >
+        <DialogTitle>Edit Transaction</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Date"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={editingTransaction?.date || ''}
+            onChange={(e) => setEditingTransaction({ ...editingTransaction, date: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            value={editingTransaction?.description || ''}
+            onChange={(e) => setEditingTransaction({ ...editingTransaction, description: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Amount"
+            type="number"
+            fullWidth
+            value={editingTransaction?.amount || ''}
+            onChange={(e) => setEditingTransaction({ ...editingTransaction, amount: e.target.value })}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={editingTransaction?.type || ''}
+              onChange={(e) => setEditingTransaction({ ...editingTransaction, type: e.target.value })}
+            >
+              <MenuItem value="Income">Income</MenuItem>
+              <MenuItem value="Expense">Expense</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditTransactionModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateTransaction} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
+const SystemSettings = ({ showSnackbar }) => {
+  const [settings, setSettings] = useState({
+    darkMode: false,
+    notifications: true,
+    language: 'English',
+  })
+
+  const handleSettingChange = (setting, value) => {
+    setSettings({ ...settings, [setting]: value })
+    showSnackbar('Setting updated successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Typography variant="h5">System Settings</Typography>
+      
+      <Card>
+        <CardContent>
+          <List>
+            <ListItem>
+              <ListItemText primary="Dark Mode" />
+              <Switch
+                checked={settings.darkMode}
+                onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Notifications" />
+              <Switch
+                checked={settings.notifications}
+                onChange={(e) => handleSettingChange('notifications', e.target.checked)}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Language" />
+              <Select
+                value={settings.language}
+                onChange={(e) => handleSettingChange('language', e.target.value)}
+              >
+                <MenuItem value="English">English</MenuItem>
+                <MenuItem value="Spanish">Spanish</MenuItem>
+                <MenuItem value="French">French</MenuItem>
+              </Select>
+            </ListItem>
+          </List>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+export default EnhancedAdminDashboard
+
