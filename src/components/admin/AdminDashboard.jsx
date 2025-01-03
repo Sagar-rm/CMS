@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, BookOpen, UserPlus, Clipboard, Calendar, ChevronDown, ChevronUp, Menu, X, BarChart2, Settings, Bell, Search, LogOut, PlusCircle, Trash2, Edit, Save, FileText, DollarSign } from 'lucide-react'
 import InputAdornment from '@mui/material/InputAdornment';
-import Collapse from '@mui/material/Collapse';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Importing MUI components
 import { 
@@ -12,17 +12,22 @@ import {
   ListItemText, TextField, Button, Card, CardContent, CardActions, Grid, Select, 
   MenuItem, FormControl, InputLabel, Switch, Chip, Avatar, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle, 
-  DialogContent, DialogActions, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton
+  DialogContent, DialogActions, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton, Collapse
 } from '@mui/material'
 
 // Importing Recharts for data visualization
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+
+// import { DefaultPropsProvider } from '@mui/material/styles';
 
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const [loading, setLoading] = useState(false)
+
+  // Create a theme instance
+  const theme = createTheme()
 
   const sidebarItems = [
     { id: 'dashboard', icon: BarChart2, label: 'Dashboard Overview' },
@@ -54,130 +59,132 @@ const EnhancedAdminDashboard = () => {
   }
 
   return (
-    <motion.div 
-      className="flex h-screen bg-gray-100"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        open={isSidebarOpen}
-        sx={{
-          width: isSidebarOpen ? 240 : 72,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: isSidebarOpen ? 240 : 72,
-            boxSizing: 'border-box',
-            backgroundColor: '#2e968b',
-            color: 'white',
-            transition: 'width 0.3s'
-          },
-        }}
+    <ThemeProvider theme={theme}>
+      <motion.div 
+        className="flex h-screen bg-gray-100"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
       >
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {isSidebarOpen ? 'CMS Admin' : 'CMS'}
-          </Typography>
-          <IconButton color="inherit" onClick={toggleSidebar}>
-            {isSidebarOpen ? <ChevronUp /> : <ChevronDown />}
-          </IconButton>
-        </Toolbar>
-        <List>
-          {sidebarItems.map((item) => (
-            <ListItem 
-              component={motion.div}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              disablePadding
-              key={item.id}
-              sx={{
-                backgroundColor: activeSection === item.id ? '#704cd1' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#704cd1',
-                },
-              }}
-            >
-              <ListItemButton
-                onClick={() => handleSectionChange(item.id)}
-                sx={{
-                  color: 'white',
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <item.icon />
-                </ListItemIcon>
-                {isSidebarOpen && <ListItemText primary={item.label} />}
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <AppBar position="static" color="default" elevation={0}>
+        {/* Sidebar */}
+        <Drawer
+          variant="permanent"
+          open={isSidebarOpen}
+          sx={{
+            width: isSidebarOpen ? 240 : 72,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: isSidebarOpen ? 240 : 72,
+              boxSizing: 'border-box',
+              backgroundColor: '#2e968b',
+              color: 'white',
+              transition: 'width 0.3s'
+            },
+          }}
+        >
           <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={toggleSidebar}
-              sx={{ mr: 2, display: { sm: 'none' } }}
-            >
-              <Menu />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {sidebarItems.find(item => item.id === activeSection)?.label}
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              {isSidebarOpen ? 'CMS Admin' : 'CMS'}
             </Typography>
-            <IconButton color="inherit">
-              <Bell />
-            </IconButton>
-            <IconButton color="inherit">
-              <LogOut />
+            <IconButton color="inherit" onClick={toggleSidebar}>
+              {isSidebarOpen ? <ChevronUp /> : <ChevronDown />}
             </IconButton>
           </Toolbar>
-        </AppBar>
+          <List>
+            {sidebarItems.map((item) => (
+              <ListItem 
+                component={motion.div}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                disablePadding
+                key={item.id}
+                sx={{
+                  backgroundColor: activeSection === item.id ? '#704cd1' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#704cd1',
+                  },
+                }}
+              >
+                <ListItemButton
+                  onClick={() => handleSectionChange(item.id)}
+                  sx={{
+                    color: 'white',
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <item.icon />
+                  </ListItemIcon>
+                  {isSidebarOpen && <ListItemText primary={item.label} />}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-          {loading && <LinearProgress />}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {activeSection === 'dashboard' && <DashboardOverview showSnackbar={showSnackbar} />}
-              {activeSection === 'students' && <StudentManagement showSnackbar={showSnackbar} />}
-              {activeSection === 'student-details' && <StudentDetails showSnackbar={showSnackbar} />}
-              {activeSection === 'teachers' && <TeacherManagement showSnackbar={showSnackbar} />}
-              {activeSection === 'courses' && <CourseManagement showSnackbar={showSnackbar} />}
-              {activeSection === 'exams' && <ExamScheduling showSnackbar={showSnackbar} />}
-              {activeSection === 'reports' && <ReportsAnalytics showSnackbar={showSnackbar} />}
-              {activeSection === 'finance' && <FinancialManagement showSnackbar={showSnackbar} />}
-              {activeSection === 'settings' && <SystemSettings showSnackbar={showSnackbar} />}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </div>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <AppBar position="static" color="default" elevation={0}>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={toggleSidebar}
+                sx={{ mr: 2, display: { sm: 'none' } }}
+              >
+                <Menu />
+              </IconButton>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                {sidebarItems.find(item => item.id === activeSection)?.label}
+              </Typography>
+              <IconButton color="inherit">
+                <Bell />
+              </IconButton>
+              <IconButton color="inherit">
+                <LogOut />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        {snackbar.message && (
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        )}
-      </Snackbar>
-    </motion.div>
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            {loading && <LinearProgress />}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {activeSection === 'dashboard' && <DashboardOverview showSnackbar={showSnackbar} />}
+                {activeSection === 'students' && <StudentManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'student-details' && <StudentDetails showSnackbar={showSnackbar} />}
+                {activeSection === 'teachers' && <TeacherManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'courses' && <CourseManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'exams' && <ExamScheduling showSnackbar={showSnackbar} />}
+                {activeSection === 'reports' && <ReportsAnalytics showSnackbar={showSnackbar} />}
+                {activeSection === 'finance' && <FinancialManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'settings' && <SystemSettings showSnackbar={showSnackbar} />}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
+
+        <Snackbar 
+          open={snackbar.open} 
+          autoHideDuration={6000} 
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          {snackbar.message && (
+            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+              {snackbar.message}
+            </Alert>
+          )}
+        </Snackbar>
+      </motion.div>
+    </ThemeProvider>
   )
 }
 
