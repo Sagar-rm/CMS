@@ -15,6 +15,7 @@ import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
 import AdminDashboard from './components/admin/AdminDashboard';
+import EnhancedStudentDashboard from './components/student/StudentOverview';
 
 
 
@@ -119,6 +120,7 @@ function AppContent() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/studnet" element={<EnhancedStudentDashboard />} />
 
             
         </Routes>
