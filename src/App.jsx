@@ -15,7 +15,7 @@ import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
 import AdminDashboard from './components/admin/AdminDashboard';
-import AdminDashboard1 from './components/admin/AdminDashboard copy';
+
 
 
 const pageVariants = {
@@ -38,7 +38,7 @@ function HomePage() {
       <HowItWorks />
       <Stats />
       <Testimonials />
-      <Pricing />
+      {/* <Pricing /> */}
       <Team />
       <Blog />
       <FAQ />
@@ -89,20 +89,6 @@ function AppContent() {
             }
           />
           <Route
-            path="/pricing"
-            element={
-              <motion.main
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <Pricing />
-              </motion.main>
-            }
-          />
-          <Route
             path="/blog"
             element={
               <motion.main
@@ -133,7 +119,6 @@ function AppContent() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin1" element={<AdminDashboard1 />} />
 
             
         </Routes>
