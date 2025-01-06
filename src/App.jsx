@@ -120,7 +120,7 @@ function AppContent() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/studnet" element={<EnhancedStudentDashboard />} />
+          <Route path="/student" element={<EnhancedStudentDashboard />} />
 
             
         </Routes>
