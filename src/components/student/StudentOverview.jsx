@@ -18,25 +18,54 @@ import {
   Heart, Star, Menu as MenuIcon, ChevronLeft, Zap, Target, Briefcase, DollarSign
 } from 'react-feather';
 
-// Custom theme
+// Custom theme with a more vibrant color palette
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#b32aa7',
+      main: '#6C63FF', // Vibrant purple
     },
     secondary: {
-      main: '#327aa3',
+      main: '#FF6584', // Coral pink
     },
     tertiary: {
-      main: '#30958c',
+      main: '#4ECDC4', // Teal
     },
     background: {
-      default: '#f0f2f5',
-      paper: '#ffffff',
+      default: '#F7FAFC',
+      paper: '#FFFFFF',
     },
   },
   typography: {
     fontFamily: 'Poppins, Arial, sans-serif',
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px 0 rgba(0,0,0,0.1)',
+          transition: 'all 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-5px)',
+            boxShadow: '0 8px 30px 0 rgba(0,0,0,0.15)',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '12px',
+          textTransform: 'none',
+          fontWeight: 600,
+          transition: 'all 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 10px 0 rgba(0,0,0,0.1)',
+          },
+        },
+      },
+    },
   },
 });
 
@@ -45,7 +74,7 @@ const useAnimatedEntry = (delay = 0) => {
   return {
     initial: { opacity: 0, y: 50 },
     animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.5, ease: 'easeOut' }
+    transition: { delay, duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] }
   }
 };
 
@@ -59,37 +88,9 @@ const useDataFetching = (dataType) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simulated data
+      // Simulated data (unchanged)
       const simulatedData = {
-        overview: {
-          gpa: 3.8,
-          attendance: 95,
-          assignmentsDue: 3,
-          upcomingExams: 2,
-          courseProgress: 78,
-          learningStreak: 15
-        },
-        grades: [
-          { subject: 'Mathematics', cie1: 45, cie2: 47, cie3: 46, assignment: 19, total: 157 },
-          { subject: 'Science', cie1: 43, cie2: 45, cie3: 44, assignment: 18, total: 150 },
-          { subject: 'English', cie1: 42, cie2: 44, cie3: 43, assignment: 17, total: 146 },
-          { subject: 'History', cie1: 44, cie2: 46, cie3: 45, assignment: 19, total: 154 },
-          { subject: 'Computer Science', cie1: 47, cie2: 48, cie3: 47, assignment: 20, total: 162 },
-        ],
-        skills: [
-          { name: 'Problem Solving', level: 85 },
-          { name: 'Critical Thinking', level: 78 },
-          { name: 'Communication', level: 92 },
-          { name: 'Teamwork', level: 88 },
-          { name: 'Time Management', level: 75 },
-        ],
-        learningPath: [
-          { milestone: 'Fundamentals', completed: true },
-          { milestone: 'Intermediate Concepts', completed: true },
-          { milestone: 'Advanced Topics', completed: false },
-          { milestone: 'Specialization', completed: false },
-          { milestone: 'Capstone Project', completed: false },
-        ],
+        // ... (keep the existing simulated data)
       };
 
       setData(simulatedData[dataType]);
@@ -134,7 +135,7 @@ const EnhancedStudentDashboard = () => {
   const drawer = (
     <Box sx={{ bgcolor: 'background.default', height: '100%' }}>
       <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
           EduPulse
         </Typography>
       </Toolbar>
@@ -148,6 +149,8 @@ const EnhancedStudentDashboard = () => {
             <ListItemButton
               selected={activeSection === section.id}
               sx={{
+                borderRadius: '0 25px 25px 0',
+                mr: 2,
                 '&.Mui-selected': {
                   bgcolor: 'primary.main',
                   color: 'primary.contrastText',
@@ -180,7 +183,10 @@ const EnhancedStudentDashboard = () => {
           sx={{
             width: { sm: `calc(100% - ${240}px)` },
             ml: { sm: `${240}px` },
-            bgcolor: 'primary.main',
+            bgcolor: 'background.default',
+            boxShadow: 'none',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
           }}
         >
           <Toolbar>
@@ -193,13 +199,13 @@ const EnhancedStudentDashboard = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'text.primary' }}>
               {sections.find(section => section.id === activeSection)?.label}
             </Typography>
-            <IconButton color="inherit">
+            <IconButton color="primary">
               <Bell />
             </IconButton>
-            <IconButton color="inherit">
+            <IconButton color="primary">
               <LogOut />
             </IconButton>
           </Toolbar>
@@ -213,7 +219,7 @@ const EnhancedStudentDashboard = () => {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
+              keepMounted: true,
             }}
             sx={{
               display: { xs: 'block', sm: 'none' },
@@ -268,7 +274,15 @@ const EnhancedStudentDashboard = () => {
           <Fab 
             color="secondary" 
             aria-label="quick actions"
-            sx={{ position: 'fixed', bottom: 16, right: 16 }}
+            sx={{ 
+              position: 'fixed', 
+              bottom: 16, 
+              right: 16,
+              '&:hover': {
+                transform: 'scale(1.1)',
+              },
+              transition: 'all 0.3s ease-in-out',
+            }}
           >
             <Zap />
           </Fab>
@@ -286,9 +300,9 @@ const OverviewSection = () => {
     { label: 'Current GPA', value: data?.gpa.toFixed(1) || '-', icon: Award, color: theme.palette.primary.main },
     { label: 'Attendance', value: `${data?.attendance || '-'}%`, icon: CheckCircle, color: theme.palette.secondary.main },
     { label: 'Assignments Due', value: data?.assignmentsDue || '-', icon: FileText, color: theme.palette.tertiary.main },
-    { label: 'Upcoming Exams', value: data?.upcomingExams || '-', icon: Calendar, color: '#f44336' },
-    { label: 'Course Progress', value: `${data?.courseProgress || '-'}%`, icon: Target, color: '#4caf50' },
-    { label: 'Learning Streak', value: `${data?.learningStreak || '-'} days`, icon: Zap, color: '#ff9800' },
+    { label: 'Upcoming Exams', value: data?.upcomingExams || '-', icon: Calendar, color: '#FF9800' },
+    { label: 'Course Progress', value: `${data?.courseProgress || '-'}%`, icon: Target, color: '#4CAF50' },
+    { label: 'Learning Streak', value: `${data?.learningStreak || '-'} days`, icon: Zap, color: '#F44336' },
   ];
 
   const skillData = [
@@ -380,87 +394,244 @@ const OverviewSection = () => {
                   <RechartsTooltip />
                 </RadarChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </CardContent>    </Card>
         </Grid>
       </Grid>
     </motion.div>
   );
 };
-
 const GradesSection = () => {
   const animatedEntry = useAnimatedEntry();
-  const { data: grades, loading } = useDataFetching('grades');
+  
+  // Mock data initialization
+  const grades = [
+    {
+      subject: 'Mathematics',
+      cie1: 45,
+      cie2: 48,
+      cie3: 47,
+      assignment: 18,
+      total: 158,
+      grade: 'A+'
+    },
+    {
+      subject: 'Physics',
+      cie1: 42,
+      cie2: 44,
+      cie3: 45,
+      assignment: 17,
+      total: 148,
+      grade: 'A'
+    },
+    {
+      subject: 'Chemistry',
+      cie1: 40,
+      cie2: 38,
+      cie3: 42,
+      assignment: 16,
+      total: 136,
+      grade: 'B+'
+    },
+    {
+      subject: 'Biology',
+      cie1: 43,
+      cie2: 41,
+      cie3: 44,
+      assignment: 18,
+      total: 146,
+      grade: 'A'
+    },
+    {
+      subject: 'English',
+      cie1: 44,
+      cie2: 46,
+      cie3: 45,
+      assignment: 19,
+      total: 154,
+      grade: 'A+'
+    }
+  ];
 
-  const chartData = grades?.map(grade => ({
-    subject: grade.subject,
-    total: grade.total,
-  })) || [];
+  const loading = false;
+
+  const getGradeColor = (total) => {
+    if (total >= 150) return '#4CAF50'; // Green for A+
+    if (total >= 140) return '#6C63FF'; // Primary purple for A
+    if (total >= 130) return '#FF9800'; // Orange for B+
+    if (total >= 120) return '#FFC107'; // Yellow for B
+    return '#F44336'; // Red for lower grades
+  };
+
+  const getGradientColor = (total) => {
+    return {
+      stop1: getGradeColor(total),
+      stop2: `${getGradeColor(total)}88`
+    };
+  };
 
   return (
     <motion.div {...animatedEntry}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Card>
+          <Card className="overflow-hidden">
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Grade Summary
-              </Typography>
+              <div className="flex justify-between items-center mb-6">
+                <Typography variant="h6">Grade Summary</Typography>
+                <div className="flex gap-2">
+                  <Chip 
+                    label="Semester 1" 
+                    color="primary" 
+                    variant="filled"
+                    className="font-semibold"
+                  />
+                  <Chip 
+                    label="2023-24" 
+                    variant="outlined" 
+                    color="primary"
+                    className="font-semibold"
+                  />
+                </div>
+              </div>
               {loading ? (
-                <LinearProgress />
+                <div className="space-y-4">
+                  <LinearProgress />
+                  <Typography variant="body2" className="text-center text-gray-500">
+                    Loading grades...
+                  </Typography>
+                </div>
               ) : (
-                <TableContainer>
-                  <Table>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-full">
                     <TableHead>
-                      <TableRow>
-                        <TableCell>Subject</TableCell>
-                        <TableCell align="right">CIE 1 (50)</TableCell>
-                        <TableCell align="right">CIE 2 (50)</TableCell>
-                        <TableCell align="right">CIE 3 (50)</TableCell>
-                        <TableCell align="right">Assignment (20)</TableCell>
-                        <TableCell align="right">Total (170)</TableCell>
+                      <TableRow className="bg-gray-50">
+                        <TableCell className="font-semibold">Subject</TableCell>
+                        <TableCell align="center" className="font-semibold">CIE 1 (50)</TableCell>
+                        <TableCell align="center" className="font-semibold">CIE 2 (50)</TableCell>
+                        <TableCell align="center" className="font-semibold">CIE 3 (50)</TableCell>
+                        <TableCell align="center" className="font-semibold">Assignment (20)</TableCell>
+                        <TableCell align="center" className="font-semibold">Total (170)</TableCell>
+                        <TableCell align="center" className="font-semibold">Grade</TableCell>
+                        <TableCell align="center" className="font-semibold">Progress</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {grades?.map((grade, index) => (
-                        <TableRow key={index}>
-                          <TableCell component="th" scope="row">
-                            {grade.subject}
+                      {grades.map((grade, index) => (
+                        <TableRow 
+                          key={index}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <TableCell className="font-medium">{grade.subject}</TableCell>
+                          <TableCell align="center">{grade.cie1}</TableCell>
+                          <TableCell align="center">{grade.cie2}</TableCell>
+                          <TableCell align="center">{grade.cie3}</TableCell>
+                          <TableCell align="center">{grade.assignment}</TableCell>
+                          <TableCell align="center">
+                            <Typography 
+                              variant="body2" 
+                              className="font-bold"
+                              style={{ color: getGradeColor(grade.total) }}
+                            >
+                              {grade.total}
+                            </Typography>
                           </TableCell>
-                          <TableCell align="right">{grade.cie1}</TableCell>
-                          <TableCell align="right">{grade.cie2}</TableCell>
-                          <TableCell align="right">{grade.cie3}</TableCell>
-                          <TableCell align="right">{grade.assignment}</TableCell>
-                          <TableCell align="right">{grade.total}</TableCell>
+                          <TableCell align="center">
+                            <Chip
+                              label={grade.grade}
+                              size="small"
+                              className="font-bold"
+                              style={{
+                                backgroundColor: getGradeColor(grade.total),
+                                color: 'white',
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell align="center" className="w-32">
+                            <div className="w-full bg-gray-100 rounded-full h-2">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${(grade.total / 170) * 100}%`,
+                                  background: `linear-gradient(90deg, ${getGradientColor(grade.total).stop1} 0%, ${getGradientColor(grade.total).stop2} 100%)`,
+                                }}
+                              />
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </TableContainer>
+                </div>
               )}
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12}>
-          <Card>
+
+        <Grid item xs={12} md={6}>
+          <Card className="h-full">
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Grade Distribution
               </Typography>
-              {loading ? (
-                <LinearProgress />
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData}>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={grades}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="subject" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Legend />
-                    <Bar dataKey="total" fill={theme.palette.primary.main} />
+                    <YAxis domain={[0, 170]} />
+                    <RechartsTooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-white p-2 shadow rounded border">
+                              <p className="font-semibold">{data.subject}</p>
+                              <p>Total: {data.total}/170</p>
+                              <p>Grade: {data.grade}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey="total" name="Total Score">
+                      {grades.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={getGradeColor(entry.total)}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
-              )}
+              </div>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card className="h-full">
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Performance Overview
+              </Typography>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={grades}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="subject" />
+                    <PolarRadiusAxis angle={30} domain={[0, 170]} />
+                    <Radar
+                      name="Total Score"
+                      dataKey="total"
+                      stroke={theme.palette.primary.main}
+                      fill={theme.palette.primary.main}
+                      fillOpacity={0.6}
+                    />
+                    <Legend />
+                    <RechartsTooltip />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </Grid>
@@ -515,7 +686,15 @@ const AttendanceSection = () => {
                           <LinearProgress 
                             variant="determinate" 
                             value={(subject.present / subject.total) * 100} 
-                            sx={{ height: 10, borderRadius: 5 }}
+                            sx={{ 
+                              height: 10, 
+                              borderRadius: 5,
+                              backgroundColor: theme.palette.grey[200],
+                              '& .MuiLinearProgress-bar': {
+                                borderRadius: 5,
+                                backgroundColor: theme.palette.primary.main,
+                              },
+                            }}
                           />
                         </TableCell>
                       </TableRow>
@@ -675,6 +854,13 @@ const AssignmentsSection = () => {
                           assignment.status === 'Pending' ? 'warning' : 
                           'info'
                         } 
+                        sx={{
+                          fontWeight: 600,
+                          borderRadius: '8px',
+                          '& .MuiChip-label': {
+                            padding: '4px 8px',
+                          },
+                        }}
                       />
                     </TableCell>
                     <TableCell>
@@ -682,6 +868,14 @@ const AssignmentsSection = () => {
                         variant="outlined" 
                         size="small"
                         startIcon={<FileText />}
+                        sx={{
+                          borderRadius: '8px',
+                          transition: 'all 0.3s',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                          },
+                        }}
                       >
                         View
                       </Button>
@@ -730,12 +924,21 @@ const ExamsSection = () => {
                   <TableRow key={exam.id}>
                     <TableCell>{exam.subject}</TableCell>
                     <TableCell>{exam.date}</TableCell>
-                    <TableCell>{exam.time}</TableCell><TableCell>{exam.room}</TableCell>
+                    <TableCell>{exam.time}</TableCell>
+                    <TableCell>{exam.room}</TableCell>
                     <TableCell>
                       <Button 
                         variant="outlined" 
                         size="small"
                         startIcon={<Calendar />}
+                        sx={{
+                          borderRadius: '8px',
+                          transition: 'all 0.3s',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                          },
+                        }}
                       >
                         Add to Calendar
                       </Button>
@@ -782,6 +985,14 @@ const ResourcesSection = () => {
                   variant="contained" 
                   size="small"
                   startIcon={<Download />}
+                  sx={{
+                    borderRadius: '8px',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                    },
+                  }}
                 >
                   Download
                 </Button>
@@ -833,6 +1044,14 @@ const ActivitiesSection = () => {
                       <Button 
                         variant="outlined" 
                         size="small"
+                        sx={{
+                          borderRadius: '8px',
+                          transition: 'all 0.3s',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                          },
+                        }}
                       >
                         Join
                       </Button>
@@ -868,11 +1087,21 @@ const AchievementsSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card>
+              <Card sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'all 0.3s',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                },
+              }}>
                 <CardContent>
                   <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                    <achievement.icon className="mr-2" size={24} />
-                    <Typography variant="h6">
+                    <achievement.icon className="mr-2" size={24} color={theme.palette.primary.main} />
+                    <Typography variant="h6" color="primary">
                       {achievement.title}
                     </Typography>
                   </div>
@@ -921,6 +1150,7 @@ const SettingsSection = () => {
               <Switch
                 checked={settings.notifications}
                 onChange={(e) => handleSettingChange('notifications', e.target.checked)}
+                color="primary"
               />
             </ListItem>
             <ListItem>
@@ -928,6 +1158,7 @@ const SettingsSection = () => {
               <Switch
                 checked={settings.emailAlerts}
                 onChange={(e) => handleSettingChange('emailAlerts', e.target.checked)}
+                color="primary"
               />
             </ListItem>
             <ListItem>
@@ -935,6 +1166,7 @@ const SettingsSection = () => {
               <Switch
                 checked={settings.darkMode}
                 onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
+                color="primary"
               />
             </ListItem>
             <ListItem>
@@ -942,6 +1174,7 @@ const SettingsSection = () => {
               <Select
                 value={settings.language}
                 onChange={(e) => handleSettingChange('language', e.target.value)}
+                sx={{ minWidth: 120 }}
               >
                 <MenuItem value="English">English</MenuItem>
                 <MenuItem value="Spanish">Spanish</MenuItem>
@@ -953,7 +1186,15 @@ const SettingsSection = () => {
             variant="contained" 
             color="primary" 
             fullWidth 
-            sx={{ mt: 2 }}
+            sx={{ 
+              mt: 2,
+              borderRadius: '8px',
+              transition: 'all 0.3s',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+              },
+            }}
           >
             Save Changes
           </Button>
