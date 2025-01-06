@@ -70,11 +70,11 @@ const useDataFetching = (dataType) => {
           learningStreak: 15
         },
         grades: [
-          { subject: 'Mathematics', grade: 'A', percentage: 92 },
-          { subject: 'Science', grade: 'A-', percentage: 88 },
-          { subject: 'English', grade: 'B+', percentage: 85 },
-          { subject: 'History', grade: 'A', percentage: 95 },
-          { subject: 'Computer Science', grade: 'A+', percentage: 98 },
+          { subject: 'Mathematics', cie1: 45, cie2: 47, cie3: 46, assignment: 19, total: 157 },
+          { subject: 'Science', cie1: 43, cie2: 45, cie3: 44, assignment: 18, total: 150 },
+          { subject: 'English', cie1: 42, cie2: 44, cie3: 43, assignment: 17, total: 146 },
+          { subject: 'History', cie1: 44, cie2: 46, cie3: 45, assignment: 19, total: 154 },
+          { subject: 'Computer Science', cie1: 47, cie2: 48, cie3: 47, assignment: 20, total: 162 },
         ],
         skills: [
           { name: 'Problem Solving', level: 85 },
@@ -113,11 +113,10 @@ const EnhancedStudentDashboard = () => {
     { id: 'attendance', label: 'Attendance', icon: CheckCircle },
     { id: 'schedule', label: 'Schedule', icon: Calendar },
     { id: 'assignments', label: 'Assignments', icon: FileText },
-    { id: 'courses', label: 'Courses', icon: BookOpen },
+    { id: 'exams', label: 'Exams', icon: BookOpen },
     { id: 'resources', label: 'Resources', icon: Download },
     { id: 'activities', label: 'Activities', icon: Activity },
     { id: 'achievements', label: 'Achievements', icon: Award },
-    { id: 'messages', label: 'Messages', icon: MessageCircle },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -257,11 +256,10 @@ const EnhancedStudentDashboard = () => {
               {activeSection === 'attendance' && <AttendanceSection />}
               {activeSection === 'schedule' && <ScheduleSection />}
               {activeSection === 'assignments' && <AssignmentsSection />}
-              {activeSection === 'courses' && <CoursesSection />}
+              {activeSection === 'exams' && <ExamsSection />}
               {activeSection === 'resources' && <ResourcesSection />}
               {activeSection === 'activities' && <ActivitiesSection />}
               {activeSection === 'achievements' && <AchievementsSection />}
-              {activeSection === 'messages' && <MessagesSection />}
               {activeSection === 'settings' && <SettingsSection />}
             </motion.div>
           </AnimatePresence>
@@ -396,13 +394,13 @@ const GradesSection = () => {
 
   const chartData = grades?.map(grade => ({
     subject: grade.subject,
-    percentage: grade.percentage,
+    total: grade.total,
   })) || [];
 
   return (
     <motion.div {...animatedEntry}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -416,8 +414,11 @@ const GradesSection = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell>Subject</TableCell>
-                        <TableCell align="right">Grade</TableCell>
-                        <TableCell align="right">Percentage</TableCell>
+                        <TableCell align="right">CIE 1 (50)</TableCell>
+                        <TableCell align="right">CIE 2 (50)</TableCell>
+                        <TableCell align="right">CIE 3 (50)</TableCell>
+                        <TableCell align="right">Assignment (20)</TableCell>
+                        <TableCell align="right">Total (170)</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -426,8 +427,11 @@ const GradesSection = () => {
                           <TableCell component="th" scope="row">
                             {grade.subject}
                           </TableCell>
-                          <TableCell align="right">{grade.grade}</TableCell>
-                          <TableCell align="right">{grade.percentage}%</TableCell>
+                          <TableCell align="right">{grade.cie1}</TableCell>
+                          <TableCell align="right">{grade.cie2}</TableCell>
+                          <TableCell align="right">{grade.cie3}</TableCell>
+                          <TableCell align="right">{grade.assignment}</TableCell>
+                          <TableCell align="right">{grade.total}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -437,7 +441,7 @@ const GradesSection = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -453,7 +457,7 @@ const GradesSection = () => {
                     <YAxis />
                     <RechartsTooltip />
                     <Legend />
-                    <Bar dataKey="percentage" fill={theme.palette.primary.main} />
+                    <Bar dataKey="total" fill={theme.palette.primary.main} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -693,56 +697,56 @@ const AssignmentsSection = () => {
   );
 };
 
-const CoursesSection = () => {
+const ExamsSection = () => {
   const animatedEntry = useAnimatedEntry();
-  const courses = [
-    { id: 1, name: 'Advanced Mathematics', instructor: 'Dr. John Smith', progress: 75 },
-    { id: 2, name: 'Modern Literature', instructor: 'Prof. Emily Johnson', progress: 60 },
-    { id: 3, name: 'Physics 101', instructor: 'Dr. Robert Brown', progress: 80 },
-    { id: 4, name: 'Introduction to Psychology', instructor: 'Dr. Sarah Davis', progress: 90 },
-    { id: 5, name: 'Web Development Fundamentals', instructor: 'Mr. Michael Lee', progress: 70 },
+  const exams = [
+    { id: 1, subject: 'Mathematics', date: '2023-07-05', time: '09:00 AM - 11:00 AM', room: 'Hall A' },
+    { id: 2, subject: 'Science', date: '2023-07-07', time: '10:00 AM - 12:00 PM', room: 'Lab 1' },
+    { id: 3, subject: 'English', date: '2023-07-10', time: '09:00 AM - 11:00 AM', room: 'Hall B' },
+    { id: 4, subject: 'History', date: '2023-07-12', time: '02:00 PM - 04:00 PM', room: 'Hall C' },
+    { id: 5, subject: 'Computer Science', date: '2023-07-15', time: '10:00 AM - 12:00 PM', room: 'Lab 2' },
   ];
 
   return (
     <motion.div {...animatedEntry}>
-      <Grid container spacing={3}>
-        {courses.map((course, index) => (
-          <Grid item xs={12} sm={6} md={4} key={course.id}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {course.name}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" gutterBottom>
-                    Instructor: {course.instructor}
-                  </Typography>
-                  <Typography variant="body2" gutterBottom>
-                    Progress: {course.progress}%
-                  </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={course.progress} 
-                    sx={{ height: 10, borderRadius: 5, mt: 1 }}
-                  />
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    fullWidth 
-                    sx={{ mt: 2 }}
-                  >
-                    View Course
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Grid>
-        ))}
-      </Grid>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Upcoming Exams
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Subject</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Room</TableCell>
+                  <TableCell>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {exams.map((exam) => (
+                  <TableRow key={exam.id}>
+                    <TableCell>{exam.subject}</TableCell>
+                    <TableCell>{exam.date}</TableCell>
+                    <TableCell>{exam.time}</TableCell><TableCell>{exam.room}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outlined" 
+                        size="small"
+                        startIcon={<Calendar />}
+                      >
+                        Add to Calendar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };
@@ -848,7 +852,7 @@ const AchievementsSection = () => {
   const animatedEntry = useAnimatedEntry();
   const achievements = [
     { id: 1, title: 'Honor Roll', description: 'Achieved for maintaining a GPA above 3.5', date: '2023-05-15', icon: Award },
-    { id: 2, title: 'Science Fair Winner', description: 'First place in the annual science fair', date: '2023-04-20', icon: Trophy },
+    { id: 2, title: 'Science Fair Winner', description: 'First place in the annual science fair', date: '2023-04-20', icon: Award },
     { id: 3, title: 'Perfect Attendance', description: 'No absences for the entire semester', date: '2023-06-01', icon: Calendar },
     { id: 4, title: 'Math Olympiad Finalist', description: 'Reached the finals of the state Math Olympiad', date: '2023-03-10', icon: Award },
     { id: 5, title: 'Community Service Award', description: 'Completed 100 hours of community service', date: '2023-05-30', icon: Heart },
@@ -884,63 +888,6 @@ const AchievementsSection = () => {
           </Grid>
         ))}
       </Grid>
-    </motion.div>
-  );
-};
-
-const MessagesSection = () => {
-  const animatedEntry = useAnimatedEntry();
-  const messages = [
-    { id: 1, sender: 'John Smith', subject: 'Assignment Feedback', preview: 'Great job on your recent...', date: '2023-06-10' },
-    { id: 2, sender: 'Emily Johnson', subject: 'Group Project Update', preview: 'Here\'s the latest on our...', date: '2023-06-09' },
-    { id: 3, sender: 'Admin Office', subject: 'Upcoming Event', preview: 'Don\'t forget about the...', date: '2023-06-08' },
-    { id: 4, sender: 'Library', subject: 'Book Return Reminder', preview: 'This is a reminder that...', date: '2023-06-07' },
-    { id: 5, sender: 'Career Services', subject: 'Internship Opportunity', preview: 'We have an exciting internship...', date: '2023-06-06' },
-  ];
-
-  return (
-    <motion.div {...animatedEntry}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Messages
-          </Typography>
-          <List>
-            {messages.map((message) => (
-              <ListItem key={message.id} divider>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1">
-                      {message.subject}
-                    </Typography>
-                  }
-                  secondary={
-                    <>
-                      <Typography variant="body2" color="textSecondary">
-                        From: {message.sender}
-                      </Typography>
-                      <Typography variant="body2" noWrap>
-                        {message.preview}
-                      </Typography>
-                    </>
-                  }
-                />
-                <Typography variant="caption" color="textSecondary">
-                  {message.date}
-                </Typography>
-              </ListItem>
-            ))}
-          </List>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            fullWidth 
-            sx={{ mt: 2 }}
-          >
-            View All Messages
-          </Button>
-        </CardContent>
-      </Card>
     </motion.div>
   );
 };
