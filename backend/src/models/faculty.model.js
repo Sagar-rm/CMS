@@ -2,12 +2,11 @@ import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
-const userSchema = new Schema({
-    username: {
+const facultySchema = new Schema({
+    kgId: {
         type: String,
         required: true,
         unique: true,
-        lowercase: true,
         trim: true,
         index: true
     },
@@ -16,7 +15,7 @@ const userSchema = new Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true,
+        trim: true
     },
     fullName: {
         type: String,
@@ -24,7 +23,34 @@ const userSchema = new Schema({
         trim: true,
         index: true
     },
-    avatar: {
+    phoneNumber: {
+        type: Number,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch',
+        required: true
+    },
+    gender: {
+        type: String,
+        required: true
+    },
+    experience: {
+        type: Number,
+        required: true
+    },
+    designation: {
+        type: String,
+        required: true
+    },
+    isHod: {
+        type: Boolean,
+        required: true
+    },
+    profile: {
         type: String, //cloudinary url
     },
     password: {
@@ -33,26 +59,21 @@ const userSchema = new Schema({
     },
     refreshToken: {
         type: String,
-    },
-    role: {
-        type: String,
-        enum: ["student", "admin"],
-        required: true
     }
 }, {timestamps :true})
 
-userSchema.pre("save", async function (next) {
+facultySchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
-userSchema.methods.isPasswordCorrect = async function (password) {
+facultySchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 } 
 
-userSchema.methods.generateAccessToken = function () {
+facultySchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -67,7 +88,7 @@ userSchema.methods.generateAccessToken = function () {
     )
 }
 
-userSchema.methods.generateRefreshToken = function () {
+facultySchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id
@@ -79,4 +100,4 @@ userSchema.methods.generateRefreshToken = function () {
     )
 }
 
-export const User = mongoose.model("User", userSchema)
+export const Faculty = mongoose.model("Faculty", facultySchema)
