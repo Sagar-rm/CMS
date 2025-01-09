@@ -295,26 +295,28 @@ const StatCard = ({ title, value, icon, color }) => (
     </Card>
   </motion.div>
 )
-
 const StudentDetails = ({ showSnackbar }) => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const students = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', course: 'Computer Science', year: '2nd Year', branch: 'Computer Science' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', course: 'Electrical Engineering', year: '1st Year', branch: 'Electrical Engineering' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', course: 'Mechanical Engineering', year: '3rd Year', branch: 'Mechanical Engineering' },
-  ]
+    { id: 1, name: 'John Doe', email: 'john@example.com', regNo: 'CS2023001', course: 'Computer Science', semester: '3rd', branch: 'Computer Science', year: '2nd Year' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', regNo: 'EE2023002', course: 'Electrical Engineering', semester: '2nd', branch: 'Electrical Engineering', year: '1st Year' },
+    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', regNo: 'ME2023003', course: 'Mechanical Engineering', semester: '4th', branch: 'Mechanical Engineering', year: '2nd Year' },
+  ];
 
   const filteredStudents = students.filter(student =>
-    Object.values(student).some(value =>
-      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  )
+    (student.regNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+    (selectedSemester === '' || student.semester === selectedSemester) &&
+    (selectedBranch === '' || student.branch === selectedBranch)
+  );
 
   const handleStudentClick = (student) => {
-    setSelectedStudent(student)
-  }
+    setSelectedStudent(student);
+  };
 
   return (
     <motion.div
@@ -327,52 +329,101 @@ const StudentDetails = ({ showSnackbar }) => {
         Student Details
       </Typography>
 
-      <TextField
-        fullWidth
-        placeholder="Search students by name, email, course, year, or branch..."
-        variant="outlined"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <Search className="mr-2 text-gray-400" />
-          ),
-        }}
-        className="mb-6"
-      />
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <TextField
+          fullWidth
+          placeholder="Search by Reg. No. or Name"
+          variant="outlined"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <Search className="mr-2 text-gray-400" />
+            ),
+          }}
+        />
+        <FormControl fullWidth>
+          <InputLabel>Semester</InputLabel>
+          <Select
+            value={selectedSemester}
+            onChange={(e) => setSelectedSemester(e.target.value)}
+            label="Semester"
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="1st">1st</MenuItem>
+            <MenuItem value="2nd">2nd</MenuItem>
+            <MenuItem value="3rd">3rd</MenuItem>
+            <MenuItem value="4th">4th</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel>Branch</InputLabel>
+          <Select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            label="Branch"
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="Computer Science">Computer Science</MenuItem>
+            <MenuItem value="Electrical Engineering">Electrical Engineering</MenuItem>
+            <MenuItem value="Mechanical Engineering">Mechanical Engineering</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredStudents.map((student) => (
           <Card key={student.id} className="cursor-pointer hover:shadow-lg transition-shadow duration-300">
             <CardContent onClick={() => handleStudentClick(student)}>
               <Typography variant="h6">{student.name}</Typography>
-              <Typography color="textSecondary">{student.email}</Typography>
+              <Typography color="textSecondary">Reg. No: {student.regNo}</Typography>
               <Typography color="textSecondary">{student.course}</Typography>
-              <Typography color="textSecondary">{student.year}</Typography>
+              <Typography color="textSecondary">{student.semester} Semester</Typography>
               <Typography color="textSecondary">{student.branch}</Typography>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Dialog
-        open={!!selectedStudent}
-        onClose={() => setSelectedStudent(null)}
-      >
-        <DialogTitle>{selectedStudent?.name}</DialogTitle>
-        <DialogContent>
-          <Typography><strong>Email:</strong> {selectedStudent?.email}</Typography>
-          <Typography><strong>Course:</strong> {selectedStudent?.course}</Typography>
-          <Typography><strong>Year:</strong> {selectedStudent?.year}</Typography>
-          <Typography><strong>Branch:</strong> {selectedStudent?.branch}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSelectedStudent(null)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      {selectedStudent && (
+        <Dialog
+          open={true}
+          onClose={() => setSelectedStudent(null)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>{selectedStudent.name}'s Details</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Registration Number:</strong> {selectedStudent.regNo}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Email:</strong> {selectedStudent.email}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Course:</strong> {selectedStudent.course}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Year:</strong> {selectedStudent.year}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Semester:</strong> {selectedStudent.semester}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Branch:</strong> {selectedStudent.branch}</Typography>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setSelectedStudent(null)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </motion.div>
-  )
-}
+  );
+};
+
 
 const StudentManagement = ({ showSnackbar }) => {
   const [students, setStudents] = useState([
