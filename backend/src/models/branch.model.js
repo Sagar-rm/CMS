@@ -6,7 +6,7 @@ const branchSchema = new Schema({
         required: true 
     },
     establishedYear: {
-        type: Date
+        type: String
     }
   }, { timestamps: true });
 
