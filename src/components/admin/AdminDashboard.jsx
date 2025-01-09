@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, BookOpen, UserPlus, Clipboard, Calendar, ChevronDown, ChevronUp, Menu, X, BarChart2, Settings, Bell, Search, LogOut, PlusCircle, Trash2, Edit, Save, FileText, DollarSign } from 'lucide-react'
-import InputAdornment from '@mui/material/InputAdornment';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 // Importing MUI components
 import { 
@@ -17,8 +16,6 @@ import {
 
 // Importing Recharts for data visualization
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-
-// import { DefaultPropsProvider } from '@mui/material/styles';
 
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
@@ -35,6 +32,7 @@ const EnhancedAdminDashboard = () => {
     { id: 'students', icon: Users, label: 'Student Management' },
     { id: 'teachers', icon: UserPlus, label: 'Teacher Management' },
     { id: 'courses', icon: BookOpen, label: 'Course Management' },
+    { id: 'branches', icon: Clipboard, label: 'Branch Management' },
     { id: 'exams', icon: Calendar, label: 'Exam Scheduling' },
     { id: 'reports', icon: FileText, label: 'Reports & Analytics' },
     { id: 'finance', icon: DollarSign, label: 'Financial Management' },
@@ -162,6 +160,7 @@ const EnhancedAdminDashboard = () => {
                 {activeSection === 'student-details' && <StudentDetails showSnackbar={showSnackbar} />}
                 {activeSection === 'teachers' && <TeacherManagement showSnackbar={showSnackbar} />}
                 {activeSection === 'courses' && <CourseManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'branches' && <BranchManagement showSnackbar={showSnackbar} />}
                 {activeSection === 'exams' && <ExamScheduling showSnackbar={showSnackbar} />}
                 {activeSection === 'reports' && <ReportsAnalytics showSnackbar={showSnackbar} />}
                 {activeSection === 'finance' && <FinancialManagement showSnackbar={showSnackbar} />}
@@ -177,11 +176,9 @@ const EnhancedAdminDashboard = () => {
           onClose={handleCloseSnackbar}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          {snackbar.message && (
-            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
-              {snackbar.message}
-            </Alert>
-          )}
+          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
         </Snackbar>
       </motion.div>
     </ThemeProvider>
@@ -299,58 +296,24 @@ const StatCard = ({ title, value, icon, color }) => (
   </motion.div>
 )
 
-const StudentDetails = () => {
-  const [expandedDepartment, setExpandedDepartment] = useState(null)
-  const [selectedSemester, setSelectedSemester] = useState(1)
+const StudentDetails = ({ showSnackbar }) => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterAnchorEl, setFilterAnchorEl] = useState(null)
+  const [selectedStudent, setSelectedStudent] = useState(null)
 
-  const departments = [
-    {
-      name: 'Computer Science',
-      students: [
-        { id: 1, name: 'John Doe', semester: 1, department: 'Computer Science' },
-        { id: 2, name: 'Jane Smith', semester: 2, department: 'Computer Science' },
-      ]
-    },
-    {
-      name: 'Electrical Engineering',
-      students: [
-        { id: 3, name: 'Mike Johnson', semester: 1, department: 'Electrical Engineering' },
-        { id: 4, name: 'Sarah Williams', semester: 2, department: 'Electrical Engineering' },
-      ]
-    },
-    {
-      name: 'Mechanical Engineering',
-      students: [
-        { id: 5, name: 'Tom Brown', semester: 1, department: 'Mechanical Engineering' },
-        { id: 6, name: 'Emily Davis', semester: 2, department: 'Mechanical Engineering' },
-      ]
-    }
+  const students = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', course: 'Computer Science', year: '2nd Year', branch: 'Computer Science' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', course: 'Electrical Engineering', year: '1st Year', branch: 'Electrical Engineering' },
+    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', course: 'Mechanical Engineering', year: '3rd Year', branch: 'Mechanical Engineering' },
   ]
 
-  const handleDepartmentClick = (department) => {
-    setExpandedDepartment(expandedDepartment === department ? null : department)
-  }
-
-  const handleFilterClick = (event) => {
-    setFilterAnchorEl(event.currentTarget)
-  }
-
-  const handleFilterClose = () => {
-    setFilterAnchorEl(null)
-  }
-
-  const handleSemesterChange = (semester) => {
-    setSelectedSemester(semester)
-    handleFilterClose()
-  }
-
-  const filterStudents = (students) => {
-    return students.filter(student => 
-      student.semester === selectedSemester &&
-      student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudents = students.filter(student =>
+    Object.values(student).some(value =>
+      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
+  )
+
+  const handleStudentClick = (student) => {
+    setSelectedStudent(student)
   }
 
   return (
@@ -361,89 +324,52 @@ const StudentDetails = () => {
       className="p-6"
     >
       <Typography variant="h5" className="mb-6">
-        1st Year Students
+        Student Details
       </Typography>
 
-      <div className="space-y-6">
-        {departments.map((dept) => (
-          <Card key={dept.name} className="overflow-hidden">
-            <motion.div
-              initial={false}
-              animate={{ backgroundColor: expandedDepartment === dept.name ? '#f3f4f6' : '#ffffff' }}
-            >
-              <CardContent>
-                <div className="flex flex-col space-y-4">
-                  <div className="flex justify-between items-center">
-                    <Typography variant="h6">{dept.name}</Typography>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outlined"
-                        onClick={handleFilterClick}
-                        endIcon={<ChevronDown />}
-                      >
-                        Filter by semester
-                      </Button>
-                      <Menu
-                        anchorEl={filterAnchorEl}
-                        open={Boolean(filterAnchorEl)}
-                        onClose={handleFilterClose}
-                      >
-                        <MenuItem onClick={() => handleSemesterChange(1)}>Semester 1</MenuItem>
-                        <MenuItem onClick={() => handleSemesterChange(2)}>Semester 2</MenuItem>
-                      </Menu>
-                      <Button
-                        variant="contained"
-                        onClick={() => handleDepartmentClick(dept.name)}
-                      >
-                        View Students
-                      </Button>
-                    </div>
-                  </div>
+      <TextField
+        fullWidth
+        placeholder="Search students by name, email, course, year, or branch..."
+        variant="outlined"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <Search className="mr-2 text-gray-400" />
+          ),
+        }}
+        className="mb-6"
+      />
 
-                  <TextField
-                    fullWidth
-                    placeholder="Search students..."
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search className="text-gray-400" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  <Collapse in={expandedDepartment === dept.name}>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-4"
-                    >
-                      {filterStudents(dept.students).map((student) => (
-                        <motion.div
-                          key={student.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="p-4 border rounded-lg mb-2 hover:bg-gray-50"
-                        >
-                          <Typography>{student.name}</Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Semester {student.semester}
-                          </Typography>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  </Collapse>
-                </div>
-              </CardContent>
-            </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredStudents.map((student) => (
+          <Card key={student.id} className="cursor-pointer hover:shadow-lg transition-shadow duration-300">
+            <CardContent onClick={() => handleStudentClick(student)}>
+              <Typography variant="h6">{student.name}</Typography>
+              <Typography color="textSecondary">{student.email}</Typography>
+              <Typography color="textSecondary">{student.course}</Typography>
+              <Typography color="textSecondary">{student.year}</Typography>
+              <Typography color="textSecondary">{student.branch}</Typography>
+            </CardContent>
           </Card>
         ))}
       </div>
+
+      <Dialog
+        open={!!selectedStudent}
+        onClose={() => setSelectedStudent(null)}
+      >
+        <DialogTitle>{selectedStudent?.name}</DialogTitle>
+        <DialogContent>
+          <Typography><strong>Email:</strong> {selectedStudent?.email}</Typography>
+          <Typography><strong>Course:</strong> {selectedStudent?.course}</Typography>
+          <Typography><strong>Year:</strong> {selectedStudent?.year}</Typography>
+          <Typography><strong>Branch:</strong> {selectedStudent?.branch}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSelectedStudent(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </motion.div>
   )
 }
@@ -459,10 +385,14 @@ const StudentManagement = ({ showSnackbar }) => {
   const [editingStudent, setEditingStudent] = useState(null)
 
   const handleAddStudent = () => {
-    setStudents([...students, { ...newStudent, id: students.length + 1 }])
-    setIsAddStudentModalOpen(false)
-    setNewStudent({ name: '', email: '', course: '', year: '' })
-    showSnackbar('Student added successfully', 'success')
+    if (newStudent.name && newStudent.email && newStudent.course && newStudent.year) {
+      setStudents([...students, { ...newStudent, id: students.length + 1 }])
+      setIsAddStudentModalOpen(false)
+      setNewStudent({ name: '', email: '', course: '', year: '' })
+      showSnackbar('Student added successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleEditStudent = (student) => {
@@ -471,10 +401,14 @@ const StudentManagement = ({ showSnackbar }) => {
   }
 
   const handleUpdateStudent = () => {
-    setStudents(students.map(s => s.id === editingStudent.id ? editingStudent : s))
-    setIsEditStudentModalOpen(false)
-    setEditingStudent(null)
-    showSnackbar('Student updated successfully', 'success')
+    if (editingStudent.name && editingStudent.email && editingStudent.course && editingStudent.year) {
+      setStudents(students.map(s => s.id === editingStudent.id ? editingStudent : s))
+      setIsEditStudentModalOpen(false)
+      setEditingStudent(null)
+      showSnackbar('Student updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleDeleteStudent = (id) => {
@@ -531,11 +465,6 @@ const StudentManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isAddStudentModalOpen} 
         onClose={() => setIsAddStudentModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Add New Student</DialogTitle>
         <DialogContent>
@@ -579,11 +508,6 @@ const StudentManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isEditStudentModalOpen} 
         onClose={() => setIsEditStudentModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Edit Student</DialogTitle>
         <DialogContent>
@@ -638,10 +562,14 @@ const TeacherManagement = ({ showSnackbar }) => {
   const [editingTeacher, setEditingTeacher] = useState(null)
 
   const handleAddTeacher = () => {
-    setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
-    setIsAddTeacherModalOpen(false)
-    setNewTeacher({ name: '', email: '', subject: '', experience: '' })
-    showSnackbar('Teacher added successfully', 'success')
+    if (newTeacher.name && newTeacher.email && newTeacher.subject && newTeacher.experience) {
+      setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
+      setIsAddTeacherModalOpen(false)
+      setNewTeacher({ name: '', email: '', subject: '', experience: '' })
+      showSnackbar('Teacher added successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleEditTeacher = (teacher) => {
@@ -650,10 +578,14 @@ const TeacherManagement = ({ showSnackbar }) => {
   }
 
   const handleUpdateTeacher = () => {
-    setTeachers(teachers.map(t => t.id === editingTeacher.id ? editingTeacher : t))
-    setIsEditTeacherModalOpen(false)
-    setEditingTeacher(null)
-    showSnackbar('Teacher updated successfully', 'success')
+    if (editingTeacher.name && editingTeacher.email && editingTeacher.subject && editingTeacher.experience) {
+      setTeachers(teachers.map(t => t.id === editingTeacher.id ? editingTeacher : t))
+      setIsEditTeacherModalOpen(false)
+      setEditingTeacher(null)
+      showSnackbar('Teacher updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleDeleteTeacher = (id) => {
@@ -710,11 +642,6 @@ const TeacherManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isAddTeacherModalOpen} 
         onClose={() => setIsAddTeacherModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Add New Teacher</DialogTitle>
         <DialogContent>
@@ -758,11 +685,6 @@ const TeacherManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isEditTeacherModalOpen} 
         onClose={() => setIsEditTeacherModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Edit Teacher</DialogTitle>
         <DialogContent>
@@ -817,10 +739,14 @@ const CourseManagement = ({ showSnackbar }) => {
   const [editingCourse, setEditingCourse] = useState(null)
 
   const handleAddCourse = () => {
-    setCourses([...courses, { ...newCourse, id: courses.length + 1 }])
-    setIsAddCourseModalOpen(false)
-    setNewCourse({ name: '', code: '', credits: '', instructor: '' })
-    showSnackbar('Course added successfully', 'success')
+    if (newCourse.name && newCourse.code && newCourse.credits && newCourse.instructor) {
+      setCourses([...courses, { ...newCourse, id: courses.length + 1 }])
+      setIsAddCourseModalOpen(false)
+      setNewCourse({ name: '', code: '', credits: '', instructor: '' })
+      showSnackbar('Course added successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleEditCourse = (course) => {
@@ -829,10 +755,14 @@ const CourseManagement = ({ showSnackbar }) => {
   }
 
   const handleUpdateCourse = () => {
-    setCourses(courses.map(c => c.id === editingCourse.id ? editingCourse : c))
-    setIsEditCourseModalOpen(false)
-    setEditingCourse(null)
-    showSnackbar('Course updated successfully', 'success')
+    if (editingCourse.name && editingCourse.code && editingCourse.credits && editingCourse.instructor) {
+      setCourses(courses.map(c => c.id === editingCourse.id ? editingCourse : c))
+      setIsEditCourseModalOpen(false)
+      setEditingCourse(null)
+      showSnackbar('Course updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleDeleteCourse = (id) => {
@@ -889,11 +819,6 @@ const CourseManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isAddCourseModalOpen} 
         onClose={() => setIsAddCourseModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Add New Course</DialogTitle>
         <DialogContent>
@@ -937,11 +862,6 @@ const CourseManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isEditCourseModalOpen} 
         onClose={() => setIsEditCourseModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Edit Course</DialogTitle>
         <DialogContent>
@@ -985,6 +905,175 @@ const CourseManagement = ({ showSnackbar }) => {
   )
 }
 
+const BranchManagement = ({ showSnackbar }) => {
+  const [branches, setBranches] = useState([
+    { id: 1, name: 'Computer Science', year: '2023', hod: 'Dr. John Doe' },
+    { id: 2, name: 'Electrical Engineering', year: '2023', hod: 'Prof. Jane Smith' },
+  ])
+  const [isAddBranchModalOpen, setIsAddBranchModalOpen] = useState(false)
+  const [isEditBranchModalOpen, setIsEditBranchModalOpen] = useState(false)
+  const [newBranch, setNewBranch] = useState({ name: '', year: '', hod: '' })
+  const [editingBranch, setEditingBranch] = useState(null)
+
+  const hodOptions = ['Dr. John Doe', 'Prof. Jane Smith', 'Dr. Mike Johnson', 'Prof. Emily Brown']
+
+  const handleAddBranch = () => {
+    if (newBranch.name && newBranch.year && newBranch.hod) {
+      setBranches([...branches, { ...newBranch, id: branches.length + 1 }])
+      setIsAddBranchModalOpen(false)
+      setNewBranch({ name: '', year: '', hod: '' })
+      showSnackbar('Branch added successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
+  }
+
+  const handleEditBranch = (branch) => {
+    setEditingBranch(branch)
+    setIsEditBranchModalOpen(true)
+  }
+
+  const handleUpdateBranch = () => {
+    if (editingBranch.name && editingBranch.year && editingBranch.hod) {
+      setBranches(branches.map(b => b.id === editingBranch.id ? editingBranch : b))
+      setIsEditBranchModalOpen(false)
+      setEditingBranch(null)
+      showSnackbar('Branch updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
+  }
+
+  const handleDeleteBranch = (id) => {
+    setBranches(branches.filter(b => b.id !== id))
+    showSnackbar('Branch deleted successfully', 'success')
+  }
+
+  return (
+    <motion.div 
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center">
+        <Typography variant="h5">Branch Management</Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<PlusCircle />}
+          onClick={() => setIsAddBranchModalOpen(true)}
+        >
+          Add Branch
+        </Button>
+      </div>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Year</TableCell>
+              <TableCell>HOD</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {branches.map((branch) => (
+              <TableRow key={branch.id} hover>
+                <TableCell>{branch.name}</TableCell>
+                <TableCell>{branch.year}</TableCell>
+                <TableCell>{branch.hod}</TableCell>
+                <TableCell>
+                  <IconButton size="small" onClick={() => handleEditBranch(branch)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteBranch(branch.id)}><Trash2 /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog 
+        open={isAddBranchModalOpen} 
+        onClose={() => setIsAddBranchModalOpen(false)}
+      >
+        <DialogTitle>Add New Branch</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Branch Name"
+            fullWidth
+            value={newBranch.name}
+            onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Year"
+            fullWidth
+            value={newBranch.year}
+            onChange={(e) => setNewBranch({ ...newBranch, year: e.target.value })}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>HOD</InputLabel>
+            <Select
+              value={newBranch.hod}
+              onChange={(e) => setNewBranch({ ...newBranch, hod: e.target.value })}
+            >
+              {hodOptions.map((hod) => (
+                <MenuItem key={hod} value={hod}>{hod}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsAddBranchModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddBranch} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={isEditBranchModalOpen} 
+        onClose={() => setIsEditBranchModalOpen(false)}
+      >
+        <DialogTitle>Edit Branch</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Branch Name"
+            fullWidth
+            value={editingBranch?.name || ''}
+            onChange={(e) => setEditingBranch({ ...editingBranch, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Year"
+            fullWidth
+            value={editingBranch?.year || ''}
+            onChange={(e) => setEditingBranch({ ...editingBranch, year: e.target.value })}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>HOD</InputLabel>
+            <Select
+              value={editingBranch?.hod || ''}
+              onChange={(e) => setEditingBranch({ ...editingBranch, hod: e.target.value })}
+            >
+              {hodOptions.map((hod) => (
+                <MenuItem key={hod} value={hod}>{hod}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditBranchModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateBranch} variant="contained">Update</Button>
+        </DialogActions>
+      </Dialog>
+    </motion.div>
+  )
+}
+
 const ExamScheduling = ({ showSnackbar }) => {
   const [exams, setExams] = useState([
     { id: 1, course: 'CS101', date: '2023-06-15', time: '09:00', duration: '3 hours', location: 'Hall A' },
@@ -996,10 +1085,14 @@ const ExamScheduling = ({ showSnackbar }) => {
   const [editingExam, setEditingExam] = useState(null)
 
   const handleAddExam = () => {
-    setExams([...exams, { ...newExam, id: exams.length + 1 }])
-    setIsAddExamModalOpen(false)
-    setNewExam({ course: '', date: '', time: '', duration: '', location: '' })
-    showSnackbar('Exam scheduled successfully', 'success')
+    if (newExam.course && newExam.date && newExam.time && newExam.duration && newExam.location) {
+      setExams([...exams, { ...newExam, id: exams.length + 1 }])
+      setIsAddExamModalOpen(false)
+      setNewExam({ course: '', date: '', time: '', duration: '', location: '' })
+      showSnackbar('Exam scheduled successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleEditExam = (exam) => {
@@ -1008,10 +1101,14 @@ const ExamScheduling = ({ showSnackbar }) => {
   }
 
   const handleUpdateExam = () => {
-    setExams(exams.map(e => e.id === editingExam.id ? editingExam : e))
-    setIsEditExamModalOpen(false)
-    setEditingExam(null)
-    showSnackbar('Exam updated successfully', 'success')
+    if (editingExam.course && editingExam.date && editingExam.time && editingExam.duration && editingExam.location) {
+      setExams(exams.map(e => e.id === editingExam.id ? editingExam : e))
+      setIsEditExamModalOpen(false)
+      setEditingExam(null)
+      showSnackbar('Exam updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleDeleteExam = (id) => {
@@ -1070,11 +1167,6 @@ const ExamScheduling = ({ showSnackbar }) => {
       <Dialog 
         open={isAddExamModalOpen} 
         onClose={() => setIsAddExamModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Schedule New Exam</DialogTitle>
         <DialogContent>
@@ -1128,11 +1220,6 @@ const ExamScheduling = ({ showSnackbar }) => {
       <Dialog 
         open={isEditExamModalOpen} 
         onClose={() => setIsEditExamModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Edit Exam</DialogTitle>
         <DialogContent>
@@ -1263,10 +1350,14 @@ const FinancialManagement = ({ showSnackbar }) => {
   const [editingTransaction, setEditingTransaction] = useState(null)
 
   const handleAddTransaction = () => {
-    setTransactions([...transactions, { ...newTransaction, id: transactions.length + 1 }])
-    setIsAddTransactionModalOpen(false)
-    setNewTransaction({ date: '', description: '', amount: '', type: '' })
-    showSnackbar('Transaction added successfully', 'success')
+    if (newTransaction.date && newTransaction.description && newTransaction.amount && newTransaction.type) {
+      setTransactions([...transactions, { ...newTransaction, id: transactions.length + 1 }])
+      setIsAddTransactionModalOpen(false)
+      setNewTransaction({ date: '', description: '', amount: '', type: '' })
+      showSnackbar('Transaction added successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleEditTransaction = (transaction) => {
@@ -1275,10 +1366,14 @@ const FinancialManagement = ({ showSnackbar }) => {
   }
 
   const handleUpdateTransaction = () => {
-    setTransactions(transactions.map(t => t.id === editingTransaction.id ? editingTransaction : t))
-    setIsEditTransactionModalOpen(false)
-    setEditingTransaction(null)
-    showSnackbar('Transaction updated successfully', 'success')
+    if (editingTransaction.date && editingTransaction.description && editingTransaction.amount && editingTransaction.type) {
+      setTransactions(transactions.map(t => t.id === editingTransaction.id ? editingTransaction : t))
+      setIsEditTransactionModalOpen(false)
+      setEditingTransaction(null)
+      showSnackbar('Transaction updated successfully', 'success')
+    } else {
+      showSnackbar('Please fill in all fields', 'error')
+    }
   }
 
   const handleDeleteTransaction = (id) => {
@@ -1335,11 +1430,6 @@ const FinancialManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isAddTransactionModalOpen} 
         onClose={() => setIsAddTransactionModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Add New Transaction</DialogTitle>
         <DialogContent>
@@ -1388,11 +1478,6 @@ const FinancialManagement = ({ showSnackbar }) => {
       <Dialog 
         open={isEditTransactionModalOpen} 
         onClose={() => setIsEditTransactionModalOpen(false)}
-        TransitionProps={{
-          onEnter: () => {
-            // Ensure any necessary state is set before the dialog opens
-          }
-        }}
       >
         <DialogTitle>Edit Transaction</DialogTitle>
         <DialogContent>
