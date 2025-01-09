@@ -31,15 +31,14 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
         throw new ApiError(409, "User with this email already exists");
     }
 
-    const profileLocalPath = req.file?.path;
+    const profileLocalPath = req.files?.profile?.[0]?.path;
     if (!profileLocalPath) {
         throw new ApiError(400, "Avatar is required");
     }
-
-
+    
     const user = await Model.create({
         ...req.body,
-        profile: profile.url,
+        profile: profileLocalPath,
     });
 
     const createdUser = await Model.findById(user._id).select("-password -refreshToken");
@@ -98,7 +97,7 @@ const getCurrentUser = (Model) => asyncHandler(async (req, res) => {
 });
 
 export const studentController = {
-    register: registerUser(Student, ["name", "email", "password", "enrollmentNumber"]),
+    register: registerUser(Student, ["registerNumber","fullName", "email","phoneNumber", "password", "semester", "branch", "gender"]),
     login: loginUser(Student),
     logout: logoutUser(Student),
     refresh: refreshAccessToken(Student),
@@ -106,7 +105,7 @@ export const studentController = {
 };
 
 export const facultyController = {
-    register: registerUser(Faculty, ["name", "email", "password", "department"]),
+    register: registerUser(Faculty, ["fullName", "email", "password", "department"]),
     login: loginUser(Faculty),
     logout: logoutUser(Faculty),
     refresh: refreshAccessToken(Faculty),

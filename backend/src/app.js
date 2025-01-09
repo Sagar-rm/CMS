@@ -15,9 +15,17 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-import studentRouter from "./routes/student.routes.js";
 
+// Serve files from the "public" directory
+app.use("/uploads", express.static("public/temp"));
+
+// routes imports
+import studentRouter from "./routes/student.routes.js";
+import branchRouter from "./routes/branch.routes.js";
+
+// routes declaration
 app.use("/api/v1/student", studentRouter);
+app.use("/api/v1/branch", branchRouter);
 
 
 export { app } 
