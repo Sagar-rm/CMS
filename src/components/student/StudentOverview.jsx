@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+// import {  Box,  TextField } from '@mui/material';
+// import useAnimatedEntry from './useAnimatedEntry';
+
 import {
   AppBar, Toolbar, Typography, IconButton, Card, CardContent,
   Grid, List, ListItem, ListItemText, ListItemIcon, Avatar,
@@ -1120,7 +1123,6 @@ const AchievementsSection = () => {
     </motion.div>
   );
 };
-
 const SettingsSection = () => {
   const animatedEntry = useAnimatedEntry();
   const [settings, setSettings] = useState({
@@ -1128,6 +1130,18 @@ const SettingsSection = () => {
     emailAlerts: false,
     darkMode: false,
     language: 'English',
+  });
+  const [profileData, setProfileData] = useState({
+    avatar: '',
+    name: 'John Doe',
+    regNo: '20231234',
+    phoneNo: '1234567890',
+    guardianNo: '9876543210',
+    email: 'john.doe@example.com',
+    sem: '5',
+    branch: 'CSE',
+    year: '2024',
+    dob: '2002-01-15',
   });
 
   const handleSettingChange = (setting, value) => {
@@ -1137,69 +1151,131 @@ const SettingsSection = () => {
     }));
   };
 
+  const handleProfileChange = (field, value) => {
+    setProfileData(prevData => ({
+      ...prevData,
+      [field]: value
+    }));
+  };
+
   return (
     <motion.div {...animatedEntry}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Settings
-          </Typography>
-          <List>
-            <ListItem>
-              <ListItemText primary="Enable Notifications" />
-              <Switch
-                checked={settings.notifications}
-                onChange={(e) => handleSettingChange('notifications', e.target.checked)}
-                color="primary"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Email Alerts" />
-              <Switch
-                checked={settings.emailAlerts}
-                onChange={(e) => handleSettingChange('emailAlerts', e.target.checked)}
-                color="primary"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Dark Mode" />
-              <Switch
-                checked={settings.darkMode}
-                onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
-                color="primary"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Language" />
-              <Select
-                value={settings.language}
-                onChange={(e) => handleSettingChange('language', e.target.value)}
-                sx={{ minWidth: 120 }}
-              >
-                <MenuItem value="English">English</MenuItem>
-                <MenuItem value="Spanish">Spanish</MenuItem>
-                <MenuItem value="French">French</MenuItem>
-              </Select>
-            </ListItem>
-          </List>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            fullWidth 
-            sx={{ 
-              mt: 2,
-              borderRadius: '8px',
-              transition: 'all 0.3s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-              },
-            }}
-          >
-            Save Changes
-          </Button>
-        </CardContent>
-      </Card>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Personal Information
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar
+                    src={profileData.avatar}
+                    sx={{ width: 100, height: 100 }}
+                  />
+                  <Button
+                    variant="outlined"
+                    component="label"
+                  >
+                    Upload Avatar
+                    <input
+                      type="file"
+                      hidden
+                      onChange={(e) => handleProfileChange('avatar', URL.createObjectURL(e.target.files[0]))}
+                    />
+                  </Button>
+                </Box>
+                <TextField
+                  label="Name"
+                  value={profileData.name}
+                  onChange={(e) => handleProfileChange('name', e.target.value)}
+                  fullWidth
+                  disabled
+                />
+                <TextField
+                  label="Registration Number"
+                  value={profileData.regNo}
+                  onChange={(e) => handleProfileChange('regNo', e.target.value)}
+                  fullWidth
+                  disabled
+                />
+                <TextField
+                  label="Phone Number"
+                  value={profileData.phoneNo}
+                  onChange={(e) => handleProfileChange('phoneNo', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Guardian's Number"
+                  value={profileData.guardianNo}
+                  onChange={(e) => handleProfileChange('guardianNo', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Email"
+                  value={profileData.email}
+                  onChange={(e) => handleProfileChange('email', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Semester"
+                  value={profileData.sem}
+                  onChange={(e) => handleProfileChange('sem', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Branch"
+                  value={profileData.branch}
+                  onChange={(e) => handleProfileChange('branch', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Year"
+                  value={profileData.year}
+                  onChange={(e) => handleProfileChange('year', e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Date of Birth"
+                  type="date"
+                  value={profileData.dob}
+                  onChange={(e) => handleProfileChange('dob', e.target.value)}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth 
+                  sx={{ 
+                    mt: 2,
+                    borderRadius: '8px',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                    },
+                  }}
+                >
+                  Save Profile
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Settings
+              </Typography>
+              {/* Existing settings code */}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     </motion.div>
   );
 };
