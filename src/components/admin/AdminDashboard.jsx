@@ -4,14 +4,45 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, BookOpen, UserPlus, Clipboard, Calendar, ChevronDown, ChevronUp, Menu, X, BarChart2, Settings, Bell, Search, LogOut, PlusCircle, Trash2, Edit, Save, FileText, DollarSign } from 'lucide-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { 
+  // ... (existing imports)
+  Collapse,
+  FormControlLabel,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+  Typography,
+  Switch,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  Card,
+  CardContent,
+  
+} from '@mui/material'
+// import { FileText } from 'lucide-react'
+// import { motion } from 'framer-motion';
+// import { useState } from 'react';
 
 // Importing MUI components
 import { 
-  AppBar, Toolbar, IconButton, Typography, Drawer, List, ListItem, ListItemIcon, 
-  ListItemText, TextField, Button, Card, CardContent, CardActions, Grid, Select, 
-  MenuItem, FormControl, InputLabel, Switch, Chip, Avatar, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle, 
-  DialogContent, DialogActions, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton, Collapse
+  AppBar, Toolbar, IconButton, Drawer, Avatar, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton
 } from '@mui/material'
 
 // Importing Recharts for data visualization
@@ -295,16 +326,74 @@ const StatCard = ({ title, value, icon, color }) => (
     </Card>
   </motion.div>
 )
+
+
+
 const StudentDetails = ({ showSnackbar }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
   const students = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', regNo: 'CS2023001', course: 'Computer Science', semester: '3rd', branch: 'Computer Science', year: '2nd Year' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', regNo: 'EE2023002', course: 'Electrical Engineering', semester: '2nd', branch: 'Electrical Engineering', year: '1st Year' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', regNo: 'ME2023003', course: 'Mechanical Engineering', semester: '4th', branch: 'Mechanical Engineering', year: '2nd Year' },
+    { 
+      id: 1, 
+      name: 'John Doe', 
+      email: 'john@example.com', 
+      regNo: 'CS2023001', 
+      course: 'Computer Science', 
+      semester: '3rd', 
+      branch: 'Computer Science', 
+      year: '2nd Year',
+      academicResults: [
+        { subject: 'Data Structures', grade: 'A' },
+        { subject: 'Algorithms', grade: 'B+' },
+        { subject: 'Database Management', grade: 'A-' },
+      ],
+      documents: [
+        { name: 'Birth Certificate', url: '#' },
+        { name: 'High School Diploma', url: '#' },
+      ]
+    },
+    { 
+      id: 2, 
+      name: 'Jane Smith', 
+      email: 'jane@example.com', 
+      regNo: 'EE2023002', 
+      course: 'Electrical Engineering', 
+      semester: '2nd', 
+      branch: 'Electrical Engineering', 
+      year: '1st Year',
+      academicResults: [
+        { subject: 'Circuit Theory', grade: 'A-' },
+        { subject: 'Digital Electronics', grade: 'B' },
+        { subject: 'Electromagnetic Fields', grade: 'B+' },
+      ],
+      documents: [
+        { name: 'Birth Certificate', url: '#' },
+        { name: 'High School Diploma', url: '#' },
+      ]
+    },
+    { 
+      id: 3, 
+      name: 'Mike Johnson', 
+      email: 'mike@example.com', 
+      regNo: 'ME2023003', 
+      course: 'Mechanical Engineering', 
+      semester: '4th', 
+      branch: 'Mechanical Engineering', 
+      year: '2nd Year',
+      academicResults: [
+        { subject: 'Thermodynamics', grade: 'A' },
+        { subject: 'Fluid Mechanics', grade: 'A-' },
+        { subject: 'Machine Design', grade: 'B+' },
+      ],
+      documents: [
+        { name: 'Birth Certificate', url: '#' },
+        { name: 'High School Diploma', url: '#' },
+      ]
+    },
   ];
 
   const filteredStudents = students.filter(student =>
@@ -316,6 +405,11 @@ const StudentDetails = ({ showSnackbar }) => {
 
   const handleStudentClick = (student) => {
     setSelectedStudent(student);
+    setIsDetailsVisible(false);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedStudent(null);
   };
 
   return (
@@ -388,11 +482,25 @@ const StudentDetails = ({ showSnackbar }) => {
       {selectedStudent && (
         <Dialog
           open={true}
-          onClose={() => setSelectedStudent(null)}
+          onClose={handleCloseDetails}
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>{selectedStudent.name}'s Details</DialogTitle>
+          <DialogTitle>
+            <div className="flex justify-between items-center">
+              <Typography variant="h6">{selectedStudent.name}'s Details</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isDetailsVisible}
+                    onChange={(e) => setIsDetailsVisible(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Show Details"
+              />
+            </div>
+          </DialogTitle>
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
@@ -414,16 +522,50 @@ const StudentDetails = ({ showSnackbar }) => {
                 <Typography><strong>Branch:</strong> {selectedStudent.branch}</Typography>
               </Grid>
             </Grid>
+
+            <Collapse in={isDetailsVisible}>
+              <Typography variant="h6" className="mt-4 mb-2">Academic Results</Typography>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Subject</TableCell>
+                      <TableCell>Grade</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedStudent.academicResults.map((result, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{result.subject}</TableCell>
+                        <TableCell>{result.grade}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              <Typography variant="h6" className="mt-4 mb-2">Documents</Typography>
+              <List>
+                {selectedStudent.documents.map((doc, index) => (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <FileText />
+                    </ListItemIcon>
+                    <ListItemText primary={doc.name} />
+                    <Button variant="outlined" href={doc.url} target="_blank">View</Button>
+                  </ListItem>
+                ))}
+              </List>
+            </Collapse>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setSelectedStudent(null)}>Close</Button>
+            <Button onClick={handleCloseDetails} color="primary">Close</Button>
           </DialogActions>
         </Dialog>
       )}
     </motion.div>
   );
 };
-
 
 const StudentManagement = ({ showSnackbar }) => {
   const [students, setStudents] = useState([
