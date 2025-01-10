@@ -46,7 +46,7 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
 });
 
 const loginUser = (Model) => asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, registerNumber, kgId } = req.body;
     if (!email || !password) {
         throw new ApiError(400, "Email and password are required");
     }
