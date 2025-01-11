@@ -45,21 +45,44 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
-const loginUser = (Model) => asyncHandler(async (req, res) => {
-    const { email, password, registerNumber, kgId } = req.body;
-    if (!email || !password) {
-        throw new ApiError(400, "Email and password are required");
+const loginStudent = asyncHandler(async (req, res) => {
+    const { registerNumber, password } = req.body;
+    if (!registerNumber || !password) {
+        throw new ApiError(400, "Register number and password are required");
     }
 
-    const user = await Model.findOne({ email });
-    if (!user || !(await user.isPasswordCorrect(password))) {
+    const student = await Student.findOne({ registerNumber });
+    if (!student || !(await student.isPasswordCorrect(password))) {
         throw new ApiError(401, "Invalid credentials");
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id, Model);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(student._id, Student);
 
-    res.status(200).cookie("accessToken", accessToken).cookie("refreshToken", refreshToken).json(new ApiResponse(200, { user, accessToken }, "Login successful"));
+    res.status(200)
+        .cookie("accessToken", accessToken)
+        .cookie("refreshToken", refreshToken)
+        .json(new ApiResponse(200, { user: student, accessToken }, "Login successful"));
 });
+
+const loginFaculty = asyncHandler(async (req, res) => {
+    const { kgId, password } = req.body;
+    if (!kgId || !password) {
+        throw new ApiError(400, "KG ID and password are required");
+    }
+
+    const faculty = await Faculty.findOne({ kgId });
+    if (!faculty || !(await faculty.isPasswordCorrect(password))) {
+        throw new ApiError(401, "Invalid credentials");
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(faculty._id, Faculty);
+
+    res.status(200)
+        .cookie("accessToken", accessToken)
+        .cookie("refreshToken", refreshToken)
+        .json(new ApiResponse(200, { user: faculty, accessToken }, "Login successful"));
+});
+
 
 const logoutUser = (Model) => asyncHandler(async (req, res) => {
     await Model.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
@@ -98,7 +121,7 @@ const getCurrentUser = (Model) => asyncHandler(async (req, res) => {
 
 export const studentController = {
     register: registerUser(Student, ["registerNumber","fullName", "email","phoneNumber", "password", "semester", "branch", "gender"]),
-    login: loginUser(Student),
+    login: loginStudent,
     logout: logoutUser(Student),
     refresh: refreshAccessToken(Student),
     getCurrentUser: getCurrentUser(Student)
@@ -106,7 +129,7 @@ export const studentController = {
 
 export const facultyController = {
     register: registerUser(Faculty, ["fullName", "email", "password", "department"]),
-    login: loginUser(Faculty),
+    login: loginFaculty,
     logout: logoutUser(Faculty),
     refresh: refreshAccessToken(Faculty),
     getCurrentUser: getCurrentUser(Faculty)

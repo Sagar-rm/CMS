@@ -32,7 +32,6 @@ const studentSchema = new Schema({
     semester: {
         type: Number,
         required: true,
-        unique: true,
         trim: true
     },
     branch: {
