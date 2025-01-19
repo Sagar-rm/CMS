@@ -2,18 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMediaQuery } from '@mui/material';
-import { Book, Calendar, CheckCircle, Clock, Download, FileText, Bell, User, LogOut, Home, Award, Users, BookOpen, Activity, MessageCircle, Settings, Heart, Star, MenuIcon, ChevronLeft, Zap, Target, Briefcase, DollarSign, PlusCircle, Trash2, Edit, Save, Search } from 'lucide-react'
+import { Users, BookOpen, UserPlus, Clipboard, Calendar, ChevronDown, ChevronUp, Menu, X, BarChart2, Settings, Bell, Search, LogOut, PlusCircle, Trash2, Edit, Save, FileText, DollarSign } from 'lucide-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { UserPlus } from 'lucide-react';
-
 import { 
   // ... (existing imports)
   Collapse,
   FormControlLabel,
   List,
-  CssBaseline,
-  Fab,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -53,280 +48,173 @@ import {
 // Importing Recharts for data visualization
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-
-// Custom theme with a more vibrant color palette
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#6C63FF', // Vibrant purple
-    },
-    secondary: {
-      main: '#FF6584', // Coral pink
-    },
-    tertiary: {
-      main: '#4ECDC4', // Teal
-    },
-    background: {
-      default: '#F7FAFC',
-      paper: '#FFFFFF',
-    },
-  },
-  typography: {
-    fontFamily: 'Poppins, Arial, sans-serif',
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px 0 rgba(0,0,0,0.1)',
-          transition: 'all 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 8px 30px 0 rgba(0,0,0,0.15)',
-          },
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          textTransform: 'none',
-          fontWeight: 600,
-          transition: 'all 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 4px 10px 0 rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-  },
-});
-
-// Custom hook for animations
-const useAnimatedEntry = (delay = 0) => {
-  return {
-    initial: { opacity: 0, y: 50 },
-    animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] }
-  }
-};
-
-// Custom hook for fetching data (simulated)
-const useDataFetching = (dataType) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulated data (unchanged)
-      const simulatedData = {
-        // ... (keep the existing simulated data)
-      };
-
-      setData(simulatedData[dataType]);
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [dataType]);
-
-  return { data, loading };
-};
-
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const [loading, setLoading] = useState(false)
 
-  const sections = [
-    { id: 'dashboard', label: 'Dashboard Overview', icon: Home },
-    { id: 'student-details', label: 'Student Details', icon: Users },
-    { id: 'students', label: 'Student Management', icon: Users },
-    { id: 'teachers', label: 'Teacher Management', icon: User },
-    { id: 'courses', label: 'Course Management', icon: BookOpen },
-    { id: 'branches', label: 'Branch Management', icon: Briefcase },
-    { id: 'exams', label: 'Exam Scheduling', icon: Calendar },
-    { id: 'reports', label: 'Reports & Analytics', icon: Activity },
-    { id: 'finance', label: 'Financial Management', icon: DollarSign },
-    { id: 'settings', label: 'System Settings', icon: Settings },
+  // Create a theme instance
+  const theme = createTheme()
+
+  const sidebarItems = [
+    { id: 'dashboard', icon: BarChart2, label: 'Dashboard Overview' },
+    { id: 'student-details', icon: Users, label: 'Student Details' },
+    { id: 'students', icon: Users, label: 'Student Management' },
+    { id: 'teachers', icon: UserPlus, label: 'Teacher Management' },
+    { id: 'courses', icon: BookOpen, label: 'Course Management' },
+    { id: 'branches', icon: Clipboard, label: 'Branch Management' },
+    { id: 'exams', icon: Calendar, label: 'Exam Scheduling' },
+    { id: 'reports', icon: FileText, label: 'Reports & Analytics' },
+    { id: 'finance', icon: DollarSign, label: 'Financial Management' },
+    { id: 'settings', icon: Settings, label: 'System Settings' },
   ]
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+
+  const handleSectionChange = (section) => {
+    setLoading(true)
+    setActiveSection(section)
+    setTimeout(() => setLoading(false), 1000) // Simulating data loading
   }
 
-  const handleSectionChange = (sectionId) => {
-    setActiveSection(sectionId)
-    if (isMobile) {
-      setMobileOpen(false)
-    }
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity })
   }
 
-  const drawer = (
-    <Box sx={{ bgcolor: 'background.default', height: '100%' }}>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
-          EduPulse
-        </Typography>
-      </Toolbar>
-      <List>
-        {sections.map((section) => (
-          <ListItem 
-            key={section.id} 
-            disablePadding
-            onClick={() => handleSectionChange(section.id)}
-          >
-            <ListItemButton
-              selected={activeSection === section.id}
-              sx={{
-                borderRadius: '0 25px 25px 0',
-                mr: 2,
-                '&.Mui-selected': {
-                  bgcolor: 'primary.main',
-                  color: 'primary.contrastText',
-                  '& .MuiListItemIcon-root': {
-                    color: 'primary.contrastText',
-                  },
-                },
-                '&:hover': {
-                  bgcolor: 'primary.light',
-                },
-              }}
-            >
-              <ListItemIcon>
-                <section.icon />
-              </ListItemIcon>
-              <ListItemText primary={section.label} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return
+    setSnackbar({ ...snackbar, open: false })
+  }
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <AppBar
-          position="fixed"
+      <motion.div 
+        className="flex h-screen bg-gray-100"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Sidebar */}
+        <Drawer
+          variant="permanent"
+          open={isSidebarOpen}
           sx={{
-            width: { sm: `calc(100% - ${240}px)` },
-            ml: { sm: `${240}px` },
-            bgcolor: 'background.default',
-            boxShadow: 'none',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
+            width: isSidebarOpen ? 240 : 72,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: isSidebarOpen ? 240 : 72,
+              boxSizing: 'border-box',
+              backgroundColor: '#2e968b',
+              color: 'white',
+              transition: 'width 0.3s'
+            },
           }}
         >
           <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'text.primary' }}>
-              {sections.find(section => section.id === activeSection)?.label}
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              {isSidebarOpen ? 'CMS Admin' : 'CMS'}
             </Typography>
-            <IconButton color="primary">
-              <Bell />
-            </IconButton>
-            <IconButton color="primary">
-              <LogOut />
+            <IconButton color="inherit" onClick={toggleSidebar}>
+              {isSidebarOpen ? <ChevronUp /> : <ChevronDown />}
             </IconButton>
           </Toolbar>
-        </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: 240 }, flexShrink: { sm: 0 } }}
+          <List>
+            {sidebarItems.map((item) => (
+              <ListItem 
+                component={motion.div}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                disablePadding
+                key={item.id}
+                sx={{
+                  backgroundColor: activeSection === item.id ? '#704cd1' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#704cd1',
+                  },
+                }}
+              >
+                <ListItemButton
+                  onClick={() => handleSectionChange(item.id)}
+                  sx={{
+                    color: 'white',
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <item.icon />
+                  </ListItemIcon>
+                  {isSidebarOpen && <ListItemText primary={item.label} />}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <AppBar position="static" color="default" elevation={0}>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={toggleSidebar}
+                sx={{ mr: 2, display: { sm: 'none' } }}
+              >
+                <Menu />
+              </IconButton>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                {sidebarItems.find(item => item.id === activeSection)?.label}
+              </Typography>
+              <IconButton color="inherit">
+                <Bell />
+              </IconButton>
+              <IconButton color="inherit">
+                <LogOut />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            {loading && <LinearProgress />}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {activeSection === 'dashboard' && <DashboardOverview showSnackbar={showSnackbar} />}
+                {activeSection === 'students' && <StudentManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'student-details' && <StudentDetails showSnackbar={showSnackbar} />}
+                {activeSection === 'teachers' && <TeacherManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'courses' && <CourseManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'branches' && <BranchManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'exams' && <ExamScheduling showSnackbar={showSnackbar} />}
+                {activeSection === 'reports' && <ReportsAnalytics showSnackbar={showSnackbar} />}
+                {activeSection === 'finance' && <FinancialManagement showSnackbar={showSnackbar} />}
+                {activeSection === 'settings' && <SystemSettings showSnackbar={showSnackbar} />}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
+
+        <Snackbar 
+          open={snackbar.open} 
+          autoHideDuration={6000} 
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-            }}
-          >
-            {drawer}
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Box>
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            width: { sm: `calc(100% - ${240}px)` },
-            mt: ['48px', '56px', '64px'],
-            overflowX: 'hidden',
-          }}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {activeSection === 'dashboard' && <DashboardOverview />}
-              {activeSection === 'student-details' && <StudentDetails />}
-              {activeSection === 'students' && <StudentManagement />}
-              {activeSection === 'teachers' && <TeacherManagement />}
-              {activeSection === 'courses' && <CourseManagement />}
-              {activeSection === 'branches' && <BranchManagement />}
-              {activeSection === 'exams' && <ExamScheduling />}
-              {activeSection === 'reports' && <ReportsAnalytics />}
-              {activeSection === 'finance' && <FinancialManagement />}
-              {activeSection === 'settings' && <SystemSettings />}
-            </motion.div>
-                      </AnimatePresence>
-                    </Box>
-                    <Tooltip title="Quick Actions" placement="left">
-                      <Fab 
-                        color="secondary" 
-                        aria-label="quick actions"
-                        sx={{ 
-                          position: 'fixed', 
-                          bottom: 16, 
-                          right: 16,
-                          '&:hover': {
-                            transform: 'scale(1.1)',
-                          },
-                          transition: 'all 0.3s ease-in-out',
-                        }}
-                      >
-                        <Zap />
-                      </Fab>
-                    </Tooltip>
-                  </Box>
-                </ThemeProvider>
-              );
-            };
+          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </motion.div>
+    </ThemeProvider>
+  )
+}
 
 const DashboardOverview = ({ showSnackbar }) => {
   const chartData = [

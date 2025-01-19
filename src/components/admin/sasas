@@ -2,56 +2,20 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMediaQuery } from '@mui/material';
+import {
+  AppBar, Toolbar, Typography, IconButton, Card, CardContent,
+  Grid, List, ListItem, ListItemText, ListItemIcon, Avatar,
+  Chip, LinearProgress, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Button, TextField, Box, Switch, Select, MenuItem,
+  useMediaQuery, Drawer, Fab, Tooltip, ThemeProvider, createTheme, CssBaseline, ListItemButton,
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel ,Tabs,Tab
+} from '@mui/material'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
+  ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, 
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+} from 'recharts'
 import { Book, Calendar, CheckCircle, Clock, Download, FileText, Bell, User, LogOut, Home, Award, Users, BookOpen, Activity, MessageCircle, Settings, Heart, Star, MenuIcon, ChevronLeft, Zap, Target, Briefcase, DollarSign, PlusCircle, Trash2, Edit, Save, Search } from 'lucide-react'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { UserPlus } from 'lucide-react';
-
-import { 
-  // ... (existing imports)
-  Collapse,
-  FormControlLabel,
-  List,
-  CssBaseline,
-  Fab,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Grid,
-  Typography,
-  Switch,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  Card,
-  CardContent,
-  
-} from '@mui/material'
-// import { FileText } from 'lucide-react'
-// import { motion } from 'framer-motion';
-// import { useState } from 'react';
-
-// Importing MUI components
-import { 
-  AppBar, Toolbar, IconButton, Drawer, Avatar, Snackbar, Alert, LinearProgress, Box, Tab, Tabs, ListItemButton
-} from '@mui/material'
-
-// Importing Recharts for data visualization
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 
 // Custom theme with a more vibrant color palette
@@ -328,7 +292,16 @@ const EnhancedAdminDashboard = () => {
               );
             };
 
-const DashboardOverview = ({ showSnackbar }) => {
+const DashboardOverview = () => {
+  const animatedEntry = useAnimatedEntry()
+
+  const stats = [
+    { label: 'Total Students', value: '1,234', icon: Users, color: theme.palette.primary.main },
+    { label: 'Active Courses', value: '56', icon: BookOpen, color: theme.palette.secondary.main },
+    { label: 'Upcoming Exams', value: '12', icon: Calendar, color: theme.palette.tertiary.main },
+    { label: 'Total Teachers', value: '89', icon: User, color: '#FF9800' },
+  ]
+
   const chartData = [
     { name: 'Jan', students: 400, courses: 240, exams: 100 },
     { name: 'Feb', students: 300, courses: 139, exams: 80 },
@@ -347,28 +320,27 @@ const DashboardOverview = ({ showSnackbar }) => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div {...animatedEntry}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6} lg={3}>
-          <StatCard title="Total Students" value="1,234" icon={<Users />} color="#704cd1" />
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-          <StatCard title="Active Courses" value="56" icon={<BookOpen />} color="#2e968b" />
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-          <StatCard title="Upcoming Exams" value="12" icon={<Calendar />} color="#d7205d" />
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-          <StatCard title="Total Teachers" value="89" icon={<UserPlus />} color="#ffa500" />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
+        {stats.map((stat, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Card>
+              <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <Typography color="textSecondary" gutterBottom>
+                    {stat.label}
+                  </Typography>
+                  <Typography variant="h4">
+                    {stat.value}
+                  </Typography>
+                </div>
+                <Avatar sx={{ bgcolor: stat.color, width: 56, height: 56 }}>
+                  <stat.icon />
+                </Avatar>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent>
@@ -378,11 +350,11 @@ const DashboardOverview = ({ showSnackbar }) => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip />
+                  <RechartsTooltip />
                   <Legend />
-                  <Bar dataKey="students" fill="#704cd1" />
-                  <Bar dataKey="courses" fill="#2e968b" />
-                  <Bar dataKey="exams" fill="#d7205d" />
+                  <Bar dataKey="students" fill={theme.palette.primary.main} />
+                  <Bar dataKey="courses" fill={theme.palette.secondary.main} />
+                  <Bar dataKey="exams" fill={theme.palette.tertiary.main} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -407,7 +379,7 @@ const DashboardOverview = ({ showSnackbar }) => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <RechartsTooltip />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -419,34 +391,13 @@ const DashboardOverview = ({ showSnackbar }) => {
   )
 }
 
-const StatCard = ({ title, value, icon, color }) => (
-  <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
-    <Card>
-      <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <Typography color="textSecondary" gutterBottom>
-            {title}
-          </Typography>
-          <Typography variant="h4">
-            {value}
-          </Typography>
-        </div>
-        <Avatar sx={{ bgcolor: color, width: 56, height: 56 }}>
-          {icon}
-        </Avatar>
-      </CardContent>
-    </Card>
-  </motion.div>
-)
-
-
-
-const StudentDetails = ({ showSnackbar }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSemester, setSelectedSemester] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+const StudentDetails = () => {
+  const animatedEntry = useAnimatedEntry()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedSemester, setSelectedSemester] = useState('')
+  const [selectedBranch, setSelectedBranch] = useState('')
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false)
 
   const students = [
     { 
@@ -506,29 +457,27 @@ const StudentDetails = ({ showSnackbar }) => {
         { name: 'High School Diploma', url: '#' },
       ]
     },
-  ];
+  ]
 
   const filteredStudents = students.filter(student =>
     (student.regNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
     (selectedSemester === '' || student.semester === selectedSemester) &&
     (selectedBranch === '' || student.branch === selectedBranch)
-  );
+  )
 
   const handleStudentClick = (student) => {
-    setSelectedStudent(student);
-    setIsDetailsVisible(false);
-  };
+    setSelectedStudent(student)
+    setIsDetailsVisible(false)
+  }
 
   const handleCloseDetails = () => {
-    setSelectedStudent(null);
-  };
+    setSelectedStudent(null)
+  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      {...animatedEntry}
       className="p-6"
     >
       <Typography variant="h5" className="mb-6">
@@ -676,10 +625,11 @@ const StudentDetails = ({ showSnackbar }) => {
         </Dialog>
       )}
     </motion.div>
-  );
-};
+  )
+}
 
-const StudentManagement = ({ showSnackbar }) => {
+const StudentManagement = () => {
+  const animatedEntry = useAnimatedEntry()
   const [students, setStudents] = useState([
     { id: 1, name: 'John Doe', email: 'john@example.com', course: 'Computer Science', year: '2nd Year' },
     { id: 2, name: 'Jane Smith', email: 'jane@example.com', course: 'Business Administration', year: '1st Year' },
@@ -694,9 +644,6 @@ const StudentManagement = ({ showSnackbar }) => {
       setStudents([...students, { ...newStudent, id: students.length + 1 }])
       setIsAddStudentModalOpen(false)
       setNewStudent({ name: '', email: '', course: '', year: '' })
-      showSnackbar('Student added successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
@@ -710,62 +657,56 @@ const StudentManagement = ({ showSnackbar }) => {
       setStudents(students.map(s => s.id === editingStudent.id ? editingStudent : s))
       setIsEditStudentModalOpen(false)
       setEditingStudent(null)
-      showSnackbar('Student updated successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
   const handleDeleteStudent = (id) => {
     setStudents(students.filter(s => s.id !== id))
-    showSnackbar('Student deleted successfully', 'success')
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center">
-        <Typography variant="h5">Student Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddStudentModalOpen(true)}
-        >
-          Add Student
-        </Button>
-      </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Course</TableCell>
-              <TableCell>Year</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id} hover>
-                <TableCell>{student.name}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell>{student.course}</TableCell>
-                <TableCell>{student.year}</TableCell>
-                <TableCell>
-                  <IconButton size="small" onClick={() => handleEditStudent(student)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteStudent(student.id)}><Trash2 /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6">Student Management</Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<PlusCircle />}
+              onClick={() => setIsAddStudentModalOpen(true)}
+            >
+              Add Student
+            </Button>
+          </div>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Course</TableCell>
+                  <TableCell>Year</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {students.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>{student.course}</TableCell>
+                    <TableCell>{student.year}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleEditStudent(student)}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteStudent(student.id)}><Trash2 /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog 
         open={isAddStudentModalOpen} 
@@ -856,7 +797,8 @@ const StudentManagement = ({ showSnackbar }) => {
   )
 }
 
-const TeacherManagement = ({ showSnackbar }) => {
+const TeacherManagement = () => {
+  const animatedEntry = useAnimatedEntry()
   const [teachers, setTeachers] = useState([
     { id: 1, name: 'Dr. Alice Johnson', email: 'alice@example.com', subject: 'Mathematics', experience: '10 years' },
     { id: 2, name: 'Prof. Bob Williams', email: 'bob@example.com', subject: 'Physics', experience: '15 years' },
@@ -871,9 +813,6 @@ const TeacherManagement = ({ showSnackbar }) => {
       setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
       setIsAddTeacherModalOpen(false)
       setNewTeacher({ name: '', email: '', subject: '', experience: '' })
-      showSnackbar('Teacher added successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
@@ -887,62 +826,56 @@ const TeacherManagement = ({ showSnackbar }) => {
       setTeachers(teachers.map(t => t.id === editingTeacher.id ? editingTeacher : t))
       setIsEditTeacherModalOpen(false)
       setEditingTeacher(null)
-      showSnackbar('Teacher updated successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
   const handleDeleteTeacher = (id) => {
     setTeachers(teachers.filter(t => t.id !== id))
-    showSnackbar('Teacher deleted successfully', 'success')
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center">
-        <Typography variant="h5">Teacher Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddTeacherModalOpen(true)}
-        >
-          Add Teacher
-        </Button>
-      </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Subject</TableCell>
-              <TableCell>Experience</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {teachers.map((teacher) => (
-              <TableRow key={teacher.id} hover>
-                <TableCell>{teacher.name}</TableCell>
-                <TableCell>{teacher.email}</TableCell>
-                <TableCell>{teacher.subject}</TableCell>
-                <TableCell>{teacher.experience}</TableCell>
-                <TableCell>
-                  <IconButton size="small" onClick={() => handleEditTeacher(teacher)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteTeacher(teacher.id)}><Trash2 /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6">Teacher Management</Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<PlusCircle />}
+              onClick={() => setIsAddTeacherModalOpen(true)}
+            >
+              Add Teacher
+            </Button>
+          </div>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Subject</TableCell>
+                  <TableCell>Experience</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {teachers.map((teacher) => (
+                  <TableRow key={teacher.id}>
+                    <TableCell>{teacher.name}</TableCell>
+                    <TableCell>{teacher.email}</TableCell>
+                    <TableCell>{teacher.subject}</TableCell>
+                    <TableCell>{teacher.experience}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleEditTeacher(teacher)}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteTeacher(teacher.id)}><Trash2 /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog 
         open={isAddTeacherModalOpen} 
@@ -1033,7 +966,8 @@ const TeacherManagement = ({ showSnackbar }) => {
   )
 }
 
-const CourseManagement = ({ showSnackbar }) => {
+const CourseManagement = () => {
+  const animatedEntry = useAnimatedEntry()
   const [courses, setCourses] = useState([
     { id: 1, name: 'Introduction to Computer Science', code: 'CS101', credits: 3, instructor: 'Dr. Alice Johnson' },
     { id: 2, name: 'Advanced Physics', code: 'PHY301', credits: 4, instructor: 'Prof. Bob Williams' },
@@ -1048,9 +982,6 @@ const CourseManagement = ({ showSnackbar }) => {
       setCourses([...courses, { ...newCourse, id: courses.length + 1 }])
       setIsAddCourseModalOpen(false)
       setNewCourse({ name: '', code: '', credits: '', instructor: '' })
-      showSnackbar('Course added successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
@@ -1064,62 +995,56 @@ const CourseManagement = ({ showSnackbar }) => {
       setCourses(courses.map(c => c.id === editingCourse.id ? editingCourse : c))
       setIsEditCourseModalOpen(false)
       setEditingCourse(null)
-      showSnackbar('Course updated successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
   const handleDeleteCourse = (id) => {
     setCourses(courses.filter(c => c.id !== id))
-    showSnackbar('Course deleted successfully', 'success')
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center">
-        <Typography variant="h5">Course Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddCourseModalOpen(true)}
-        >
-          Add Course
-        </Button>
-      </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Credits</TableCell>
-              <TableCell>Instructor</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {courses.map((course) => (
-              <TableRow key={course.id} hover>
-                <TableCell>{course.name}</TableCell>
-                <TableCell>{course.code}</TableCell>
-                <TableCell>{course.credits}</TableCell>
-                <TableCell>{course.instructor}</TableCell>
-                <TableCell>
-                  <IconButton size="small" onClick={() => handleEditCourse(course)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteCourse(course.id)}><Trash2 /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6">Course Management</Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<PlusCircle />}
+              onClick={() => setIsAddCourseModalOpen(true)}
+            >
+              Add Course
+            </Button>
+          </div>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Credits</TableCell>
+                  <TableCell>Instructor</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {courses.map((course) => (
+                  <TableRow key={course.id}>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell>{course.code}</TableCell>
+                    <TableCell>{course.credits}</TableCell>
+                    <TableCell>{course.instructor}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleEditCourse(course)}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteCourse(course.id)}><Trash2 /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog 
         open={isAddCourseModalOpen} 
@@ -1210,7 +1135,8 @@ const CourseManagement = ({ showSnackbar }) => {
   )
 }
 
-const BranchManagement = ({ showSnackbar }) => {
+const BranchManagement = () => {
+  const animatedEntry = useAnimatedEntry()
   const [branches, setBranches] = useState([
     { id: 1, name: 'Computer Science', year: '2023', hod: 'Dr. John Doe' },
     { id: 2, name: 'Electrical Engineering', year: '2023', hod: 'Prof. Jane Smith' },
@@ -1227,9 +1153,6 @@ const BranchManagement = ({ showSnackbar }) => {
       setBranches([...branches, { ...newBranch, id: branches.length + 1 }])
       setIsAddBranchModalOpen(false)
       setNewBranch({ name: '', year: '', hod: '' })
-      showSnackbar('Branch added successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
@@ -1243,60 +1166,54 @@ const BranchManagement = ({ showSnackbar }) => {
       setBranches(branches.map(b => b.id === editingBranch.id ? editingBranch : b))
       setIsEditBranchModalOpen(false)
       setEditingBranch(null)
-      showSnackbar('Branch updated successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
   const handleDeleteBranch = (id) => {
     setBranches(branches.filter(b => b.id !== id))
-    showSnackbar('Branch deleted successfully', 'success')
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center">
-        <Typography variant="h5">Branch Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddBranchModalOpen(true)}
-        >
-          Add Branch
-        </Button>
-      </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Year</TableCell>
-              <TableCell>HOD</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {branches.map((branch) => (
-              <TableRow key={branch.id} hover>
-                <TableCell>{branch.name}</TableCell>
-                <TableCell>{branch.year}</TableCell>
-                <TableCell>{branch.hod}</TableCell>
-                <TableCell>
-                  <IconButton size="small" onClick={() => handleEditBranch(branch)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteBranch(branch.id)}><Trash2 /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6">Branch Management</Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<PlusCircle />}
+              onClick={() => setIsAddBranchModalOpen(true)}
+            >
+              Add Branch
+            </Button>
+          </div>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Year</TableCell>
+                  <TableCell>HOD</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {branches.map((branch) => (
+                  <TableRow key={branch.id}>
+                    <TableCell>{branch.name}</TableCell>
+                    <TableCell>{branch.year}</TableCell>
+                    <TableCell>{branch.hod}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleEditBranch(branch)}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteBranch(branch.id)}><Trash2 /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog 
         open={isAddBranchModalOpen} 
@@ -1379,7 +1296,8 @@ const BranchManagement = ({ showSnackbar }) => {
   )
 }
 
-const ExamScheduling = ({ showSnackbar }) => {
+const ExamScheduling = () => {
+  const animatedEntry = useAnimatedEntry()
   const [exams, setExams] = useState([
     { id: 1, course: 'CS101', date: '2023-06-15', time: '09:00', duration: '3 hours', location: 'Hall A' },
     { id: 2, course: 'PHY301', date: '2023-06-18', time: '14:00', duration: '2 hours', location: 'Hall B' },
@@ -1394,9 +1312,6 @@ const ExamScheduling = ({ showSnackbar }) => {
       setExams([...exams, { ...newExam, id: exams.length + 1 }])
       setIsAddExamModalOpen(false)
       setNewExam({ course: '', date: '', time: '', duration: '', location: '' })
-      showSnackbar('Exam scheduled successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
@@ -1410,64 +1325,58 @@ const ExamScheduling = ({ showSnackbar }) => {
       setExams(exams.map(e => e.id === editingExam.id ? editingExam : e))
       setIsEditExamModalOpen(false)
       setEditingExam(null)
-      showSnackbar('Exam updated successfully', 'success')
-    } else {
-      showSnackbar('Please fill in all fields', 'error')
     }
   }
 
   const handleDeleteExam = (id) => {
     setExams(exams.filter(e => e.id !== id))
-    showSnackbar('Exam deleted successfully', 'success')
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center">
-        <Typography variant="h5">Exam Scheduling</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddExamModalOpen(true)}
-        >
-          Schedule Exam
-        </Button>
-      </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Course</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {exams.map((exam) => (
-              <TableRow key={exam.id} hover>
-                <TableCell>{exam.course}</TableCell>
-                <TableCell>{exam.date}</TableCell>
-                <TableCell>{exam.time}</TableCell>
-                <TableCell>{exam.duration}</TableCell>
-                <TableCell>{exam.location}</TableCell>
-                <TableCell>
-                  <IconButton size="small" onClick={() => handleEditExam(exam)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteExam(exam.id)}><Trash2 /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h6">Exam Scheduling</Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<PlusCircle />}
+              onClick={() => setIsAddExamModalOpen(true)}
+            >
+              Schedule Exam
+            </Button>
+          </div>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Course</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Duration</TableCell>
+                  <TableCell>Location</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {exams.map((exam) => (
+                  <TableRow key={exam.id}>
+                    <TableCell>{exam.course}</TableCell>
+                    <TableCell>{exam.date}</TableCell>
+                    <TableCell>{exam.time}</TableCell>
+                    <TableCell>{exam.duration}</TableCell>
+                    <TableCell>{exam.location}</TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => handleEditExam(exam)}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteExam(exam.id)}><Trash2 /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog 
         open={isAddExamModalOpen} 
@@ -1578,7 +1487,8 @@ const ExamScheduling = ({ showSnackbar }) => {
   )
 }
 
-const ReportsAnalytics = ({ showSnackbar }) => {
+const ReportsAnalytics = () => {
+  const animatedEntry = useAnimatedEntry()
   const [activeTab, setActiveTab] = useState(0)
 
   const handleTabChange = (event, newValue) => {
@@ -1587,39 +1497,38 @@ const ReportsAnalytics = ({ showSnackbar }) => {
 
   const generateReport = (reportType) => {
     // Simulating report generation
-    showSnackbar(`${reportType} report generated successfully`, 'success')
+    console.log(`${reportType} report generated successfully`)
   }
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Typography variant="h5">Reports & Analytics</Typography>
-      
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={activeTab} onChange={handleTabChange} aria-label="report tabs">
-          <Tab label="Student Reports" />
-          <Tab label="Teacher Reports" />
-          <Tab label="Course Reports" />
-          <Tab label="Exam Reports" />
-        </Tabs>
-      </Box>
+    <motion.div {...animatedEntry}>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>Reports & Analytics</Typography>
+          
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={activeTab} onChange={handleTabChange} aria-label="report tabs">
+              <Tab label="Student Reports" />
+              <Tab label="Teacher Reports" />
+              <Tab label="Course Reports" />
+              <Tab label="Exam Reports" />
+            </Tabs>
+          </Box>
 
-      <TabPanel value={activeTab} index={0}>
-        <Button variant="outlined" onClick={() => generateReport('Student Performance')}>Generate Student Performance Report</Button>
-      </TabPanel>
-      <TabPanel value={activeTab} index={1}>
-        <Button variant="outlined" onClick={() => generateReport('Teacher Evaluation')}>Generate Teacher Evaluation Report</Button>
-      </TabPanel>
-      <TabPanel value={activeTab} index={2}>
-        <Button variant="outlined" onClick={() => generateReport('Course Enrollment')}>Generate Course Enrollment Report</Button>
-      </TabPanel>
-      <TabPanel value={activeTab} index={3}>
-        <Button variant="outlined" onClick={() => generateReport('Exam Results')}>Generate Exam Results Report</Button>
-      </TabPanel>
+          <TabPanel value={activeTab} index={0}>
+            <Button variant="outlined" onClick={() => generateReport('Student Performance')}>Generate Student Performance Report</Button>
+          </TabPanel>
+          <TabPanel value={activeTab} index={1}>
+            <Button variant="outlined" onClick={() => generateReport('Teacher Evaluation')}>Generate Teacher Evaluation Report</Button>
+          </TabPanel>
+          <TabPanel value={activeTab} index={2}>
+            <Button variant="outlined" onClick={() => generateReport('Course Enrollment')}>Generate Course Enrollment Report</Button>
+          </TabPanel>
+          <TabPanel value={activeTab} index={3}>
+            <Button variant="outlined" onClick={() => generateReport('Exam Results')}>Generate Exam Results Report</Button>
+          </TabPanel>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
@@ -1635,11 +1544,11 @@ const TabPanel = (props) => {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && children ? (
+      {value === index && (
         <Box sx={{ p: 3 }}>
           {children}
         </Box>
-      ) : null}
+      )}
     </div>
   )
 }
