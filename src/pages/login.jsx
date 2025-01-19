@@ -148,7 +148,11 @@ function Login() {
       
       // Delay navigation to show success animation
       setTimeout(() => {
-        navigate("/student");
+        if (userType === 'Student'){
+          navigate("/student");
+        } else {
+          navigate("/admin");
+        }
       }, 2000);
     } catch (error) {
       console.error('Login failed:', error);
