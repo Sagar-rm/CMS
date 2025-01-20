@@ -690,10 +690,10 @@ const StudentManagement = ({ showSnackbar }) => {
   const [editingStudent, setEditingStudent] = useState(null)
 
   const handleAddStudent = () => {
-    if (newStudent.name && newStudent.email && newStudent.course && newStudent.year) {
+    if (newStudent.name && newStudent.email && newStudent.course && newStudent.year && newStudent.registerNumber, newStudent.sem, newStudent.branch) {
       setStudents([...students, { ...newStudent, id: students.length + 1 }])
       setIsAddStudentModalOpen(false)
-      setNewStudent({ name: '', email: '', course: '', year: '' })
+      setNewStudent({registerNumber: '', name: '', email: '', course: '', year: '', sem: '', branch: '' })
       showSnackbar('Student added successfully', 'success')
     } else {
       showSnackbar('Please fill in all fields', 'error')
@@ -747,6 +747,8 @@ const StudentManagement = ({ showSnackbar }) => {
               <TableCell>Email</TableCell>
               <TableCell>Course</TableCell>
               <TableCell>Year</TableCell>
+              <TableCell>Sem</TableCell>
+              <TableCell>Branch</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
