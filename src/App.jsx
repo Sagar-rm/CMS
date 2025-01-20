@@ -14,8 +14,9 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
-import AdminDashboard from './components/admin/AdminDashboard';
+// import AdminDashboard from './components/admin/AdminDashboard';
 import EnhancedStudentDashboard from './components/student/StudentOverview';
+import AdminDashboard from './components/admin/EnhancedAdminDashboard';
 
 
 
