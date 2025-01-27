@@ -32,7 +32,7 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     }
 
     // Check for profile image, use default if not provided
-    const profileLocalPath = req.files?.profile?.[0]?.path || "../../public/temp/RisingSun-CP-111.jpg";
+    const profileLocalPath = req.files?.profile?.[0]?.path || "public/temp/RisingSun-CP-111.jpg";
     
     const user = await Model.create({
         ...req.body,
