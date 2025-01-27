@@ -15,6 +15,7 @@ router.route("/register").post(
   studentController.register
 );
 
+router.route("/").get(studentController.getAllStudents);
 router.route("/login").post(studentController.login);
 router.route("/refresh-token").post(studentController.refresh);
 router.route("/me").post(verifyJWT,studentController.getCurrentUser )

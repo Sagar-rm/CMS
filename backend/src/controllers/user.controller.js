@@ -33,7 +33,7 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
 
     const profileLocalPath = req.files?.profile?.[0]?.path;
     if (!profileLocalPath) {
-        throw new ApiError(400, "Avatar is required");
+        throw new ApiError(400, "Profile is required");
     }
     
     const user = await Model.create({
@@ -44,6 +44,12 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     const createdUser = await Model.findById(user._id).select("-password -refreshToken");
     res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
+
+const getAllStudents = asyncHandler(async (req, res) => {
+    const students = await Student.find().populate('branch', 'name'); // Populate the branch name (optional)
+    res.status(200).json(new ApiResponse(200, students, "Students retrieved successfully"));
+});
+
 
 const loginStudent = asyncHandler(async (req, res) => {
     const { registerNumber, password } = req.body;
@@ -124,7 +130,8 @@ export const studentController = {
     login: loginStudent,
     logout: logoutUser(Student),
     refresh: refreshAccessToken(Student),
-    getCurrentUser: getCurrentUser(Student)
+    getCurrentUser: getCurrentUser(Student),
+    getAllStudents, // Added function
 };
 
 export const facultyController = {
