@@ -17,7 +17,7 @@ app.use(cookieParser())
 
 
 // Serve files from the "public" directory
-app.use("/uploads", express.static("public/temp"));
+app.use("/public/temp", express.static("public/temp"));
 
 // routes imports
 import studentRouter from "./routes/student.routes.js";

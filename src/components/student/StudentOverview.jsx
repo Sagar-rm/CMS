@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../../api/axios';
 // import {  Box,  TextField } from '@mui/material';
 // import useAnimatedEntry from './useAnimatedEntry';
 
@@ -1131,18 +1132,40 @@ const SettingsSection = () => {
     darkMode: false,
     language: 'English',
   });
+  
   const [profileData, setProfileData] = useState({
     avatar: '',
-    name: 'John Doe',
-    regNo: '20231234',
-    phoneNo: '1234567890',
-    guardianNo: '9876543210',
-    email: 'john.doe@example.com',
-    sem: '5',
-    branch: 'CSE',
-    year: '2024',
-    dob: '2002-01-15',
+    name: '',
+    regNo: '',
+    phoneNo: '',
+    email: '',
+    sem: '',
+    branch: '',
   });
+
+  // Fetch current user data from the backend
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await api.post("/student/me"); // Adjust URL as per your API
+      console.log(response.data.data)
+      setProfileData({
+        avatar: `http://localhost:8000/${response.data.data.profile}` || '', // Construct full URL        name: response.data.data.fullName || '',
+        name: response.data.data.fullName || '',
+        regNo: response.data.data.registerNumber || '',
+        phoneNo: response.data.data.phoneNumber || '',
+        email: response.data.data.email || '',
+        sem: response.data.data.semester || '',
+        branch: response.data.data.branch || '',
+      });
+    } catch (error) {
+      console.error('Error fetching current user data', error);
+      alert('Failed to load user data');
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser(); // Fetch user data when the component mounts
+  }, []);
 
   const handleSettingChange = (setting, value) => {
     setSettings(prevSettings => ({
@@ -1156,6 +1179,33 @@ const SettingsSection = () => {
       ...prevData,
       [field]: value
     }));
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const formData = new FormData();
+      if (profileData.avatar) {
+        formData.append('profile', profileData.avatar);
+      }
+      formData.append('name', profileData.name);
+      formData.append('phoneNo', profileData.phoneNo);
+      formData.append('email', profileData.email);
+      formData.append('sem', profileData.sem);
+      formData.append('branch', profileData.branch);
+
+      const response = await axios.put(`/api/students/${profileData.regNo}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      if (response.status === 200) {
+        alert('Profile updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating profile', error);
+      alert('Failed to update profile. Please try again.');
+    }
   };
 
   return (
@@ -1190,7 +1240,6 @@ const SettingsSection = () => {
                   value={profileData.name}
                   onChange={(e) => handleProfileChange('name', e.target.value)}
                   fullWidth
-                  disabled
                 />
                 <TextField
                   label="Registration Number"
@@ -1203,12 +1252,6 @@ const SettingsSection = () => {
                   label="Phone Number"
                   value={profileData.phoneNo}
                   onChange={(e) => handleProfileChange('phoneNo', e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="Guardian's Number"
-                  value={profileData.guardianNo}
-                  onChange={(e) => handleProfileChange('guardianNo', e.target.value)}
                   fullWidth
                 />
                 <TextField
@@ -1229,22 +1272,6 @@ const SettingsSection = () => {
                   onChange={(e) => handleProfileChange('branch', e.target.value)}
                   fullWidth
                 />
-                <TextField
-                  label="Year"
-                  value={profileData.year}
-                  onChange={(e) => handleProfileChange('year', e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="Date of Birth"
-                  type="date"
-                  value={profileData.dob}
-                  onChange={(e) => handleProfileChange('dob', e.target.value)}
-                  fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
                 <Button 
                   variant="contained" 
                   color="primary" 
@@ -1258,6 +1285,7 @@ const SettingsSection = () => {
                       boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                     },
                   }}
+                  onClick={handleSaveProfile} // Trigger the save profile function
                 >
                   Save Profile
                 </Button>

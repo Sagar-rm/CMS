@@ -31,10 +31,8 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
         throw new ApiError(409, "User with this email already exists");
     }
 
-    const profileLocalPath = req.files?.profile?.[0]?.path;
-    if (!profileLocalPath) {
-        throw new ApiError(400, "Profile is required");
-    }
+    // Check for profile image, use default if not provided
+    const profileLocalPath = req.files?.profile?.[0]?.path || "public/temp/RisingSun-CP-111.jpg";
     
     const user = await Model.create({
         ...req.body,
@@ -44,6 +42,7 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     const createdUser = await Model.findById(user._id).select("-password -refreshToken");
     res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
+
 
 const getAllStudents = asyncHandler(async (req, res) => {
     const students = await Student.find().populate('branch', 'name'); // Populate the branch name (optional)
@@ -125,6 +124,30 @@ const getCurrentUser = (Model) => asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, user, "User data retrieved"));
 });
 
+const deleteUser = (Model) => asyncHandler(async (req, res) => {
+    const user = await Model.findByIdAndDelete(req.params.id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    res.status(200).json(new ApiResponse(200, {}, "User deleted successfully"));
+});
+
+const updateUser = (Model, allowedFields) => asyncHandler(async (req, res) => {
+    const updates = {};
+    Object.keys(req.body).forEach((key) => {
+        if (allowedFields.includes(key)) {
+            updates[key] = req.body[key];
+        }
+    });
+
+    const user = await Model.findByIdAndUpdate(req.params.id, updates, { new: true }).select("-password -refreshToken");
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    res.status(200).json(new ApiResponse(200, user, "User updated successfully"));
+});
+
 export const studentController = {
     register: registerUser(Student, ["registerNumber","fullName", "email","phoneNumber", "password", "semester", "branch", "gender"]),
     login: loginStudent,
@@ -132,6 +155,8 @@ export const studentController = {
     refresh: refreshAccessToken(Student),
     getCurrentUser: getCurrentUser(Student),
     getAllStudents, // Added function
+    deleteUser: deleteUser(Student), 
+    updateUser: updateUser(Student, ["fullName", "email", "phoneNumber", "semester", "branch", "gender"])
 };
 
 export const facultyController = {
@@ -139,5 +164,7 @@ export const facultyController = {
     login: loginFaculty,
     logout: logoutUser(Faculty),
     refresh: refreshAccessToken(Faculty),
-    getCurrentUser: getCurrentUser(Faculty)
+    getCurrentUser: getCurrentUser(Faculty),
+    deleteUser: deleteUser(Faculty),
+    updateUser: updateUser(Faculty, ["fullName", "email", "department"])
 };
