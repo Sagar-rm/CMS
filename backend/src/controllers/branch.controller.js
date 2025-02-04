@@ -47,3 +47,9 @@ export const deleteBranch = async (req, res) => {
     }
 };
 
+export const branchController = {
+    addBranch,
+    getAllBranches,
+    getBranchById,
+    deleteBranch
+};

@@ -25,4 +25,8 @@ const getAllGrades = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, grades, "Grades fetched successfully"));
 });
 
-export { addGrade, getAllGrades };
+
+export const gradeController = {
+    addGrade,
+    getAllGrades
+};
