@@ -43,6 +43,11 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
+const getAllFaculty = asyncHandler(async (req, res) => {
+    const faculty = await Faculty.find().populate('department', 'name'); // Populate department name if needed
+    res.status(200).json(new ApiResponse(200, faculty, "Faculty members retrieved successfully"));
+});
+
 
 const getAllStudents = asyncHandler(async (req, res) => {
     const students = await Student.find().populate('branch', 'name'); // Populate the branch name (optional)
@@ -165,6 +170,7 @@ export const facultyController = {
     logout: logoutUser(Faculty),
     refresh: refreshAccessToken(Faculty),
     getCurrentUser: getCurrentUser(Faculty),
+    getAllFaculty,
     deleteUser: deleteUser(Faculty),
     updateUser: updateUser(Faculty, ["fullName", "email", "department"])
 };
