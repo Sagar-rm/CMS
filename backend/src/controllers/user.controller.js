@@ -121,13 +121,24 @@ const refreshAccessToken = (Model) => asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = (Model) => asyncHandler(async (req, res) => {
-    const user = await Model.findById(req.user._id).select("-password -refreshToken");
+    let query = Model.findById(req.user._id).select("-password -refreshToken");
+
+    // Dynamically populate based on Model type
+    if (Model.modelName === "Student") {
+        query = query.populate("branch"); 
+    } else if (Model.modelName === "Faculty") {
+        query = query.populate("department"); 
+    }
+
+    const user = await query;
+
     if (!user) {
         throw new ApiError(404, "User not found");
     }
 
     res.status(200).json(new ApiResponse(200, user, "User data retrieved"));
 });
+
 
 const deleteUser = (Model) => asyncHandler(async (req, res) => {
     const user = await Model.findByIdAndDelete(req.params.id);

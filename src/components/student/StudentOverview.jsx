@@ -1155,7 +1155,7 @@ const SettingsSection = () => {
         phoneNo: response.data.data.phoneNumber || '',
         email: response.data.data.email || '',
         sem: response.data.data.semester || '',
-        branch: response.data.data.branch || '',
+        branch: response.data.data.branch.name || '',
       });
     } catch (error) {
       console.error('Error fetching current user data', error);
@@ -1265,12 +1265,14 @@ const SettingsSection = () => {
                   value={profileData.sem}
                   onChange={(e) => handleProfileChange('sem', e.target.value)}
                   fullWidth
+                  disabled
                 />
                 <TextField
                   label="Branch"
                   value={profileData.branch}
                   onChange={(e) => handleProfileChange('branch', e.target.value)}
                   fullWidth
+                  disabled
                 />
                 <Button 
                   variant="contained" 

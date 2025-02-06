@@ -21,6 +21,7 @@ export const TeacherManagement = () => {
   const fetchTeachers = async () => {
     try {
       const response = await api.get('/admin');
+      console.log(response.data)
       setTeachers(response.data.data);
     } catch (error) {
       console.error('Error fetching teachers:', error.response?.data?.message || error.message);
