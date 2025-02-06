@@ -43,6 +43,11 @@ const registerUser = (Model, requiredFields) => asyncHandler(async (req, res) =>
     res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
+const getAllFaculty = asyncHandler(async (req, res) => {
+    const faculty = await Faculty.find().populate('department', 'name'); // Populate department name if needed
+    res.status(200).json(new ApiResponse(200, faculty, "Faculty members retrieved successfully"));
+});
+
 
 const getAllStudents = asyncHandler(async (req, res) => {
     const students = await Student.find().populate('branch', 'name'); // Populate the branch name (optional)
@@ -116,13 +121,24 @@ const refreshAccessToken = (Model) => asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = (Model) => asyncHandler(async (req, res) => {
-    const user = await Model.findById(req.user._id).select("-password -refreshToken");
+    let query = Model.findById(req.user._id).select("-password -refreshToken");
+
+    // Dynamically populate based on Model type
+    if (Model.modelName === "Student") {
+        query = query.populate("branch"); 
+    } else if (Model.modelName === "Faculty") {
+        query = query.populate("department"); 
+    }
+
+    const user = await query;
+
     if (!user) {
         throw new ApiError(404, "User not found");
     }
 
     res.status(200).json(new ApiResponse(200, user, "User data retrieved"));
 });
+
 
 const deleteUser = (Model) => asyncHandler(async (req, res) => {
     const user = await Model.findByIdAndDelete(req.params.id);
@@ -165,6 +181,7 @@ export const facultyController = {
     logout: logoutUser(Faculty),
     refresh: refreshAccessToken(Faculty),
     getCurrentUser: getCurrentUser(Faculty),
+    getAllFaculty,
     deleteUser: deleteUser(Faculty),
     updateUser: updateUser(Faculty, ["fullName", "email", "department"])
 };

@@ -3,11 +3,18 @@ import mongoose, {Schema} from "mongoose";
 const branchSchema = new Schema({
     name: { 
         type: String, 
-        required: true 
+        required: true, 
+        unique: true 
+    }, 
+    code: { 
+        type: String, 
+        required: true, 
+        unique: true 
     },
-    establishedYear: {
-        type: String
-    }
-  }, { timestamps: true });
+    subjects: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Subject" 
+    }]
+});
 
-export const Branch = mongoose.model("Branch", branchSchema)
+export const Branch = mongoose.model("Branch", branchSchema);

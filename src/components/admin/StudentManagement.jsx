@@ -60,7 +60,7 @@ export const StudentManagement = () => {
   const fetchBranches = async () => {
     try {
       const response = await api.get("/branch");
-      setBranches(response.data.data);
+      setBranches(response.data);
     } catch (error) {
       console.error("Error fetching branches:", error.response?.data?.message || error.message);
     }

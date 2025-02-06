@@ -1,58 +1,58 @@
-// import React,```tsx file="components/TeacherManagement.tsx"
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Typography, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
-import { PlusCircle, Edit, Trash2 } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Typography, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import api from '../../api/axios.js';
 
 export const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState([
-    { id: 1, name: 'Dr. Alice Johnson', email: 'alice@example.com', subject: 'Mathematics', experience: '10 years' },
-    { id: 2, name: 'Prof. Bob Williams', email: 'bob@example.com', subject: 'Physics', experience: '15 years' },
-  ])
-  const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false)
-  const [isEditTeacherModalOpen, setIsEditTeacherModalOpen] = useState(false)
-  const [newTeacher, setNewTeacher] = useState({ name: '', email: '', subject: '', experience: '' })
-  const [editingTeacher, setEditingTeacher] = useState(null)
+  const [teachers, setTeachers] = useState([]);
+  const [branches, setBranches] = useState([]); // Stores branch options
+  const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
+  const [newTeacher, setNewTeacher] = useState({
+    kgId: '', fullName: '', email: '', department: '', phoneNumber: '', gender: '', experience: '', designation: '', isHod: false, profile: '', password: ''
+  });
+  const [editingTeacher, setEditingTeacher] = useState(null);
 
-  const handleAddTeacher = () => {
-    if (newTeacher.name && newTeacher.email && newTeacher.subject && newTeacher.experience) {
-      setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }])
-      setIsAddTeacherModalOpen(false)
-      setNewTeacher({ name: '', email: '', subject: '', experience: '' })
+  useEffect(() => {
+    fetchTeachers();
+    fetchBranches(); // Fetch branch options on mount
+  }, []);
+
+  const fetchTeachers = async () => {
+    try {
+      const response = await api.get('/admin');
+      console.log(response.data)
+      setTeachers(response.data.data);
+    } catch (error) {
+      console.error('Error fetching teachers:', error.response?.data?.message || error.message);
     }
-  }
+  };
 
-  const handleEditTeacher = (teacher) => {
-    setEditingTeacher(teacher)
-    setIsEditTeacherModalOpen(true)
-  }
-
-  const handleUpdateTeacher = () => {
-    if (editingTeacher.name && editingTeacher.email && editingTeacher.subject && editingTeacher.experience) {
-      setTeachers(teachers.map(t => t.id === editingTeacher.id ? editingTeacher : t))
-      setIsEditTeacherModalOpen(false)
-      setEditingTeacher(null)
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get('/branch');
+      setBranches(response.data); // Assuming API returns { data: [branch1, branch2, ...] }
+    } catch (error) {
+      console.error('Error fetching branches:', error.response?.data?.message || error.message);
     }
-  }
+  };
 
-  const handleDeleteTeacher = (id) => {
-    setTeachers(teachers.filter(t => t.id !== id))
-  }
+  const handleAddTeacher = async () => {
+    try {
+      await api.post('/admin/register/', newTeacher);
+      fetchTeachers(); // Refresh teacher list
+      setIsAddTeacherModalOpen(false);
+      setNewTeacher({ kgId: '', fullName: '', email: '', department: '', phoneNumber: '', gender: '', experience: '', designation: '', isHod: false, profile: '', password: '' });
+    } catch (error) {
+      console.error('Error adding teacher:', error.response?.data?.message || error.message);
+    }
+  };
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div className="p-6 space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
       <div className="flex justify-between items-center">
         <Typography variant="h5">Teacher Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddTeacherModalOpen(true)}
-        >
+        <Button variant="contained" startIcon={<PlusCircle />} onClick={() => setIsAddTeacherModalOpen(true)}>
           Add Teacher
         </Button>
       </div>
@@ -63,21 +63,23 @@ export const TeacherManagement = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Subject</TableCell>
+              <TableCell>Department</TableCell>
               <TableCell>Experience</TableCell>
+              <TableCell>Designation</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {teachers.map((teacher) => (
-              <TableRow key={teacher.id} hover>
-                <TableCell>{teacher.name}</TableCell>
+            {Array.isArray(teachers) && teachers.map((teacher) => (
+              <TableRow key={teacher._id} hover>
+                <TableCell>{teacher.fullName}</TableCell>
                 <TableCell>{teacher.email}</TableCell>
-                <TableCell>{teacher.subject}</TableCell>
+                <TableCell>{teacher.department.name}</TableCell>
                 <TableCell>{teacher.experience}</TableCell>
+                <TableCell>{teacher.designation}</TableCell>
                 <TableCell>
-                  <IconButton size="small" onClick={() => handleEditTeacher(teacher)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteTeacher(teacher.id)}><Trash2 /></IconButton>
+                  <IconButton size="small" onClick={() => setEditingTeacher(teacher)}><Edit /></IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteTeacher(teacher._id)}><Trash2 /></IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -85,92 +87,70 @@ export const TeacherManagement = () => {
         </Table>
       </TableContainer>
 
-      <Dialog 
-        open={isAddTeacherModalOpen} 
-        onClose={() => setIsAddTeacherModalOpen(false)}
-      >
-        <DialogTitle>Add New Teacher</DialogTitle>
+      <Dialog open={isAddTeacherModalOpen} onClose={() => setIsAddTeacherModalOpen(false)}>
+        <DialogTitle>{editingTeacher ? "Edit Teacher" : "Add New Teacher"}</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            fullWidth
-            value={newTeacher.name}
-            onChange={(e) => setNewTeacher({ ...newTeacher, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={newTeacher.email}
-            onChange={(e) => setNewTeacher({ ...newTeacher, email: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Subject"
-            fullWidth
-            value={newTeacher.subject}
-            onChange={(e) => setNewTeacher({ ...newTeacher, subject: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Experience"
-            fullWidth
-            value={newTeacher.experience}
-            onChange={(e) => setNewTeacher({ ...newTeacher, experience: e.target.value })}
-          />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Full Name" fullWidth value={newTeacher.fullName} onChange={(e) => setNewTeacher({ ...newTeacher, fullName: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Email" fullWidth value={newTeacher.email} onChange={(e) => setNewTeacher({ ...newTeacher, email: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Phone Number" fullWidth type="number" value={newTeacher.phoneNumber} onChange={(e) => setNewTeacher({ ...newTeacher, phoneNumber: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Gender</InputLabel>
+                <Select value={newTeacher.gender} onChange={(e) => setNewTeacher({ ...newTeacher, gender: e.target.value })}>
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Department</InputLabel>
+                <Select
+                  value={newTeacher.department}
+                  onChange={(e) => setNewTeacher({ ...newTeacher, department: e.target.value })}
+                >
+                  {branches.map((branch) => (
+                    <MenuItem key={branch._id} value={branch._id}>{branch.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Experience (Years)" fullWidth type="number" value={newTeacher.experience} onChange={(e) => setNewTeacher({ ...newTeacher, experience: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="kgId" fullWidth type="number" value={newTeacher.kgId} onChange={(e) => setNewTeacher({ ...newTeacher, kgId: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Designation" fullWidth value={newTeacher.designation} onChange={(e) => setNewTeacher({ ...newTeacher, designation: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField label="Password" type='password' fullWidth value={newTeacher.password} onChange={(e) => setNewTeacher({ ...newTeacher, password: e.target.value })} />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={<Checkbox checked={newTeacher.isHod} onChange={(e) => setNewTeacher({ ...newTeacher, isHod: e.target.checked })} />}
+                label="Is HOD?"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField label="Profile URL" fullWidth value={newTeacher.profile} onChange={(e) => setNewTeacher({ ...newTeacher, profile: e.target.value })} />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsAddTeacherModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddTeacher} variant="contained">Add</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog 
-        open={isEditTeacherModalOpen} 
-        onClose={() => setIsEditTeacherModalOpen(false)}
-      >
-        <DialogTitle>Edit Teacher</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            fullWidth
-            value={editingTeacher?.name || ''}
-            onChange={(e) => setEditingTeacher({ ...editingTeacher, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={editingTeacher?.email || ''}
-            onChange={(e) => setEditingTeacher({ ...editingTeacher, email: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Subject"
-            fullWidth
-            value={editingTeacher?.subject || ''}
-            onChange={(e) => setEditingTeacher({ ...editingTeacher, subject: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Experience"
-            fullWidth
-            value={editingTeacher?.experience || ''}
-            onChange={(e) => setEditingTeacher({ ...editingTeacher, experience: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEditTeacherModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateTeacher} variant="contained">Update</Button>
+          <Button onClick={handleAddTeacher} variant="contained">{editingTeacher ? "Update" : "Add"}</Button>
         </DialogActions>
       </Dialog>
     </motion.div>
-  )
-}
-
+  );
+};

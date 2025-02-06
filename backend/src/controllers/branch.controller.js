@@ -3,28 +3,53 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Branch } from "../models/branch.model.js";
 
-const addBranch = asyncHandler(async (req, res) => {
-    const { name, establishedYear } = req.body;
+export const addBranch = asyncHandler(async (req, res) => {
+    try {
+        const { name, code } = req.body;
+        const branch = new Branch({ name, code });
+        await branch.save();
+        res.status(201).json({ message: "Branch created successfully", branch });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }});
 
-    if (!name) {
-        throw new ApiError(400, "Branch name is required");
+
+// Get all branches
+export const getAllBranches = async (req, res) => {
+    try {
+        const branches = await Branch.find().populate("subjects", "name");
+        res.json(branches);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
+};
 
-    const branch = await Branch.create({
-        name,
-        establishedYear
-    });
 
-    return res.status(201).json(
-        new ApiResponse(201, branch, "Branch added successfully")
-    );
-});
+// Get branch by ID
+export const getBranchById = async (req, res) => {
+    try {
+        const branch = await Branch.findById(req.params.id).populate("subjects");
+        if (!branch) return res.status(404).json({ message: "Branch not found" });
 
-const getAllBranches = asyncHandler(async (req, res) => {
-    const branches = await Branch.find({}).select('name');
-    return res.status(200).json(
-        new ApiResponse(200, branches, "Branches fetched successfully")
-    );
-});
+        res.json(branch);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
-export { addBranch, getAllBranches };
+// Delete branch
+export const deleteBranch = async (req, res) => {
+    try {
+        await Branch.findByIdAndDelete(req.params.id);
+        res.json({ message: "Branch deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const branchController = {
+    addBranch,
+    getAllBranches,
+    getBranchById,
+    deleteBranch
+};
