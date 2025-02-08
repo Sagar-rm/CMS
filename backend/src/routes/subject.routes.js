@@ -6,7 +6,7 @@ const router = Router();
 
 router.route("/").post(verifyJWT, subjectController.addSubject).get(subjectController.getAllSubjects);
 // router.route("/:id").get(subjectController.getSubjectById);
-// router.route("/:id").put(verifyJWT, subjectController.updateSubject);
-// router.route("/:id").delete(verifyJWT, subjectController.deleteSubject);
+router.route("/:id").put(verifyJWT, subjectController.updateSubject);
+router.route("/:id").delete(verifyJWT, subjectController.deleteSubject);
 
 export default router;
