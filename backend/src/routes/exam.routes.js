@@ -6,7 +6,7 @@ const router = Router();
 
 router.route("/").post(verifyJWT, examController.addExamResult).get(verifyJWT, examController.getAllExams);
 // router.route("/:id").get(verifyJWT, examController.getExamById);
-// router.route("/:id").put(verifyJWT, examController.updateExam);
-// router.route("/:id").delete(verifyJWT, examController.deleteExam);
+router.route("/:id").put(verifyJWT, examController.updateExamResult);
+router.route("/:id").delete(verifyJWT, examController.deleteExamResult);
 
 export default router;

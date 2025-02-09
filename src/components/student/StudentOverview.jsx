@@ -1311,4 +1311,3 @@ const SettingsSection = () => {
 };
 
 export default EnhancedStudentDashboard;
-

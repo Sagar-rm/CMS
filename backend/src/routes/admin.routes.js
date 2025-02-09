@@ -21,4 +21,20 @@ router.route("/refresh-token").post(facultyController.refresh);
 router.route("/me").post(verifyJWT,facultyController.getCurrentUser )
 router.route("/logout").post(verifyJWT, facultyController.logout);
 
+// 🔹 Update admin
+router.route("/:id").put(
+  verifyJWT,
+  upload.fields([
+    {
+      name: "profile",
+      maxCount: 1,
+    },
+  ]),
+  facultyController.updateUser
+);
+
+// 🔹 Delete admin
+router.route("/:id").delete(verifyJWT, facultyController.deleteUser);
+
+
 export default router
