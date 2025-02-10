@@ -23,6 +23,8 @@ import {
   Alert,
   FormControl,
   InputLabel,
+  Grid,
+  Divider,
 } from "@mui/material";
 import { PlusCircle, Edit, Trash2 } from "lucide-react";
 
@@ -45,7 +47,7 @@ export const StudentManagement = () => {
   const [editingStudent, setEditingStudent] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Added severity state
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const fetchStudents = async () => {
     try {
@@ -94,7 +96,7 @@ export const StudentManagement = () => {
   
       await fetchStudents();
       setSnackbarMessage("Student successfully added!");
-      setSnackbarSeverity("success"); // Set severity to success
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
   
       setIsAddStudentModalOpen(false);
@@ -112,7 +114,7 @@ export const StudentManagement = () => {
     } catch (error) {
       console.error("Error adding student:", error.response?.data?.message || error.message);
       setSnackbarMessage("Error adding student!");
-      setSnackbarSeverity("error"); // Set severity to error
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
@@ -147,15 +149,15 @@ export const StudentManagement = () => {
       });
   
       setSnackbarMessage("Student successfully updated!");
-      setSnackbarSeverity("success"); // Set severity to success
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       fetchStudents();
       setIsEditStudentModalOpen(false);
-      setEditingStudent(null); // Clear editing state
+      setEditingStudent(null);
     } catch (error) {
       console.error("Error updating student:", error.response?.data?.message || error.message);
       setSnackbarMessage("Error updating student!");
-      setSnackbarSeverity("error"); // Set severity to error
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
@@ -164,13 +166,13 @@ export const StudentManagement = () => {
     try {
       await api.delete(`/student/${id}`);
       setSnackbarMessage("Student successfully deleted!");
-      setSnackbarSeverity("success"); // Set severity to success
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       fetchStudents();
     } catch (error) {
       console.error("Error deleting student:", error.response?.data?.message || error.message);
       setSnackbarMessage("Error deleting student!");
-      setSnackbarSeverity("error"); // Set severity to error
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
@@ -242,78 +244,109 @@ export const StudentManagement = () => {
       {/* Add Student Dialog */}
       <Dialog open={isAddStudentModalOpen} onClose={() => setIsAddStudentModalOpen(false)}>
         <DialogTitle>Add New Student</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} /> {/* Add space between title and fields */}
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Full Name"
-            fullWidth
-            value={newStudent.fullName}
-            onChange={(e) => setNewStudent({ ...newStudent, fullName: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={newStudent.email}
-            onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Password"
-            type="password"
-            fullWidth
-            value={newStudent.password}
-            onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Register Number"
-            fullWidth
-            value={newStudent.registerNumber}
-            onChange={(e) => setNewStudent({ ...newStudent, registerNumber: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Phone Number"
-            fullWidth
-            value={newStudent.phoneNumber}
-            onChange={(e) => setNewStudent({ ...newStudent, phoneNumber: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Semester"
-            type="number"
-            fullWidth
-            value={newStudent.semester}
-            onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Branch</InputLabel>
-            <Select
-              value={newStudent.branch}
-              onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
-            >
-              {branches.map((branch) => (
-                <MenuItem key={branch.id} value={branch}>
-                  {branch.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Gender</InputLabel>
-            <Select
-              value={newStudent.gender}
-              onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })}
-            >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
-          <input type="file" accept="image/*" onChange={(e) => setNewStudent({ ...newStudent, profile: e.target.files[0] })} />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Full Name"
+                fullWidth
+                required
+                value={newStudent.fullName}
+                onChange={(e) => setNewStudent({ ...newStudent, fullName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Email"
+                type="email"
+                fullWidth
+                required
+                value={newStudent.email}
+                onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Password"
+                type="password"
+                fullWidth
+                required
+                value={newStudent.password}
+                onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Register Number"
+                fullWidth
+                required
+                value={newStudent.registerNumber}
+                onChange={(e) => setNewStudent({ ...newStudent, registerNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Phone Number"
+                fullWidth
+                required
+                value={newStudent.phoneNumber}
+                onChange={(e) => setNewStudent({ ...newStudent, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Semester"
+                type="number"
+                fullWidth
+                required
+                value={newStudent.semester}
+                onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Branch</InputLabel>
+                <Select
+                  value={newStudent.branch}
+                  onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
+                >
+                  {branches.map((branch) => (
+                    <MenuItem key={branch.id} value={branch}>
+                      {branch.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  value={newStudent.gender}
+                  onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setNewStudent({ ...newStudent, profile: e.target.files[0] })} 
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsAddStudentModalOpen(false)}>Cancel</Button>
@@ -326,70 +359,98 @@ export const StudentManagement = () => {
       {/* Edit Student Dialog */}
       <Dialog open={isEditStudentModalOpen} onClose={() => setIsEditStudentModalOpen(false)}>
         <DialogTitle>Edit Student</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} /> {/* Add space between title and fields */}
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Full Name"
-            fullWidth
-            value={editingStudent?.fullName || ""}
-            onChange={(e) => setEditingStudent({ ...editingStudent, fullName: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={editingStudent?.email || ""}
-            onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Register Number"
-            fullWidth
-            value={editingStudent?.registerNumber || ""}
-            onChange={(e) => setEditingStudent({ ...editingStudent, registerNumber: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Phone Number"
-            fullWidth
-            value={editingStudent?.phoneNumber || ""}
-            onChange={(e) => setEditingStudent({ ...editingStudent, phoneNumber: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Semester"
-            type="number"
-            fullWidth
-            value={editingStudent?.semester || ""}
-            onChange={(e) => setEditingStudent({ ...editingStudent, semester: e.target.value })}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Branch</InputLabel>
-            <Select
-              value={editingStudent?.branch || ""}
-              onChange={(e) => setEditingStudent({ ...editingStudent, branch: e.target.value })}
-            >
-              {branches.map((branch) => (
-                <MenuItem key={branch.id} value={branch}>
-                  {branch.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Gender</InputLabel>
-            <Select
-              value={editingStudent?.gender || ""}
-              onChange={(e) => setEditingStudent({ ...editingStudent, gender: e.target.value })}
-            >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
-          <input type="file" accept="image/*" onChange={(e) => setEditingStudent({ ...editingStudent, profile: e.target.files[0] })} />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Full Name"
+                fullWidth
+                required
+                value={editingStudent?.fullName || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, fullName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Email"
+                type="email"
+                fullWidth
+                required
+                value={editingStudent?.email || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Register Number"
+                fullWidth
+                required
+                value={editingStudent?.registerNumber || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, registerNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Phone Number"
+                fullWidth
+                required
+                value={editingStudent?.phoneNumber || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Semester"
+                type="number"
+                fullWidth
+                required
+                value={editingStudent?.semester || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, semester: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Branch</InputLabel>
+                <Select
+                  value={editingStudent?.branch || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, branch: e.target.value })}
+                >
+                  {branches.map((branch) => (
+                    <MenuItem key={branch.id} value={branch}>
+                      {branch.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  value={editingStudent?.gender || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, gender: e.target.value })}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setEditingStudent({ ...editingStudent, profile: e.target.files[0] })} 
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditStudentModalOpen(false)}>Cancel</Button>
