@@ -23,6 +23,8 @@ import {
   Alert,
   FormControl,
   InputLabel,
+  Grid,
+  Divider,
 } from "@mui/material";
 import { PlusCircle, Edit, Trash2 } from "lucide-react";
 
@@ -45,22 +47,21 @@ export const StudentManagement = () => {
   const [editingStudent, setEditingStudent] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // 🔹 Define fetchStudents outside useEffect
   const fetchStudents = async () => {
     try {
       const response = await api.get("/student");
-      setStudents(response.data.data); // Ensure data structure matches API response
+      setStudents(response.data.data);
     } catch (error) {
       console.error("Error fetching students:", error.response?.data?.message || error.message);
     }
   };
 
-  // 🔹 Define fetchBranches outside useEffect
   const fetchBranches = async () => {
     try {
       const response = await api.get("/branch");
-      setBranches(response.data);
+      setBranches(response.data.data);
     } catch (error) {
       console.error("Error fetching branches:", error.response?.data?.message || error.message);
     }
@@ -83,7 +84,6 @@ export const StudentManagement = () => {
       formData.append("branch", newStudent.branch._id);
       formData.append("gender", newStudent.gender);
   
-      // Append profile image if selected
       if (newStudent.profile) {
         formData.append("profile", newStudent.profile);
       }
@@ -94,9 +94,9 @@ export const StudentManagement = () => {
         },
       });
   
-      // Refresh student list after successful creation
       await fetchStudents();
       setSnackbarMessage("Student successfully added!");
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
   
       setIsAddStudentModalOpen(false);
@@ -113,60 +113,70 @@ export const StudentManagement = () => {
       });
     } catch (error) {
       console.error("Error adding student:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error adding student!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
-  
 
   const handleEditStudent = (student) => {
-    setEditingStudent(student); // Set the student data into editing state
-    setIsEditStudentModalOpen(true); // Open the edit modal
+    setEditingStudent(student);
+    setIsEditStudentModalOpen(true);
   };
-  
 
   const handleUpdateStudent = async () => {
     try {
       const formData = new FormData();
       
-      // Loop through the entries of editingStudent to append all values to formData
-      Object.entries(editingStudent).forEach(([key, value]) => {
-        if (value && key !== "branch") {
-          formData.append(key, value);
-        }
-      });
+      formData.append("fullName", editingStudent.fullName);
+      formData.append("email", editingStudent.email);
+      formData.append("password", editingStudent.password || ""); // Optional field
+      formData.append("registerNumber", editingStudent.registerNumber);
+      formData.append("phoneNumber", editingStudent.phoneNumber);
+      formData.append("semester", editingStudent.semester);
+      formData.append("gender", editingStudent.gender);
   
-      // Add branch separately, using the _id if it is selected
       if (editingStudent.branch) {
         formData.append("branch", editingStudent.branch._id);
       }
   
-      // If profile image is being updated, append the new profile image
-      if (editingStudent.profile) {
+      if (editingStudent.profile instanceof File) {
         formData.append("profile", editingStudent.profile);
       }
   
-      // Send PUT request to update the student
       await api.put(`/student/${editingStudent._id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
   
       setSnackbarMessage("Student successfully updated!");
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       fetchStudents();
       setIsEditStudentModalOpen(false);
+      setEditingStudent(null);
     } catch (error) {
       console.error("Error updating student:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error updating student!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
-    
 
   const handleDeleteStudent = async (id) => {
     try {
       await api.delete(`/student/${id}`);
+      setSnackbarMessage("Student successfully deleted!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
       fetchStudents();
     } catch (error) {
       console.error("Error deleting student:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error deleting student!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
+
   return (
     <motion.div
       className="p-6 space-y-6"
@@ -219,97 +229,233 @@ export const StudentManagement = () => {
         </Table>
       </TableContainer>
 
-      {/* Snackbar for Success/Error */}
-      <div className={`fixed bottom-0 right-0 m-6 p-4 rounded-lg shadow-lg ${snackbarMessage.includes("success") ? "bg-green-500" : "bg-red-500"}`}>
-        <div className="text-white font-bold">{snackbarMessage}</div>
-      </div>
+      {/* Snackbar for Notifications */}
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={6000} 
+        onClose={() => setSnackbarOpen(false)} 
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Positioning
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
-
+      {/* Add Student Dialog */}
       <Dialog open={isAddStudentModalOpen} onClose={() => setIsAddStudentModalOpen(false)}>
         <DialogTitle>Add New Student</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} /> {/* Add space between title and fields */}
         <DialogContent>
-  <TextField
-    autoFocus
-    margin="dense"
-    label="Full Name"
-    fullWidth
-    value={newStudent.fullName}
-    onChange={(e) => setNewStudent({ ...newStudent, fullName: e.target.value })}
-  />
-  <TextField
-    margin="dense"
-    label="Email"
-    type="email"
-    fullWidth
-    value={newStudent.email}
-    onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-  />
-  <TextField
-    margin="dense"
-    label="Password"
-    type="password"
-    fullWidth
-    value={newStudent.password}
-    onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
-  />
-  <TextField
-    margin="dense"
-    label="Register Number"
-    fullWidth
-    value={newStudent.registerNumber}
-    onChange={(e) => setNewStudent({ ...newStudent, registerNumber: e.target.value })}
-  />
-  <TextField
-    margin="dense"
-    label="Phone Number"
-    fullWidth
-    value={newStudent.phoneNumber}
-    onChange={(e) => setNewStudent({ ...newStudent, phoneNumber: e.target.value })}
-  />
-  <TextField
-    margin="dense"
-    label="Semester"
-    type="number"
-    fullWidth
-    value={newStudent.semester}
-    onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })}
-  />
-
-  <FormControl fullWidth margin="dense">
-    <InputLabel>Branch</InputLabel>
-    <Select
-      value={newStudent.branch}
-      onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
-    >
-      {branches.map((branch) => (
-        <MenuItem key={branch.id} value={branch}>
-          {branch.name}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-
-  <FormControl fullWidth margin="dense">
-    <InputLabel>Gender</InputLabel>
-    <Select
-      value={newStudent.gender}
-      onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })}
-    >
-      <MenuItem value="Male">Male</MenuItem>
-      <MenuItem value="Female">Female</MenuItem>
-      <MenuItem value="Other">Other</MenuItem>
-    </Select>
-  </FormControl>
-
-
-<input type="file" accept="image/*" onChange={(e) => setNewStudent({ ...newStudent, profile: e.target.files[0] })} />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Full Name"
+                fullWidth
+                required
+                value={newStudent.fullName}
+                onChange={(e) => setNewStudent({ ...newStudent, fullName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Email"
+                type="email"
+                fullWidth
+                required
+                value={newStudent.email}
+                onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Password"
+                type="password"
+                fullWidth
+                required
+                value={newStudent.password}
+                onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Register Number"
+                fullWidth
+                required
+                value={newStudent.registerNumber}
+                onChange={(e) => setNewStudent({ ...newStudent, registerNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Phone Number"
+                fullWidth
+                required
+                value={newStudent.phoneNumber}
+                onChange={(e) => setNewStudent({ ...newStudent, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Semester"
+                type="number"
+                fullWidth
+                required
+                value={newStudent.semester}
+                onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Branch</InputLabel>
+                <Select
+                  value={newStudent.branch}
+                  onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
+                >
+                  {branches.map((branch) => (
+                    <MenuItem key={branch.id} value={branch}>
+                      {branch.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  value={newStudent.gender}
+                  onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setNewStudent({ ...newStudent, profile: e.target.files[0] })} 
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
-
-
         <DialogActions>
           <Button onClick={() => setIsAddStudentModalOpen(false)}>Cancel</Button>
           <Button onClick={handleAddStudent} variant="contained">
             Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={isEditStudentModalOpen} onClose={() => setIsEditStudentModalOpen(false)}>
+        <DialogTitle>Edit Student</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} /> {/* Add space between title and fields */}
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Full Name"
+                fullWidth
+                required
+                value={editingStudent?.fullName || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, fullName: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Email"
+                type="email"
+                fullWidth
+                required
+                value={editingStudent?.email || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Register Number"
+                fullWidth
+                required
+                value={editingStudent?.registerNumber || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, registerNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Phone Number"
+                fullWidth
+                required
+                value={editingStudent?.phoneNumber || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, phoneNumber: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="dense"
+                label="Semester"
+                type="number"
+                fullWidth
+                required
+                value={editingStudent?.semester || ""}
+                onChange={(e) => setEditingStudent({ ...editingStudent, semester: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Branch</InputLabel>
+                <Select
+                  value={editingStudent?.branch || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, branch: e.target.value })}
+                >
+                  {branches.map((branch) => (
+                    <MenuItem key={branch.id} value={branch}>
+                      {branch.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  value={editingStudent?.gender || ""}
+                  onChange={(e) => setEditingStudent({ ...editingStudent, gender: e.target.value })}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setEditingStudent({ ...editingStudent, profile: e.target.files[0] })} 
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsEditStudentModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateStudent} variant="contained">
+            Update
           </Button>
         </DialogActions>
       </Dialog>
