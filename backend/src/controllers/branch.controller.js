@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Branch } from "../models/branch.model.js";
 
 export const addBranch = asyncHandler(async (req, res, next) => {
-    const { name, code } = req.body;
+    const { name, code, subjects } = req.body; // Include subjects
 
     if (!name || !code) {
         return next(new ApiError(400, "Name and code are required"));
@@ -15,7 +15,7 @@ export const addBranch = asyncHandler(async (req, res, next) => {
         return next(new ApiError(409, "Branch with this code already exists"));
     }
 
-    const branch = new Branch({ name, code });
+    const branch = new Branch({ name, code, subjects }); // Save subjects
     await branch.save();
 
     res.status(201).json(new ApiResponse(201, branch, "Branch created successfully"));
@@ -51,7 +51,7 @@ export const deleteBranch = asyncHandler(async (req, res, next) => {
 });
 
 export const updateBranch = asyncHandler(async (req, res, next) => {
-    const { name, code } = req.body;
+    const { name, code, subjects } = req.body; // Include subjects
     const { id } = req.params;
 
     const branch = await Branch.findById(id);
@@ -70,6 +70,7 @@ export const updateBranch = asyncHandler(async (req, res, next) => {
     // Update fields
     branch.name = name || branch.name;
     branch.code = code || branch.code;
+    branch.subjects = subjects || branch.subjects; // Update subjects
     await branch.save();
 
     res.json(new ApiResponse(200, branch, "Branch updated successfully"));
