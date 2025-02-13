@@ -1,45 +1,145 @@
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Typography, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
-import { PlusCircle, Edit, Trash2 } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import api from '../../api/axios.js'; // Adjust the import based on your project structure
+import {
+  Typography,
+  Button,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Snackbar,
+  Alert,
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 
 export const BranchManagement = () => {
-  const [branches, setBranches] = useState([
-    { id: 1, name: 'Main Campus', location: 'New York', contactPerson: 'John Doe', contactEmail: 'john@example.com' },
-    { id: 2, name: 'Downtown Campus', location: 'Los Angeles', contactPerson: 'Jane Smith', contactEmail: 'jane@example.com' },
-  ])
-  const [isAddBranchModalOpen, setIsAddBranchModalOpen] = useState(false)
-  const [isEditBranchModalOpen, setIsEditBranchModalOpen] = useState(false)
-  const [newBranch, setNewBranch] = useState({ name: '', location: '', contactPerson: '', contactEmail: '' })
-  const [editingBranch, setEditingBranch] = useState(null)
+  const [branches, setBranches] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [isAddBranchModalOpen, setIsAddBranchModalOpen] = useState(false);
+  const [isEditBranchModalOpen, setIsEditBranchModalOpen] = useState(false);
+  const [newBranch, setNewBranch] = useState({ name: '', code: '', subjects: [] });
+  const [editingBranch, setEditingBranch] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-  const handleAddBranch = () => {
-    if (newBranch.name && newBranch.location && newBranch.contactPerson && newBranch.contactEmail) {
-      setBranches([...branches, { ...newBranch, id: branches.length + 1 }])
-      setIsAddBranchModalOpen(false)
-      setNewBranch({ name: '', location: '', contactPerson: '', contactEmail: '' })
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get('/branch');
+      setBranches(response.data.data);
+    } catch (error) {
+      console.error("Error fetching branches:", error.response?.data?.message || error.message);
     }
-  }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await api.get('/subject'); // Adjust the endpoint as necessary
+      setSubjects(response.data.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error.response?.data?.message || error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranches();
+    fetchSubjects();
+  }, []);
+
+  const handleAddBranch = async () => {
+    try {
+      await api.post('/branch', newBranch);
+      fetchBranches();
+      setSnackbarMessage("Branch successfully added!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setIsAddBranchModalOpen(false);
+      setNewBranch({ name: '', code: '', subjects: [] });
+    } catch (error) {
+      console.error("Error adding branch:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error adding branch!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   const handleEditBranch = (branch) => {
-    setEditingBranch(branch)
-    setIsEditBranchModalOpen(true)
-  }
+    setEditingBranch(branch);
+    setIsEditBranchModalOpen(true);
+  };
 
-  const handleUpdateBranch = () => {
-    if (editingBranch.name && editingBranch.location && editingBranch.contactPerson && editingBranch.contactEmail) {
-      setBranches(branches.map(b => b.id === editingBranch.id ? editingBranch : b))
-      setIsEditBranchModalOpen(false)
-      setEditingBranch(null)
+  const handleUpdateBranch = async () => {
+    try {
+      await api.put(`/branch/${editingBranch._id}`, editingBranch);
+      fetchBranches();
+      setSnackbarMessage("Branch successfully updated!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setIsEditBranchModalOpen(false);
+      setEditingBranch(null);
+    } catch (error) {
+      console.error("Error updating branch:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error updating branch!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
-  }
+  };
 
-  const handleDeleteBranch = (id) => {
-    setBranches(branches.filter(b => b.id !== id))
-  }
+  const handleDeleteBranch = async (id) => {
+    try {
+      await api.delete(`/branch/${id}`);
+      fetchBranches();
+      setSnackbarMessage("Branch successfully deleted!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error deleting branch:", error.response?.data?.message || error.message);
+      setSnackbarMessage("Error deleting branch!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSubjectChange = (event) => {
+    const value = event.target.value;
+    // Prevent adding the same subject twice
+    if (!newBranch.subjects.includes(value)) {
+      setNewBranch({ ...newBranch, subjects: [...newBranch.subjects, value] });
+    }
+  };
+
+  const handleEditingSubjectChange = (event) => {
+    const value = event.target.value;
+    // Prevent adding the same subject twice
+    if (!editingBranch.subjects.includes(value)) {
+      setEditingBranch({ ...editingBranch, subjects: [...editingBranch.subjects, value] });
+    }
+  };
+
+  const handleRemoveSubject = (subjectId) => {
+    setEditingBranch((prev) => ({
+      ...prev,
+      subjects: prev.subjects.filter((id) => id !== subjectId),
+    }));
+  };
 
   return (
-    <motion.div 
+    <motion.div
       className="p-6 space-y-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -47,11 +147,7 @@ export const BranchManagement = () => {
     >
       <div className="flex justify-between items-center">
         <Typography variant="h5">Branch Management</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<PlusCircle />}
-          onClick={() => setIsAddBranchModalOpen(true)}
-        >
+        <Button variant="contained" startIcon={<PlusCircle />} onClick={() => setIsAddBranchModalOpen(true)}>
           Add Branch
         </Button>
       </div>
@@ -61,22 +157,24 @@ export const BranchManagement = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Contact Person</TableCell>
-              <TableCell>Contact Email</TableCell>
+              <TableCell>Code</TableCell>
+              <TableCell>Subjects</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {branches.map((branch) => (
-              <TableRow key={branch.id} hover>
+              <TableRow key={branch._id} hover>
                 <TableCell>{branch.name}</TableCell>
-                <TableCell>{branch.location}</TableCell>
-                <TableCell>{branch.contactPerson}</TableCell>
-                <TableCell>{branch.contactEmail}</TableCell>
+                <TableCell>{branch.code}</TableCell>
+                <TableCell>{branch.subjects.map(subject => subject.name).join(', ')}</TableCell>
                 <TableCell>
-                  <IconButton size="small" onClick={() => handleEditBranch(branch)}><Edit /></IconButton>
-                  <IconButton size="small" onClick={() => handleDeleteBranch(branch.id)}><Trash2 /></IconButton>
+                  <IconButton size="small" onClick={() => handleEditBranch(branch)}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleDeleteBranch(branch._id)}>
+                    <Trash2 />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -84,11 +182,22 @@ export const BranchManagement = () => {
         </Table>
       </TableContainer>
 
-      <Dialog 
-        open={isAddBranchModalOpen} 
-        onClose={() => setIsAddBranchModalOpen(false)}
+      {/* Snackbar for Notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Positioning
       >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Add Branch Dialog */}
+      <Dialog open={isAddBranchModalOpen} onClose={() => setIsAddBranchModalOpen(false)}>
         <DialogTitle>Add New Branch</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} />
         <DialogContent>
           <TextField
             autoFocus
@@ -100,26 +209,25 @@ export const BranchManagement = () => {
           />
           <TextField
             margin="dense"
-            label="Location"
+            label="Branch Code"
             fullWidth
-            value={newBranch.location}
-            onChange={(e) => setNewBranch({ ...newBranch, location: e.target.value })}
+            value={newBranch.code}
+            onChange={(e) => setNewBranch({ ...newBranch, code: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Contact Person"
-            fullWidth
-            value={newBranch.contactPerson}
-            onChange={(e) => setNewBranch({ ...newBranch, contactPerson: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Contact Email"
-            type="email"
-            fullWidth
-            value={newBranch.contactEmail}
-            onChange={(e) => setNewBranch({ ...newBranch, contactEmail: e.target.value })}
-          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Subjects</InputLabel>
+            <Select
+              multiple
+              value={newBranch.subjects}
+              onChange={handleSubjectChange}
+            >
+              {subjects.map((subject) => (
+                <MenuItem key={subject._id} value={subject._id}>
+                  {subject.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsAddBranchModalOpen(false)}>Cancel</Button>
@@ -127,11 +235,10 @@ export const BranchManagement = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog 
-        open={isEditBranchModalOpen} 
-        onClose={() => setIsEditBranchModalOpen(false)}
-      >
+      {/* Edit Branch Dialog */}
+      <Dialog open={isEditBranchModalOpen} onClose={() => setIsEditBranchModalOpen(false)}>
         <DialogTitle>Edit Branch</DialogTitle>
+        <Divider style={{ margin: '8px 0' }} />
         <DialogContent>
           <TextField
             autoFocus
@@ -143,26 +250,44 @@ export const BranchManagement = () => {
           />
           <TextField
             margin="dense"
-            label="Location"
+            label="Branch Code"
             fullWidth
-            value={editingBranch?.location || ''}
-            onChange={(e) => setEditingBranch({ ...editingBranch, location: e.target.value })}
+            value={editingBranch?.code || ''}
+            onChange={(e) => setEditingBranch({ ...editingBranch, code: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Contact Person"
-            fullWidth
-            value={editingBranch?.contactPerson || ''}
-            onChange={(e) => setEditingBranch({ ...editingBranch, contactPerson: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Contact Email"
-            type="email"
-            fullWidth
-            value={editingBranch?.contactEmail || ''}
-            onChange={(e) => setEditingBranch({ ...editingBranch, contactEmail: e.target.value })}
-          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Subjects</InputLabel>
+            <Select
+              multiple
+              value={editingBranch?.subjects || []}
+              onChange={handleEditingSubjectChange}
+            >
+              {subjects.map((subject) => (
+                <MenuItem key={subject._id} value={subject._id}>
+                  {subject.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <div>
+            <Typography variant="subtitle1">Selected Subjects:</Typography>
+            {editingBranch?.subjects.map((subjectId) => {
+              const subject = subjects.find(s => s._id === subjectId);
+              return (
+                <div key={subjectId} style={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body2">{subject?.name}</Typography>
+                  <Button
+                    onClick={() => handleRemoveSubject(subjectId)}
+                    variant="outlined"
+                    color="secondary"
+                    style={{ marginLeft: '8px' }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditBranchModalOpen(false)}>Cancel</Button>
@@ -170,6 +295,5 @@ export const BranchManagement = () => {
         </DialogActions>
       </Dialog>
     </motion.div>
-  )
-}
-
+  );
+};
