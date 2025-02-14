@@ -63,7 +63,12 @@ export const BranchManagement = () => {
 
   const handleAddBranch = async () => {
     try {
-      await api.post('/branch', newBranch);
+      // Prepare the branch data
+      const branchData = {
+        ...newBranch,
+        subjects: newBranch.subjects // Ensure they are ObjectId strings
+      };
+      await api.post('/branch', branchData);
       fetchBranches();
       setSnackbarMessage("Branch successfully added!");
       setSnackbarSeverity("success");
@@ -85,7 +90,13 @@ export const BranchManagement = () => {
 
   const handleUpdateBranch = async () => {
     try {
-      await api.put(`/branch/${editingBranch._id}`, editingBranch);
+      // Prepare the updated branch data
+      const updatedBranchData = {
+        name: editingBranch.name,
+        code: editingBranch.code,
+        subjects: editingBranch.subjects // Ensure they are ObjectId strings
+      };
+      await api.put(`/branch/${editingBranch._id}`, updatedBranchData);
       fetchBranches();
       setSnackbarMessage("Branch successfully updated!");
       setSnackbarSeverity("success");
@@ -108,7 +119,7 @@ export const BranchManagement = () => {
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting branch:", error.response?.data?.message || error.message);
+      console.error ("Error deleting branch:", error.response?.data?.message || error.message);
       setSnackbarMessage("Error deleting branch!");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -116,20 +127,20 @@ export const BranchManagement = () => {
   };
 
   const handleSubjectChange = (event) => {
-    const value = event.target.value;
-    // Prevent adding the same subject twice
-    if (!newBranch.subjects.includes(value)) {
-      setNewBranch({ ...newBranch, subjects: [...newBranch.subjects, value] });
-    }
+    setNewBranch((prev) => ({
+      ...prev,
+      subjects: Array.from(new Set(event.target.value)), // Ensure unique values
+    }));
   };
+  
 
   const handleEditingSubjectChange = (event) => {
-    const value = event.target.value;
-    // Prevent adding the same subject twice
-    if (!editingBranch.subjects.includes(value)) {
-      setEditingBranch({ ...editingBranch, subjects: [...editingBranch.subjects, value] });
-    }
+    setEditingBranch((prev) => ({
+      ...prev,
+      subjects: Array.from(new Set(event.target.value)), // Ensure unique values
+    }));
   };
+  
 
   const handleRemoveSubject = (subjectId) => {
     setEditingBranch((prev) => ({
@@ -182,19 +193,17 @@ export const BranchManagement = () => {
         </Table>
       </TableContainer>
 
-      {/* Snackbar for Notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Positioning
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
 
-      {/* Add Branch Dialog */}
       <Dialog open={isAddBranchModalOpen} onClose={() => setIsAddBranchModalOpen(false)}>
         <DialogTitle>Add New Branch</DialogTitle>
         <Divider style={{ margin: '8px 0' }} />
@@ -235,65 +244,69 @@ export const BranchManagement = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Branch Dialog */}
       <Dialog open={isEditBranchModalOpen} onClose={() => setIsEditBranchModalOpen(false)}>
-        <DialogTitle>Edit Branch</DialogTitle>
-        <Divider style={{ margin: '8px 0' }} />
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Branch Name"
-            fullWidth
-            value={editingBranch?.name || ''}
-            onChange={(e) => setEditingBranch({ ...editingBranch, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Branch Code"
-            fullWidth
-            value={editingBranch?.code || ''}
-            onChange={(e) => setEditingBranch({ ...editingBranch, code: e.target.value })}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Subjects</InputLabel>
-            <Select
-              multiple
-              value={editingBranch?.subjects || []}
-              onChange={handleEditingSubjectChange}
+  <DialogTitle>Edit Branch</DialogTitle>
+  <Divider style={{ margin: '8px 0' }} />
+  <DialogContent>
+    <TextField
+      autoFocus
+      margin="dense"
+      label="Branch Name"
+      fullWidth
+      value={editingBranch?.name || ''}
+      onChange={(e) => setEditingBranch({ ...editingBranch, name: e.target.value })}
+    />
+    <TextField
+      margin="dense"
+      label="Branch Code"
+      fullWidth
+      value={editingBranch?.code || ''}
+      onChange={(e) => setEditingBranch({ ...editingBranch, code: e.target.value })}
+    />
+    <FormControl fullWidth margin="dense">
+      <InputLabel>Subjects</InputLabel>
+      <Select
+        multiple
+        value={editingBranch?.subjects || []}
+        onChange={handleEditingSubjectChange}
+      >
+        {subjects
+          .filter(subject => !editingBranch?.subjects.includes(subject._id)) // Filter out already selected subjects
+          .map((subject) => (
+            <MenuItem key={subject._id} value={subject._id}>
+              {subject.name}
+            </MenuItem>
+          ))}
+      </Select>
+    </FormControl>
+    <div>
+      <Typography variant="subtitle1">Selected Subjects:</Typography>
+      {editingBranch?.subjects.map((subjectId) => {
+        const subject = subjects.find(s => s._id === subjectId);
+        console.log(subject);
+        return (
+          <div key={subjectId} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+            <Typography variant="body2" style={{ flexGrow: 1 }}>
+              {subject ? subject.name : 'Unknown Subject'}
+            </Typography>
+            <Button
+              onClick={() => handleRemoveSubject(subjectId)}
+              variant="outlined"
+              color="secondary"
+              style={{ marginLeft: '8px' }}
             >
-              {subjects.map((subject) => (
-                <MenuItem key={subject._id} value={subject._id}>
-                  {subject.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <div>
-            <Typography variant="subtitle1">Selected Subjects:</Typography>
-            {editingBranch?.subjects.map((subjectId) => {
-              const subject = subjects.find(s => s._id === subjectId);
-              return (
-                <div key={subjectId} style={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body2">{subject?.name}</Typography>
-                  <Button
-                    onClick={() => handleRemoveSubject(subjectId)}
-                    variant="outlined"
-                    color="secondary"
-                    style={{ marginLeft: '8px' }}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              );
-            })}
+                {`Remove ${subjects.find(sub => sub.id === subjectId)?.name || "Unknown Subject"}`}
+            </Button>
           </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEditBranchModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateBranch} variant="contained">Update</Button>
-        </DialogActions>
-      </Dialog>
+        );
+      })}
+    </div>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setIsEditBranchModalOpen(false)}>Cancel</Button>
+    <Button onClick={handleUpdateBranch} variant="contained">Update</Button>
+  </DialogActions>
+</Dialog>
     </motion.div>
   );
 };
