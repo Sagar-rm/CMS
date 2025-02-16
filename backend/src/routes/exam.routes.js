@@ -9,7 +9,7 @@ router.route("/").post(verifyJWT, examController.addExamResult).get(verifyJWT, e
 router.route("/:id").put(verifyJWT, examController.updateExamResult);
 router.route("/:id").delete(verifyJWT, examController.deleteExamResult);
 
-// ✅ Add CIE Exam Routes
+// ✅ Add CIE Exam Routes   
 router.route("/:id/cie")
     .post(verifyJWT, examController.addCIEExam);  // Add CIE Exam
 
