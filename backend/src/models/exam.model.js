@@ -11,4 +11,3 @@ const examSchema = new Schema({
 
 
 export const Exam = mongoose.model("Exam", examSchema);
-
