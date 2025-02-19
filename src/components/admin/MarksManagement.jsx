@@ -48,16 +48,24 @@ export const AddMarks = () => {
       
       // Fetch existing marks for the selected exam
       const marksResponse = await api.get(`/marks?exam=${examId}`);
-      const existingMarks = marksResponse.data.reduce((acc, mark) => {
-        acc[mark.student] = {
-          marksObtained: mark.marksObtained || 0,
-          grade: mark.grade || '',
-        };
-        return acc;
-      }, {});
+      console.log("Marks response:", marksResponse.data);
 
-      // Set the marks state with existing marks
-      setMarks(existingMarks);
+      // Check if marksResponse.data.data is an array
+      if (Array.isArray(marksResponse.data.data)) {
+        const existingMarks = marksResponse.data.data.reduce((acc, mark) => {
+          acc[mark.student._id] = { // Ensure to access the correct student ID
+            marksObtained: mark.marksObtained || 0,
+            grade: mark.grade || '',
+          };
+          return acc;
+        }, {});
+
+        // Set the marks state with existing marks
+        setMarks(existingMarks);
+      } else {
+        console.error("Expected marksResponse.data.data to be an array, but got:", marksResponse.data);
+        setMarks({}); // Reset marks if the response is not as expected
+      }
     } catch (error) {
       console.error('Error fetching students:', error);
     }
@@ -66,7 +74,7 @@ export const AddMarks = () => {
   const handleExamChange = (event) => {
     const examId = event.target.value;
     setSelectedExam(examId);
-    fetchStudents(examId);
+    fetchStudents(examId); // Fetch students and existing marks when the exam changes
   };
 
   const handleMarksChange = (studentId, field, value) => {
@@ -85,7 +93,7 @@ export const AddMarks = () => {
       for (const studentId of Object.keys(marks)) {
         const { marksObtained, grade } = marks[studentId];
         const payload = {
-          student: studentId,
+          student: studentId, // Ensure this is the correct student ID
           exam: selectedExam,
           marksObtained: marksObtained || 0,
           grade: grade || '',
@@ -93,15 +101,8 @@ export const AddMarks = () => {
 
         console.log("Payload being sent:", payload); // Log the payload for debugging
 
-        // Check if the record already exists
-        const existingRecordResponse = await api.get(`/marks?student=${studentId}&exam=${selectedExam}`);
-        if (existingRecordResponse.data.exists) {
-          // If it exists, update the record
-          await api.put(`/marks/${existingRecordResponse.data.id}`, payload); // Adjust the endpoint as necessary
-        } else {
-          // If it doesn't exist, create a new record
-          await api.post('/marks', payload); // Adjust the endpoint as necessary
-        }
+        // Use the new controller logic to create or update marks
+        await api.post('/marks', payload); // Adjust the endpoint as necessary
       }
 
       setSnackbarMessage('Marks successfully updated!');
