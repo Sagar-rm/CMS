@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Faculty } from "../models/faculty.model.js";
 import { Student } from "../models/student.model.js";
+import { Exam } from "../models/exam.model.js";
 import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async (userId, Model) => {
@@ -54,6 +55,25 @@ const getAllStudents = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, students, "Students retrieved successfully"));
 });
 
+// Get students by exam ID
+
+const getStudentsByExamId = asyncHandler(async (req, res) => {
+   const { examId } = req.query;
+    if (!examId) {
+        throw new ApiError(400, "Exam ID is required");
+    }
+
+    const exam = await Exam.findById(examId).populate('subject');
+    if (!exam) {
+        throw new ApiError(404, "Exam not found");
+    }
+
+    const { branch, semester } = exam.subject;
+    const students = await Student.find({ branch, semester });
+
+    return res.status(200).json(new ApiResponse(200, students, "Students fetched successfully"));
+
+});
 
 const loginStudent = asyncHandler(async (req, res) => {
     const { registerNumber, password } = req.body;
@@ -171,6 +191,7 @@ export const studentController = {
     refresh: refreshAccessToken(Student),
     getCurrentUser: getCurrentUser(Student),
     getAllStudents, // Added function
+    getStudentsByExamId,
     deleteUser: deleteUser(Student), 
     updateUser: updateUser(Student, ["fullName", "email", "phoneNumber", "semester", "branch", "gender"])
 };

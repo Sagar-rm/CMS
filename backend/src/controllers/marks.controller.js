@@ -4,15 +4,28 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 /**
- * Create a new marks entry
+ * Create or update a marks entry
  */
-export const createMarks = asyncHandler(async (req, res, next) => {
+export const createOrUpdateMarks = asyncHandler(async (req, res, next) => {
     const { student, exam, marksObtained, grade } = req.body;
 
-    const marks = new Marks({ student, exam, marksObtained, grade });
-    await marks.save();
+    // Check if the marks entry already exists for the given student and exam
+    const existingMarks = await Marks.findOne({ student, exam });
 
-    res.status(201).json(new ApiResponse(201, marks, "Marks entry created successfully"));
+    if (existingMarks) {
+        // If it exists, update the existing entry
+        existingMarks.marksObtained = marksObtained;
+        existingMarks.grade = grade;
+        await existingMarks.save();
+
+        return res.status(200).json(new ApiResponse(200, existingMarks, "Marks entry updated successfully"));
+    } else {
+        // If it doesn't exist, create a new entry
+        const marks = new Marks({ student, exam, marksObtained, grade });
+        await marks.save();
+
+        return res.status(201).json(new ApiResponse(201, marks, "Marks entry created successfully"));
+    }
 });
 
 /**

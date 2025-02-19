@@ -22,6 +22,7 @@ import { ExamScheduling } from './ExamScheduling'
 import { ReportsAnalytics } from './ReportsAnalytics'
 import { FinancialManagement } from './FinancialManagement'
 import { SystemSettings } from './SystemSettings'
+import { AddMarks } from './MarksManagement'
 
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
@@ -39,6 +40,7 @@ const EnhancedAdminDashboard = () => {
     { id: 'reports', label: 'Reports & Analytics', icon: Activity },
     { id: 'finance', label: 'Financial Management', icon: DollarSign },
     { id: 'settings', label: 'System Settings', icon: Settings },
+    { id: 'marks', label: 'Marks Assignment', icon: Settings},
   ]
 
   const handleDrawerToggle = () => {
@@ -187,6 +189,7 @@ const EnhancedAdminDashboard = () => {
               {activeSection === 'reports' && <ReportsAnalytics />}
               {activeSection === 'finance' && <FinancialManagement />}
               {activeSection === 'settings' && <SystemSettings />}
+              {activeSection === 'marks' && <AddMarks />}
             </motion.div>
           </AnimatePresence>
         </Box>

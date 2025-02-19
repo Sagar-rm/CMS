@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import api from '../../api/axios'; // Adjust the import based on your project structure
+import api from '../../api/axios';
 import {
   Typography,
   Button,
@@ -19,32 +19,30 @@ import {
   TextField,
   Snackbar,
   Alert,
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
   MenuItem,
 } from '@mui/material';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers';
 
 export const ExamScheduling = () => {
   const [exams, setExams] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [faculties, setFaculties] = useState([]);
   const [isAddExamModalOpen, setIsAddExamModalOpen] = useState(false);
   const [isEditExamModalOpen, setIsEditExamModalOpen] = useState(false);
   const [newExam, setNewExam] = useState({
-    student: '',
     subject: '',
-    cieExams: [
-      {
-        name: '',
-        type: 'Internal',
-        marks: '',
-        maxMarks: '',
-        weightage: '',
-      },
-    ],
-    internalMarks: 0,
-    externalMarks: 0,
-    totalMarks: 0,
-    passed: false,
+    type: 'CIE',
+    date: new Date(),
+    duration: '',
+    maxMarks: '',
+    scheduledBy: '',
   });
   const [editingExam, setEditingExam] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -53,63 +51,80 @@ export const ExamScheduling = () => {
 
   const fetchExams = async () => {
     try {
-      const response = await api.get('/exam'); // Adjust the endpoint as necessary
+      const response = await api.get('/exam');
       setExams(response.data.data);
     } catch (error) {
       console.error('Error fetching exams:', error);
     }
   };
 
+  const fetchSubjects = async () => {
+    try {
+      const response = await api.get('/subject');
+      setSubjects(response.data.data);
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+    }
+  };
+
+  const fetchFaculties = async () => {
+    try {
+      const response = await api.get('/admin');
+      setFaculties(response.data.data);
+    } catch (error) {
+      console.error('Error fetching faculties:', error);
+    }
+  };
+
   useEffect(() => {
     fetchExams();
+    fetchSubjects();
+    fetchFaculties();
   }, []);
 
   const handleAddExam = async () => {
     try {
-      await api.post('/exam', newExam); // Adjust the endpoint as necessary
-      setSnackbarMessage('Exam successfully added!');
+      await api.post('/exam', newExam);
+      setSnackbarMessage('Exam successfully scheduled!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setIsAddExamModalOpen(false);
+      // Reset newExam state
       setNewExam({
-        student: '',
         subject: '',
-        cieExams: [
-          {
-            name: '',
-            type: 'Internal',
-            marks: '',
-            maxMarks: '',
-            weightage: '',
-          },
-        ],
-        internalMarks: 0,
-        externalMarks: 0,
-        totalMarks: 0,
-        passed: false,
+        type: 'CIE',
+        date: new Date(),
+        duration: '',
+        maxMarks: '',
+        scheduledBy: '',
       });
       fetchExams();
     } catch (error) {
-      console.error('Error adding exam:', error);
-      setSnackbarMessage('Error adding exam!');
+      console.error('Error scheduling exam:', error);
+      setSnackbarMessage('Error scheduling exam!');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
   const handleEditExam = (exam) => {
-    setEditingExam(exam);
+    setEditingExam({
+      ...exam,
+      subject: exam.subject._id, // Ensure subject is set to its ID
+      scheduledBy: exam.scheduledBy._id, // Ensure scheduledBy is set to its ID
+      date: new Date(exam.date), // Ensure date is a Date object
+    });
     setIsEditExamModalOpen(true);
   };
 
   const handleUpdateExam = async () => {
     try {
-      await api.put(`/exam/${editingExam._id}`, editingExam); // Adjust the endpoint as necessary
+      await api.put(`/exam/${editingExam._id}`, editingExam);
       setSnackbarMessage('Exam successfully updated!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setIsEditExamModalOpen(false);
-      setEditingExam(null);
+      setEditingExam(null); // Reset editingExam state
       fetchExams();
     } catch (error) {
       console.error('Error updating exam:', error);
@@ -121,7 +136,7 @@ export const ExamScheduling = () => {
 
   const handleDeleteExam = async (id) => {
     try {
-      await api.delete(`/exam/${id}`); // Adjust the endpoint as necessary
+      await api.delete(`/exam/${id}`);
       setSnackbarMessage('Exam successfully deleted!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -132,28 +147,6 @@ export const ExamScheduling = () => {
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
-  };
-
-  const handleAddCIEExam = () => {
-    setNewExam((prev) => ({
-      ...prev,
-      cieExams: [
-        ...prev.cieExams,
-        {
-          name: '',
-          type: 'Internal',
-          marks: '',
-          maxMarks: '',
-          weightage: '',
-        },
-      ],
-    }));
-  };
-
-  const handleCIEExamChange = (index, field, value) => {
-    const updatedCIEExams = [...newExam.cieExams];
-    updatedCIEExams[index][field] = value;
-    setNewExam((prev) => ({ ...prev, cieExams: updatedCIEExams }));
   };
 
   return (
@@ -179,32 +172,24 @@ export const ExamScheduling = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Student</TableCell>
                 <TableCell>Subject</TableCell>
-                <TableCell>CIE Exams</TableCell>
-                <TableCell>Internal Marks</TableCell>
-                <TableCell>External Marks</TableCell>
-                <TableCell>Total Marks</TableCell>
-                <TableCell>Passed</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Duration (mins)</TableCell>
+                <TableCell>Max Marks</TableCell>
+                <TableCell>Scheduled By</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {exams.map((exam) => (
                 <TableRow key={exam._id} hover>
-                  <TableCell>{exam.student.fullName}</TableCell>
                   <TableCell>{exam.subject.name}</TableCell>
-                  <TableCell>
-                    {exam.cieExams.map((cie) => (
-                      <div key={cie._id}>
-                        {cie.name} - {cie.marks}/{cie.maxMarks}
-                      </div>
-                    ))}
-                  </TableCell>
-                  <TableCell>{exam.internalMarks}</TableCell>
-                  <TableCell>{exam.externalMarks}</TableCell>
-                  <TableCell>{exam.totalMarks}</TableCell>
-                  <TableCell>{exam.passed ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{exam.type}</TableCell>
+                  <TableCell>{new Date(exam.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{exam.duration}</TableCell>
+                  <TableCell>{exam.maxMarks}</TableCell>
+                  <TableCell>{exam.scheduledBy.fullName}</TableCell>
                   <TableCell>
                     <IconButton size="small" onClick={() => handleEditExam(exam)}>
                       <Edit />
@@ -230,84 +215,141 @@ export const ExamScheduling = () => {
           </Alert>
         </Snackbar>
 
+        {/* Add Exam Dialog */}
         <Dialog open={isAddExamModalOpen} onClose={() => setIsAddExamModalOpen(false)}>
-          <DialogTitle>Schedule New Exam</DialogTitle>
+          <DialogTitle>Add New Exam</DialogTitle>
+          <Divider style={{ margin: '8px 0' }} />
           <DialogContent>
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Subject</InputLabel>
+              <Select
+                value={newExam.subject}
+                onChange={(e) => setNewExam({ ...newExam, subject: e.target.value })}
+              >
+                {subjects.map((subject) => (
+                  <MenuItem key={subject._id} value={subject._id}>
+                    {subject.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
-              autoFocus
               margin="dense"
-              label="Student ID"
+              label="Exam Type"
               fullWidth
-              value={newExam.student}
-              onChange={(e) => setNewExam({ ...newExam, student: e.target.value })}
+              select
+              value={newExam.type}
+              onChange={(e) => setNewExam({ ...newExam, type: e.target.value })}
+            >
+              <MenuItem value="CIE">CIE</MenuItem>
+              <MenuItem value="SEE">SEE</MenuItem>
+            </TextField>
+            <DatePicker
+              label="Exam Date"
+              value={newExam.date}
+              onChange={(date) => setNewExam({ ...newExam, date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
             />
             <TextField
               margin="dense"
-              label="Subject ID"
+              label="Duration (minutes)"
               fullWidth
-              value={newExam.subject}
-              onChange={(e) => setNewExam({ ...newExam, subject: e.target.value })}
+              type="number"
+              value={newExam.duration}
+              onChange={(e) => setNewExam({ ...newExam, duration: e.target.value })}
             />
-            {newExam.cieExams.map((cieExam, index) => (
-              <div key={index}>
-                <TextField
-                  margin="dense"
-                  label="CIE Exam Name"
-                  fullWidth
-                  value={cieExam.name}
-                  onChange={(e) => handleCIEExamChange(index, 'name', e.target.value)}
-                />
-                <TextField
-                  margin="dense"
-                  label="Type"
-                  fullWidth
-                  select
-                  value={cieExam.type}
-                  onChange={(e) => handleCIEExamChange(index, 'type', e.target.value)}
-                >
-                  <MenuItem value="Internal">Internal</MenuItem>
-                  <MenuItem value="Practical">Practical</MenuItem>
-                </TextField>
-                <TextField
-                  margin="dense"
-                  label="Marks"
-                  fullWidth
-                  type="number"
-                  value={cieExam.marks}
-                  onChange={(e) => handleCIEExamChange(index, 'marks', e.target.value)}
-                />
-                <TextField
-                  margin="dense"
-                  label="Max Marks"
-                  fullWidth
-                  type="number"
-                  value={cieExam.maxMarks}
-                  onChange={(e) => handleCIEExamChange(index, 'maxMarks', e.target.value)}
-                />
-                <TextField
-                  margin="dense"
-                  label="Weightage"
-                  fullWidth
-                  type="number"
-                  value={cieExam.weightage}
-                  onChange={(e) => handleCIEExamChange(index, 'weightage', e.target.value)}
-                />
-              </div>
-            ))}
-            <Button onClick={handleAddCIEExam} variant="contained" color="primary">
-              Add CIE Exam
-            </Button>
+            <TextField
+              margin="dense"
+              label="Max Marks"
+              fullWidth
+              type="number"
+              value={newExam.maxMarks}
+              onChange={(e) => setNewExam({ ...newExam, maxMarks: e.target.value })}
+            />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Scheduled By</InputLabel>
+              <Select
+                value={newExam.scheduledBy}
+                onChange={(e) => setNewExam({ ...newExam, scheduledBy: e.target.value })}
+              >
+                {faculties.map((faculty) => (
+                  <MenuItem key={faculty._id} value={faculty._id}>
+                    {faculty.fullName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setIsAddExamModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddExam} variant="contained">Schedule</Button>
+            <Button onClick={handleAddExam} variant="contained">Add</Button>
           </DialogActions>
         </Dialog>
 
+        {/* Edit Exam Dialog */}
         <Dialog open={isEditExamModalOpen} onClose={() => setIsEditExamModalOpen(false)}>
-          <DialogTitle>Edit Exam Schedule</DialogTitle>
+          <DialogTitle>Edit Exam</DialogTitle>
+          <Divider style={{ margin: '8px 0' }} />
           <DialogContent>
-            {/* Similar structure for editing an exam */}
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Subject</InputLabel>
+              <Select
+                value={editingExam?.subject || ''} // Ensure it defaults to an empty string if undefined
+                onChange={(e) => setEditingExam({ ...editingExam, subject: e.target.value })}
+              >
+                {subjects.map((subject) => (
+                  <MenuItem key={subject._id} value={subject._id}>
+                    {subject.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              margin="dense"
+              label="Exam Type"
+              fullWidth
+              select
+              value={editingExam?.type || ''} // Ensure it defaults to an empty string if undefined
+              onChange={(e) => setEditingExam({ ...editingExam, type: e.target.value })}
+            >
+              <MenuItem value="CIE">CIE</MenuItem>
+              <MenuItem value="SEE">SEE</MenuItem>
+            </TextField>
+            <DatePicker
+              label="Exam Date"
+              value={editingExam?.date || null} // Ensure it defaults to null if undefined
+              onChange={(date) => setEditingExam({ ...editingExam, date })}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+            <TextField
+              margin="dense"
+              label="Duration (minutes)"
+              fullWidth
+              type="number"
+              value={editingExam?.duration || ''} // Ensure it defaults to an empty string if undefined
+              onChange={(e) => setEditingExam({ ...editingExam, duration: e.target.value })}
+            />
+            <TextField
+              margin="dense"
+              label="Max Marks"
+              fullWidth
+              type="number"
+              value={editingExam?.maxMarks || ''} // Ensure it defaults to an empty string if undefined
+              onChange={(e) => setEditingExam({ ...editingExam, maxMarks: e.target.value })}
+            />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Scheduled By</InputLabel>
+              <Select
+                value={editingExam?.scheduledBy || ''} // Ensure it defaults to an empty string if undefined
+                onChange={(e) => setEditingExam({ ...editingExam, scheduledBy: e.target.value })}
+              >
+                {faculties.map((faculty) => (
+                  <MenuItem key={faculty._id} value={faculty._id}>
+                    {faculty.fullName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setIsEditExamModalOpen(false)}>Cancel</Button>
