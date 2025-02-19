@@ -45,6 +45,19 @@ export const AddMarks = () => {
     try {
       const response = await api.get(`/student/exam?examId=${examId}`); // Adjust the endpoint as necessary
       setStudents(response.data.data);
+      
+      // Fetch existing marks for the selected exam
+      const marksResponse = await api.get(`/marks?exam=${examId}`);
+      const existingMarks = marksResponse.data.reduce((acc, mark) => {
+        acc[mark.student] = {
+          marksObtained: mark.marksObtained || 0,
+          grade: mark.grade || '',
+        };
+        return acc;
+      }, {});
+
+      // Set the marks state with existing marks
+      setMarks(existingMarks);
     } catch (error) {
       console.error('Error fetching students:', error);
     }
@@ -68,20 +81,30 @@ export const AddMarks = () => {
 
   const handleSubmitMarks = async () => {
     try {
-      const marksArray = Object.entries(marks).map(([studentId, { marksObtained, grade }]) => ({
-        student: studentId,
-        exam: selectedExam,
-        marksObtained,
-        grade,
-      }));
+      // Iterate over each student and send their marks individually
+      for (const studentId of Object.keys(marks)) {
+        const { marksObtained, grade } = marks[studentId];
+        const payload = {
+          student: studentId,
+          exam: selectedExam,
+          marksObtained: marksObtained || 0,
+          grade: grade || '',
+        };
 
-      // Ensure marksArray is not empty
-      if (marksArray.length === 0) {
-        throw new Error("No marks to submit");
+        console.log("Payload being sent:", payload); // Log the payload for debugging
+
+        // Check if the record already exists
+        const existingRecordResponse = await api.get(`/marks?student=${studentId}&exam=${selectedExam}`);
+        if (existingRecordResponse.data.exists) {
+          // If it exists, update the record
+          await api.put(`/marks/${existingRecordResponse.data.id}`, payload); // Adjust the endpoint as necessary
+        } else {
+          // If it doesn't exist, create a new record
+          await api.post('/marks', payload); // Adjust the endpoint as necessary
+        }
       }
 
-      await api.post('/marks', marksArray); // Adjust the endpoint as necessary
-      setSnackbarMessage('Marks successfully added!');
+      setSnackbarMessage('Marks successfully updated!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setMarks({});
@@ -127,11 +150,14 @@ export const AddMarks = () => {
                   <TableCell>
                     <TextField
                       type="number"
+                      value={marks[student._id]?.marksObtained || ''} // Controlled input
                       onChange={(e) => handleMarksChange(student._id, 'marksObtained', e.target.value)}
+                      placeholder="Enter marks"
                     />
                   </TableCell>
                   <TableCell>
                     <Select
+                      value={marks[student._id]?.grade || ''} // Controlled input
                       onChange={(e) => handleMarksChange(student._id, 'grade', e.target.value)}
                     >
                       <MenuItem value="A+">A+</MenuItem>
@@ -151,16 +177,11 @@ export const AddMarks = () => {
         </TableContainer>
       )}
 
-      <Button variant="contained" onClick={handleSubmitMarks} disabled={students.length === 0}>
+      <Button variant="contained" color="primary" onClick={handleSubmitMarks}>
         Submit Marks
       </Button>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>
