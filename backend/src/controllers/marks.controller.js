@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 /**
- * Create or update a marks entry
+ * Create or update a marks `entry`
  */
 export const createOrUpdateMarks = asyncHandler(async (req, res, next) => {
     const { student, exam, marksObtained, grade } = req.body;
@@ -29,10 +29,20 @@ export const createOrUpdateMarks = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Get all marks entries
+ * Get all marks entries or filter by exam ID
  */
 export const getMarks = asyncHandler(async (req, res, next) => {
-    const marks = await Marks.find().populate("student exam");
+    const { examId } = req.query; // Get examId from query parameters
+    let marks;
+
+    if (examId) {
+        // If examId is provided, filter marks by exam
+        marks = await Marks.find({ exam: examId }).populate("student exam");
+    } else {
+        // If no examId is provided, get all marks
+        marks = await Marks.find().populate("student exam");
+    }
+
     res.status(200).json(new ApiResponse(200, marks, "Marks retrieved successfully"));
 });
 

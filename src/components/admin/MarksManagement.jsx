@@ -43,37 +43,38 @@ export const AddMarks = () => {
 
   const fetchStudents = async (examId) => {
     try {
-      const response = await api.get(`/student/exam?examId=${examId}`); // Adjust the endpoint as necessary
-      setStudents(response.data.data);
-      
-      // Fetch existing marks for the selected exam
-      const marksResponse = await api.get(`/marks?exam=${examId}`);
-      console.log("Marks response:", marksResponse.data);
+        const response = await api.get(`/student/exam?examId=${examId}`);
+        setStudents(response.data.data);
 
-      // Check if marksResponse.data.data is an array
-      if (Array.isArray(marksResponse.data.data)) {
-        const existingMarks = marksResponse.data.data.reduce((acc, mark) => {
-          acc[mark.student._id] = { // Ensure to access the correct student ID
-            marksObtained: mark.marksObtained || 0,
-            grade: mark.grade || '',
-          };
-          return acc;
-        }, {});
+        // Fetch existing marks for the selected exam
+        const marksResponse = await api.get(`/marks?examId=${examId}`); // Updated to use examId
+        console.log("Marks response:", marksResponse.data);
 
-        // Set the marks state with existing marks
-        setMarks(existingMarks);
-      } else {
-        console.error("Expected marksResponse.data.data to be an array, but got:", marksResponse.data);
-        setMarks({}); // Reset marks if the response is not as expected
-      }
+        if (Array.isArray(marksResponse.data.data)) {
+            const existingMarks = marksResponse.data.data.reduce((acc, mark) => {
+                acc[mark.student._id] = {
+                    marksObtained: mark.marksObtained || 0,
+                    grade: mark.grade || '',
+                };
+                return acc;
+            }, {});
+
+            // Set the marks state with existing marks
+            setMarks(existingMarks);
+        } else {
+            console.error("Expected marksResponse.data.data to be an array, but got:", marksResponse.data);
+            setMarks({}); // Reset marks if the response is not as expected
+        }
     } catch (error) {
-      console.error('Error fetching students:', error);
+        console.error('Error fetching students:', error);
     }
-  };
+};
 
   const handleExamChange = (event) => {
     const examId = event.target.value;
     setSelectedExam(examId);
+    console.log("EXAM CHANGED")
+    setMarks({}); // Reset marks when changing exams
     fetchStudents(examId); // Fetch students and existing marks when the exam changes
   };
 
