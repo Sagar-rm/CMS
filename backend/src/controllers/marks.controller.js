@@ -2,25 +2,52 @@ import { Marks } from "../models/marks.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { Exam } from "../models/exam.model.js";
 
 /**
- * Create or update a marks `entry`
+ * Function to determine grade based on percentage
+ */
+const getGrade = (percentage) => {
+    if (percentage >= 91) return "A+";
+    if (percentage >= 81) return "A";
+    if (percentage >= 71) return "B+";
+    if (percentage >= 61) return "B";
+    if (percentage >= 51) return "C+";
+    if (percentage >= 45) return "C";
+    if (percentage >= 40) return "D";
+    return "F";
+};
+
+/**
+ * Create or update a marks entry
  */
 export const createOrUpdateMarks = asyncHandler(async (req, res, next) => {
-    const { student, exam, marksObtained, grade } = req.body;
+    const { student, exam, marksObtained } = req.body;
 
-    // Check if the marks entry already exists for the given student and exam
+    // Fetch the exam to get maxMarks
+    const examDetails = await Exam.findById(exam);
+    if (!examDetails) {
+        return next(new ApiError(404, "Exam not found"));
+    }
+
+    const maxMarks = examDetails.maxMarks; // Get max marks for the exam
+    console.log("maxMarks: ", maxMarks)
+    const percentage = (marksObtained / maxMarks) * 100; // Convert marks to percentage
+    console.log("percentage: ", percentage)
+    const grade = getGrade(percentage); // Get the grade
+
+    // Check if the marks entry already exists
     const existingMarks = await Marks.findOne({ student, exam });
 
     if (existingMarks) {
-        // If it exists, update the existing entry
+        // Update the entry
         existingMarks.marksObtained = marksObtained;
         existingMarks.grade = grade;
         await existingMarks.save();
 
-        return res.status(200).json(new ApiResponse(200, existingMarks, "Marks entry updated successfully"));
+        return res.status(200).json(new ApiResponse(200, existingMarks, "Marks updated successfully"));
     } else {
-        // If it doesn't exist, create a new entry
+        // Create a new entry
         const marks = new Marks({ student, exam, marksObtained, grade });
         await marks.save();
 

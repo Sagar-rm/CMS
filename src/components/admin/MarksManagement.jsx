@@ -43,69 +43,66 @@ export const AddMarks = () => {
 
   const fetchStudents = async (examId) => {
     try {
-        const response = await api.get(`/student/exam?examId=${examId}`);
-        setStudents(response.data.data);
+      const response = await api.get(`/student/exam?examId=${examId}`);
+      setStudents(response.data.data);
 
-        // Fetch existing marks for the selected exam
-        const marksResponse = await api.get(`/marks?examId=${examId}`); // Updated to use examId
-        console.log("Marks response:", marksResponse.data);
+      // Fetch existing marks for the selected exam
+      const marksResponse = await api.get(`/marks?examId=${examId}`);
+      console.log("Marks response:", marksResponse.data);
 
-        if (Array.isArray(marksResponse.data.data)) {
-            const existingMarks = marksResponse.data.data.reduce((acc, mark) => {
-                acc[mark.student._id] = {
-                    marksObtained: mark.marksObtained || 0,
-                    grade: mark.grade || '',
-                };
-                return acc;
-            }, {});
+      if (Array.isArray(marksResponse.data.data)) {
+        const existingMarks = marksResponse.data.data.reduce((acc, mark) => {
+          acc[mark.student._id] = {
+            marksObtained: mark.marksObtained || 0,
+            grade: mark.grade || '', // Store the grade from the backend
+          };
+          return acc;
+        }, {});
 
-            // Set the marks state with existing marks
-            setMarks(existingMarks);
-        } else {
-            console.error("Expected marksResponse.data.data to be an array, but got:", marksResponse.data);
-            setMarks({}); // Reset marks if the response is not as expected
-        }
+        // Set the marks state with existing marks
+        setMarks(existingMarks);
+      } else {
+        console.error("Expected marksResponse.data.data to be an array, but got:", marksResponse.data);
+        setMarks({}); // Reset marks if the response is not as expected
+      }
     } catch (error) {
-        console.error('Error fetching students:', error);
+      console.error('Error fetching students:', error);
     }
-};
+  };
 
   const handleExamChange = (event) => {
     const examId = event.target.value;
     setSelectedExam(examId);
-    console.log("EXAM CHANGED")
+    console.log("EXAM CHANGED");
     setMarks({}); // Reset marks when changing exams
     fetchStudents(examId); // Fetch students and existing marks when the exam changes
   };
 
-  const handleMarksChange = (studentId, field, value) => {
+  const handleMarksChange = (studentId, value) => {
     setMarks((prevMarks) => ({
       ...prevMarks,
       [studentId]: {
         ...prevMarks[studentId],
-        [field]: value,
+        marksObtained: value,
       },
     }));
   };
 
   const handleSubmitMarks = async () => {
     try {
-      // Iterate over each student and send their marks individually
       for (const studentId of Object.keys(marks)) {
-        const { marksObtained, grade } = marks[studentId];
+        const { marksObtained } = marks[studentId];
         const payload = {
-          student: studentId, // Ensure this is the correct student ID
+          student: studentId,
           exam: selectedExam,
-          marksObtained: marksObtained || 0,
-          grade: grade || '',
+          marksObtained: Number(marksObtained) || 0, // Ensure this is a number
         };
-
-        console.log("Payload being sent:", payload); // Log the payload for debugging
-
-        // Use the new controller logic to create or update marks
-        await api.post('/marks', payload); // Adjust the endpoint as necessary
+  
+        console.log("Payload being sent:", payload);
+  
+        await api.post('/marks', payload);
       }
-
+  
       setSnackbarMessage('Marks successfully updated!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -142,7 +139,7 @@ export const AddMarks = () => {
               <TableRow>
                 <TableCell>Student Name</TableCell>
                 <TableCell>Marks Obtained</TableCell>
-                <TableCell>Grade</TableCell>
+                <TableCell>Grade</TableCell> {/* Keep the Grade column */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -153,24 +150,13 @@ export const AddMarks = () => {
                     <TextField
                       type="number"
                       value={marks[student._id]?.marksObtained || ''} // Controlled input
-                      onChange={(e) => handleMarksChange(student._id, 'marksObtained', e.target.value)}
+                      onChange={(e) => handleMarksChange(student._id, e.target.value)}
                       placeholder="Enter marks"
                     />
                   </TableCell>
                   <TableCell>
-                    <Select
-                      value={marks[student._id]?.grade || ''} // Controlled input
-                      onChange={(e) => handleMarksChange(student._id, 'grade', e.target.value)}
-                    >
-                      <MenuItem value="A+">A+</MenuItem>
-                      <MenuItem value="A">A</MenuItem>
-                      <MenuItem value="B+">B+</MenuItem>
-                      <MenuItem value="B">B</MenuItem>
-                      <MenuItem value="C+">C+</MenuItem>
-                      <MenuItem value="C">C</MenuItem>
-                      <MenuItem value="D">D</MenuItem>
-                      <MenuItem value="F">F</MenuItem>
-                    </Select>
+                    {/* Display the grade from the backend */}
+                    {marks[student._id]?.grade || 'N/A'}
                   </TableCell>
                 </TableRow>
               ))}
