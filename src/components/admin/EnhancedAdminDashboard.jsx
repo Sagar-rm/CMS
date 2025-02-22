@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMediaQuery } from '@mui/material'
-import { Bell, LogOut, Home, Users, User, BookOpen, Briefcase, Calendar, Activity, DollarSign, Settings, MenuIcon, Zap } from 'lucide-react'
+import { Bell, LogOut, Home, Users, User, BookOpen, Briefcase, Calendar, Activity, DollarSign, Settings, MenuIcon, Zap, BookPlus  } from 'lucide-react'
 import { ThemeProvider } from '@mui/material/styles'
 
 import { 
@@ -22,6 +22,7 @@ import { ExamScheduling } from './ExamScheduling'
 import { ReportsAnalytics } from './ReportsAnalytics'
 import { FinancialManagement } from './FinancialManagement'
 import { SystemSettings } from './SystemSettings'
+import { AddMarks } from './MarksManagement'
 
 const EnhancedAdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
@@ -36,6 +37,7 @@ const EnhancedAdminDashboard = () => {
     { id: 'courses', label: 'Course Management', icon: BookOpen },
     { id: 'branches', label: 'Branch Management', icon: Briefcase },
     { id: 'exams', label: 'Exam Scheduling', icon: Calendar },
+    { id: 'marks', label: 'Marks Assignment', icon: BookPlus},
     { id: 'reports', label: 'Reports & Analytics', icon: Activity },
     { id: 'finance', label: 'Financial Management', icon: DollarSign },
     { id: 'settings', label: 'System Settings', icon: Settings },
@@ -187,6 +189,7 @@ const EnhancedAdminDashboard = () => {
               {activeSection === 'reports' && <ReportsAnalytics />}
               {activeSection === 'finance' && <FinancialManagement />}
               {activeSection === 'settings' && <SystemSettings />}
+              {activeSection === 'marks' && <AddMarks />}
             </motion.div>
           </AnimatePresence>
         </Box>

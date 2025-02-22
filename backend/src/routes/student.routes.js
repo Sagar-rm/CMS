@@ -35,5 +35,8 @@ router.route("/:id").put(
 
 // 🔹 Delete Student
 router.route("/:id").delete(verifyJWT, studentController.deleteUser);
+// 🔹 New Route to Get Students by Exam ID
+
+router.route("/exam").get(studentController.getStudentsByExamId); 
 
 export default router;

@@ -4,7 +4,7 @@ const gradeSchema = new Schema({
     student: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Student", 
-        required: true 
+        required: true
     },
     semester: { 
         type: Number, 

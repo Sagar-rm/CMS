@@ -26,6 +26,7 @@ import facultyRouter from "./routes/admin.routes.js";
 import subjectRouter from "./routes/subject.routes.js";
 import gradeRouter from "./routes/grade.routes.js";
 import examRouter from "./routes/exam.routes.js";
+import marksRouter from "./routes/marks.routers.js"
 
 // routes declaration
 app.use("/api/v1/student", studentRouter);
@@ -34,5 +35,6 @@ app.use("/api/v1/admin", facultyRouter);
 app.use("/api/v1/subject", subjectRouter);
 app.use("/api/v1/grade", gradeRouter);
 app.use("/api/v1/exam", examRouter);
+app.use("/api/v1/marks", marksRouter)
 
 export { app } 

@@ -1,89 +1,60 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
 import { Exam } from "../models/exam.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Add an exam result
-const addExamResult = asyncHandler(async (req, res) => {
-    const { student, subject, internalMarks, externalMarks } = req.body;
+/**
+ * Create a new exam
+ */
+export const createExam = asyncHandler(async (req, res, next) => {
+    const { subject, type, date, duration, maxMarks, scheduledBy } = req.body;
 
-    if (!student || !subject || internalMarks === undefined || externalMarks === undefined) {
-        throw new ApiError(400, "Student, subject, internal marks, and external marks are required");
-    }
-
-    // Calculate total marks
-    const totalMarks = internalMarks + externalMarks;
-
-    if (totalMarks > 100) {
-        throw new ApiError(400, "Total marks cannot exceed 100");
-    }
-
-    // Determine pass/fail status
-    const passed = totalMarks >= 48 && internalMarks > 0 && externalMarks > 0;
-
-    // Save exam result
-    const exam = await Exam.create({ student, subject, internalMarks, externalMarks, totalMarks, passed });
-
-    return res.status(201).json(new ApiResponse(201, exam, "Exam result added successfully"));
-});
-
-// Get all exams
-const getAllExams = asyncHandler(async (req, res) => {
-    const exams = await Exam.find({})
-        .populate("student", "fullName")
-        .populate("subject", "name");
-
-    return res.status(200).json(new ApiResponse(200, exams, "Exams fetched successfully"));
-});
-
-// Update an exam result
-const updateExamResult = asyncHandler(async (req, res) => {
-    const { student, subject, internalMarks, externalMarks } = req.body;
-    const { id } = req.params;
-
-    const exam = await Exam.findById(id);
-    if (!exam) {
-        throw new ApiError(404, "Exam result not found");
-    }
-
-    // Update fields
-    exam.student = student || exam.student;
-    exam.subject = subject || exam.subject;
-    exam.internalMarks = internalMarks !== undefined ? internalMarks : exam.internalMarks;
-    exam.externalMarks = externalMarks !== undefined ? externalMarks : exam.externalMarks;
-
-    // Recalculate total marks
-    exam.totalMarks = exam.internalMarks + exam.externalMarks;
-
-    if (exam.totalMarks > 100) {
-        throw new ApiError(400, "Total marks cannot exceed 100");
-    }
-
-    // Determine pass/fail status
-    exam.passed = exam.totalMarks >= 48 && exam.internalMarks > 0 && exam.externalMarks > 0;
-
+    const exam = new Exam({ subject, type, date, duration, maxMarks, scheduledBy });
     await exam.save();
 
-    return res.status(200).json(new ApiResponse(200, exam, "Exam result updated successfully"));
+    res.status(201).json(new ApiResponse(201, exam, "Exam created successfully"));
 });
 
-// Delete an exam result
-const deleteExamResult = asyncHandler(async (req, res) => {
+/**
+ * Get all exams
+ */
+export const getExams = asyncHandler(async (req, res, next) => {
+    const exams = await Exam.find().populate("subject scheduledBy");
+    res.status(200).json(new ApiResponse(200, exams, "Exams retrieved successfully"));
+});
+
+/**
+ * Get a single exam by ID
+ */
+export const getExamById = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
+    const exam = await Exam.findById(id).populate("subject scheduledBy");
 
-    const exam = await Exam.findById(id);
-    if (!exam) {
-        throw new ApiError(404, "Exam result not found");
-    }
+    if (!exam) return next(new ApiError(404, "Exam not found"));
 
-    await exam.deleteOne();
-
-    return res.status(200).json(new ApiResponse(200, null, "Exam result deleted successfully"));
+    res.status(200).json(new ApiResponse(200, exam, "Exam retrieved successfully"));
 });
 
-export const examController = {
-    addExamResult,
-    getAllExams,
-    updateExamResult,
-    deleteExamResult
-};
+/**
+ * Update an exam
+ */
+export const updateExam = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const updatedExam = await Exam.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!updatedExam) return next(new ApiError(404, "Exam not found"));
+
+    res.status(200).json(new ApiResponse(200, updatedExam, "Exam updated successfully"));
+});
+
+/**
+ * Delete an exam
+ */
+export const deleteExam = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const deletedExam = await Exam.findByIdAndDelete(id);
+
+    if (!deletedExam) return next(new ApiError(404, "Exam not found"));
+
+    res.status(200).json(new ApiResponse(200, deletedExam, "Exam deleted successfully"));
+});
