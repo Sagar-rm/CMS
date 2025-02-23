@@ -15,6 +15,7 @@ import {
   ListItemText,
   ListItemIcon,
   Chip,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +24,9 @@ import {
   TableRow,
   Button,
   Box,
+  Switch,
+  Select,
+  MenuItem,
   useMediaQuery,
   Drawer,
   Fab,
@@ -47,6 +51,7 @@ import {
   Calendar,
   CheckCircle,
   Clock,
+  Download,
   FileText,
   Bell,
   LogOut,
@@ -527,91 +532,335 @@ const AssignmentsSection = () => {
 
 const GradesSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const classes = [
+    { id: 1, name: "Mathematics 101", avgGrade: 85 },
+    { id: 2, name: "Physics 202", avgGrade: 78 },
+    { id: 3, name: "English Literature", avgGrade: 82 },
+    { id: 4, name: "Computer Science", avgGrade: 90 },
+    { id: 5, name: "World History", avgGrade: 88 },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
-        Grades
+        Grades Overview
       </Typography>
-      {/* Add your Grades section content here */}
-      <Typography variant="body1">This is the Grades section.</Typography>
+      <Grid container spacing={3}>
+        {classes.map((classItem) => (
+          <Grid item xs={12} md={6} key={classItem.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{classItem.name}</Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Average Grade: {classItem.avgGrade}%
+                </Typography>
+                <LinearProgress variant="determinate" value={classItem.avgGrade} sx={{ height: 10, borderRadius: 5 }} />
+                <Box sx={{ mt: 2 }}>
+                  <Button variant="contained" color="primary" startIcon={<FileText />}>
+                    View Detailed Grades
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </motion.div>
   )
 }
 
 const AttendanceSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const attendanceData = [
+    { class: "Mathematics 101", present: 28, total: 30 },
+    { class: "Physics 202", present: 23, total: 25 },
+    { class: "English Literature", present: 26, total: 28 },
+    { class: "Computer Science", present: 20, total: 22 },
+    { class: "World History", present: 25, total: 27 },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
-        Attendance
+        Attendance Overview
       </Typography>
-      {/* Add your Attendance section content here */}
-      <Typography variant="body1">This is the Attendance section.</Typography>
+      <Card>
+        <CardContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Class</TableCell>
+                  <TableCell align="right">Present</TableCell>
+                  <TableCell align="right">Total</TableCell>
+                  <TableCell align="right">Percentage</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {attendanceData.map((row) => (
+                  <TableRow key={row.class}>
+                    <TableCell component="th" scope="row">
+                      {row.class}
+                    </TableCell>
+                    <TableCell align="right">{row.present}</TableCell>
+                    <TableCell align="right">{row.total}</TableCell>
+                    <TableCell align="right">
+                      <LinearProgress
+                        variant="determinate"
+                        value={(row.present / row.total) * 100}
+                        sx={{ height: 10, borderRadius: 5 }}
+                      />
+                      {((row.present / row.total) * 100).toFixed(2)}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
 
 const ScheduleSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const schedule = [
+    { id: 1, class: "Mathematics 101", time: "9:00 AM - 10:30 AM", room: "Room 201", day: "Monday" },
+    { id: 2, class: "Physics 202", time: "11:00 AM - 12:30 PM", room: "Lab 101", day: "Tuesday" },
+    { id: 3, class: "English Literature", time: "2:00 PM - 3:30 PM", room: "Room 305", day: "Wednesday" },
+    { id: 4, class: "Computer Science", time: "1:00 PM - 2:30 PM", room: "Lab 202", day: "Thursday" },
+    { id: 5, class: "World History", time: "10:00 AM - 11:30 AM", room: "Room 401", day: "Friday" },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
-        Schedule
+        Weekly Schedule
       </Typography>
-      {/* Add your Schedule section content here */}
-      <Typography variant="body1">This is the Schedule section.</Typography>
+      <Card>
+        <CardContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Day</TableCell>
+                  <TableCell>Class</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Room</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {schedule.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.day}</TableCell>
+                    <TableCell>{item.class}</TableCell>
+                    <TableCell>{item.time}</TableCell>
+                    <TableCell>{item.room}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
 
 const ResourcesSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const resources = [
+    { id: 1, title: "Mathematics Textbook", type: "PDF", size: "15 MB", class: "Mathematics 101" },
+    { id: 2, title: "Physics Lab Manual", type: "PDF", size: "8 MB", class: "Physics 202" },
+    { id: 3, title: "English Literature Anthology", type: "EPUB", size: "12 MB", class: "English Literature" },
+    { id: 4, title: "Programming Tutorial Series", type: "ZIP", size: "500 MB", class: "Computer Science" },
+    { id: 5, title: "World History Atlas", type: "PDF", size: "20 MB", class: "World History" },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
-        Resources
+        Teaching Resources
       </Typography>
-      {/* Add your Resources section content here */}
-      <Typography variant="body1">This is the Resources section.</Typography>
+      <Card>
+        <CardContent>
+          <List>
+            {resources.map((resource) => (
+              <ListItem key={resource.id}>
+                <ListItemIcon>
+                  <Book />
+                </ListItemIcon>
+                <ListItemText
+                  primary={resource.title}
+                  secondary={`${resource.type} • ${resource.size} • ${resource.class}`}
+                />
+                <Button variant="contained" size="small" startIcon={<Download />}>
+                  Download
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
 
 const CommunicationsSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const messages = [
+    { id: 1, from: "John Doe", subject: "Question about homework", date: "2023-06-10", read: false },
+    { id: 2, from: "Jane Smith", subject: "Parent-teacher meeting", date: "2023-06-09", read: true },
+    { id: 3, from: "Admin Office", subject: "Staff meeting reminder", date: "2023-06-08", read: true },
+    { id: 4, from: "Mike Johnson", subject: "Field trip permission", date: "2023-06-07", read: false },
+    { id: 5, from: "Sarah Williams", subject: "Student progress report", date: "2023-06-06", read: true },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
         Communications
       </Typography>
-      {/* Add your Communications section content here */}
-      <Typography variant="body1">This is the Communications section.</Typography>
+      <Card>
+        <CardContent>
+          <List>
+            {messages.map((message) => (
+              <ListItem key={message.id} sx={{ bgcolor: message.read ? "transparent" : "action.hover" }}>
+                <ListItemIcon>
+                  <MessageCircle />
+                </ListItemIcon>
+                <ListItemText primary={message.subject} secondary={`From: ${message.from} • ${message.date}`} />
+                <Button variant="outlined" size="small">
+                  View
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
 
 const ReportsSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const reports = [
+    {
+      id: 1,
+      title: "Class Performance Report",
+      description: "Overview of student performance in all classes",
+      date: "2023-06-01",
+    },
+    {
+      id: 2,
+      title: "Attendance Summary",
+      description: "Monthly attendance report for all classes",
+      date: "2023-06-05",
+    },
+    {
+      id: 3,
+      title: "Grade Distribution Analysis",
+      description: "Analysis of grade distribution across subjects",
+      date: "2023-06-10",
+    },
+    { id: 4, title: "Student Progress Report", description: "Individual student progress reports", date: "2023-06-15" },
+    {
+      id: 5,
+      title: "Resource Utilization Report",
+      description: "Usage statistics for teaching resources",
+      date: "2023-06-20",
+    },
+  ]
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
         Reports
       </Typography>
-      {/* Add your Reports section content here */}
-      <Typography variant="body1">This is the Reports section.</Typography>
+      <Grid container spacing={3}>
+        {reports.map((report) => (
+          <Grid item xs={12} md={6} key={report.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{report.title}</Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  {report.description}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  Generated on: {report.date}
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <Button variant="contained" color="primary" startIcon={<Download />}>
+                    Download Report
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </motion.div>
   )
 }
 
 const SettingsSection = () => {
   const animatedEntry = useAnimatedEntry()
+  const [settings, setSettings] = useState({
+    notifications: true,
+    emailAlerts: false,
+    darkMode: false,
+    language: "English",
+  })
+
+  const handleSettingChange = (setting, value) => {
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      [setting]: value,
+    }))
+  }
+
   return (
     <motion.div {...animatedEntry}>
       <Typography variant="h4" gutterBottom>
         Settings
       </Typography>
-      {/* Add your Settings section content here */}
-      <Typography variant="body1">This is the Settings section.</Typography>
+      <Card>
+        <CardContent>
+          <List>
+            <ListItem>
+              <ListItemText primary="Enable Notifications" />
+              <Switch
+                checked={settings.notifications}
+                onChange={(e) => handleSettingChange("notifications", e.target.checked)}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Email Alerts" />
+              <Switch
+                checked={settings.emailAlerts}
+                onChange={(e) => handleSettingChange("emailAlerts", e.target.checked)}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Dark Mode" />
+              <Switch checked={settings.darkMode} onChange={(e) => handleSettingChange("darkMode", e.target.checked)} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Language" />
+              <Select
+                value={settings.language}
+                onChange={(e) => handleSettingChange("language", e.target.value)}
+                sx={{ minWidth: 120 }}
+              >
+                <MenuItem value="English">English</MenuItem>
+                <MenuItem value="Spanish">Spanish</MenuItem>
+                <MenuItem value="French">French</MenuItem>
+              </Select>
+            </ListItem>
+          </List>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
