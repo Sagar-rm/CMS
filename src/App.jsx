@@ -14,7 +14,7 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
-// import AdminDashboard from './components/admin/AdminDashboard';
+import TeacherDashboard from './components/teacher/TeacherOverview';
 import EnhancedStudentDashboard from './components/student/StudentOverview';
 import AdminDashboard from './components/admin/EnhancedAdminDashboard';
 
@@ -122,6 +122,8 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/student" element={<EnhancedStudentDashboard />} />
+          <Route path="/teacher" element={<TeacherDashboard />} />
+
 
             
         </Routes>
