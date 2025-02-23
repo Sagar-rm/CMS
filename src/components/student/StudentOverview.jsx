@@ -140,7 +140,7 @@ const EnhancedStudentDashboard = () => {
     <Box sx={{ bgcolor: 'background.default', height: '100%' }}>
       <Toolbar>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: 'primary.main' }}>
-          EduPulse
+          EduPulse Student
         </Typography>
       </Toolbar>
       <List>
