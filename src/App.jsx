@@ -15,7 +15,7 @@ import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
 import TeacherDashboard from './components/teacher/TeacherOverview';
-import EnhancedStudentDashboard from './components/student/StudentOverview';
+import EnhancedStudentDashboard from './components/student/EnhancedStudentDashboard';
 import AdminDashboard from './components/admin/EnhancedAdminDashboard';
 
 
