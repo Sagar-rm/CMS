@@ -3,7 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 // Import student-specific components
-import StudentOverview from '../components/student/StudentOverview'
+import StudentOverview from '../components/student/OverviewSection'
 import CourseEnrollment from '../components/student/CourseEnrollment'
 import Grades from '../components/student/Grades'
 import Attendance from '../components/student/Attendance'
