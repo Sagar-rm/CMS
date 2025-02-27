@@ -15,7 +15,9 @@ import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Login from './pages/login';
 import TeacherDashboard from './components/teacher/TeacherOverview';
-import EnhancedStudentDashboard from './components/student/StudentOverview';
+import EnhancedStudentDashboard from './components/student/EnhancedStudentDashboard';
+import EnhancedStudentDashboard1 from './components/student/StudentOverview';
+
 import AdminDashboard from './components/admin/EnhancedAdminDashboard';
 
 
@@ -123,6 +125,8 @@ function AppContent() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/student" element={<EnhancedStudentDashboard />} />
           <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/student1" element={<EnhancedStudentDashboard1 />} />
+
 
 
             
