@@ -1143,13 +1143,12 @@ const SettingsSection = () => {
     branch: '',
   });
 
-  // Fetch current user data from the backend
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.post("/student/me"); // Adjust URL as per your API
+      const response = await api.post("/student/me"); 
       console.log(response.data.data)
       setProfileData({
-        avatar: `http://localhost:8000/${response.data.data.profile}` || '', // Construct full URL        name: response.data.data.fullName || '',
+        avatar: `http://localhost:8000/${response.data.data.profile}` || '',
         name: response.data.data.fullName || '',
         regNo: response.data.data.registerNumber || '',
         phoneNo: response.data.data.phoneNumber || '',
