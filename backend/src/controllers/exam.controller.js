@@ -7,9 +7,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
  * Create a new exam
  */
 export const createExam = asyncHandler(async (req, res, next) => {
-    const { subject, type, date, duration, maxMarks, scheduledBy } = req.body;
+    const { examName, subject, type, date, duration, maxMarks, scheduledBy } = req.body;
 
-    const exam = new Exam({ subject, type, date, duration, maxMarks, scheduledBy });
+    const exam = new Exam({ examName, subject, type, date, duration, maxMarks, scheduledBy });
     await exam.save();
 
     res.status(201).json(new ApiResponse(201, exam, "Exam created successfully"));

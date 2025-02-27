@@ -37,6 +37,7 @@ export const ExamScheduling = () => {
   const [isAddExamModalOpen, setIsAddExamModalOpen] = useState(false);
   const [isEditExamModalOpen, setIsEditExamModalOpen] = useState(false);
   const [newExam, setNewExam] = useState({
+    examName: '', // New field for exam name
     subject: '',
     type: 'CIE',
     date: new Date(),
@@ -91,6 +92,7 @@ export const ExamScheduling = () => {
       setIsAddExamModalOpen(false);
       // Reset newExam state
       setNewExam({
+        examName: '', // Reset examName
         subject: '',
         type: 'CIE',
         date: new Date(),
@@ -172,6 +174,7 @@ export const ExamScheduling = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Exam Name</TableCell> {/* New column for Exam Name */}
                 <TableCell>Subject</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Date</TableCell>
@@ -184,6 +187,7 @@ export const ExamScheduling = () => {
             <TableBody>
               {exams.map((exam) => (
                 <TableRow key={exam._id} hover>
+                  <TableCell>{exam.examName}</TableCell> {/* Display Exam Name */}
                   <TableCell>{exam.subject.name}</TableCell>
                   <TableCell>{exam.type}</TableCell>
                   <TableCell>{new Date(exam.date).toLocaleDateString()}</TableCell>
@@ -220,6 +224,13 @@ export const ExamScheduling = () => {
           <DialogTitle>Add New Exam</DialogTitle>
           <Divider style={{ margin: '8px 0' }} />
           <DialogContent>
+            <TextField
+              margin="dense"
+              label="Exam Name" // New input for Exam Name
+              fullWidth
+              value={newExam.examName}
+              onChange={(e) => setNewExam({ ...newExam, examName: e.target.value })}
+            />
             <FormControl fullWidth margin="dense">
               <InputLabel>Subject</InputLabel>
               <Select
@@ -291,6 +302,13 @@ export const ExamScheduling = () => {
           <DialogTitle>Edit Exam</DialogTitle>
           <Divider style={{ margin: '8px 0' }} />
           <DialogContent>
+            <TextField
+              margin="dense"
+              label="Exam Name" // New input for Exam Name
+              fullWidth
+              value={editingExam?.examName || ''} // Ensure it defaults to an empty string if undefined
+              onChange={(e) => setEditingExam({ ...editingExam, examName: e.target.value })}
+            />
             <FormControl fullWidth margin="dense">
               <InputLabel>Subject</InputLabel>
               <Select

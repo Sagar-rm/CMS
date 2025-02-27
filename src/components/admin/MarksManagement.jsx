@@ -126,7 +126,7 @@ export const AddMarks = () => {
         <Select value={selectedExam} onChange={handleExamChange}>
           {exams.map((exam) => (
             <MenuItem key={exam._id} value={exam._id}>
-              {exam.subject.name} - {exam.type}
+              {exam.subject.name} - {exam.examName}
             </MenuItem>
           ))}
         </Select>
